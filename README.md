@@ -3,6 +3,12 @@ Jupyter::Kernel for Perl 6
 
 [![Build Status](https://travis-ci.org/bduggan/p6-jupyter-kernel.svg)](https://travis-ci.org/bduggan/p6-jupyter-kernel)
 
+This is a kernel for using Jupyter notebooks with Perl 6.
+
+Jupyter notebooks provide a web-based (or console-based) REPL for running
+code and serializing input and output.
+
+Here's an example notebook: [hello-world](eg/hello-world.ipynb).
 
 QUICK START
 -----------
