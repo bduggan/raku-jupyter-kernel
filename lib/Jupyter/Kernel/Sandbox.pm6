@@ -34,7 +34,7 @@ class Jupyter::Kernel::Sandbox is export {
             :outer_ctx($!save_ctx),
         );
 
-        if nqp::defined($*MAIN_CTX) {
+        if $*MAIN_CTX {
             $!save_ctx := $*MAIN_CTX;
         }
 
