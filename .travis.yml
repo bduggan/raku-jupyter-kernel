@@ -6,3 +6,7 @@ install:
   - rakudobrew build zef
   - zef install --depsonly .
 sudo: false
+addons:
+  apt:
+    packages:
+      - libzmq-dev
