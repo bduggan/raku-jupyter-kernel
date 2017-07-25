@@ -1,3 +1,9 @@
+Jupyter::Kernel for Perl 6
+----------------
+
+[![Build Status](https://travis-ci.org/bduggan/p6-jupyter-kernel.svg)](https://travis-ci.org/bduggan/p6-jupyter-kernel)
+
+
 QUICK START
 -----------
 
