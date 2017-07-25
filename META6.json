@@ -1,0 +1,23 @@
+{
+    "name" : "Jupyter::Kernel",
+    "source-url" : "git://github.com/bduggan/p6-jupyter-kernel.git",
+    "perl" : "6.c",
+    "build-depends" : [ ],
+    "provides" : {
+        "Jupyter::Kernel" : "lib/Jupyter/Kernel.pm6",
+        "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
+        "Jupyter::Kernel::Service" : "lib/Jupyter/Kernel/Service.pm6"
+    },
+    "tags" : [ ],
+    "depends" : [
+        "UUID", "Log::Async", "Net::ZMQ", "JSON::Tiny",
+        "Digest::HMAC", "Digest"
+    ],
+    "description" : "Perl 6 Kernel for Jupyter Notebooks",
+    "test-depends" : [ ],
+    "version" : "0.0.1",
+    "license" : "Artistic-2.0",
+    "authors" : [
+        "Brian Duggan"
+    ]
+}
