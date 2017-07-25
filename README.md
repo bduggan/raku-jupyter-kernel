@@ -25,7 +25,9 @@ jupyter-notebook
 Then select new -> perl6 and you're there!
 
 You can try it in the console like this:
-    jupyter-console --kernel=perl6
+```
+jupyter-console --kernel=perl6
+```
 
 SEE ALSO
 --------
