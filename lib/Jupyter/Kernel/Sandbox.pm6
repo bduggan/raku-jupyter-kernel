@@ -32,6 +32,7 @@ class Jupyter::Kernel::Sandbox is export {
             $code,
             my $exception,
             :outer_ctx($!save_ctx),
+            :interactive(1)
         );
 
         if $*MAIN_CTX {
