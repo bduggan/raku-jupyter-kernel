@@ -37,6 +37,5 @@ is $res.output, "2", 'array';
 $res = $r.eval('my @bound := <1 2 3>;');
 ok !$res.exception, 'bound an array';
 $res = $r.eval('@bound[1]');
-todo 'fix this';
 is $res.output, "2", 'bound array';
 
