@@ -37,7 +37,7 @@ method setup {
     self
 }
 
-my $separator = buf8.new: "<IDS|MSG>".encode;
+constant $separator = buf8.new: "<IDS|MSG>".encode;
 
 method !hmac(@m) {
     hmac-hex $!key, @m[0] ~ @m[1] ~ @m[2] ~ @m[3], &sha256;
