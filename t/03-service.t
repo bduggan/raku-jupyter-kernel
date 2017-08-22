@@ -8,7 +8,7 @@ use Log::Async;
 
 use Test;
 
-plan 3;
+plan 5;
 
 my $VERBOSE = %*ENV<JUP_VERBOSE>;
 
@@ -39,15 +39,16 @@ my $d = Jupyter::Kernel::Service.new:
 
 ok $d.setup, 'setup worked for dealer';
 
-my $msg;
+my $msg = Channel.new;
 
-my $p = start {
-    $msg = $s.read-message;
+start loop {
+    $msg.send: $s.read-message;
 }
 
 $d.send('other', 'xyzzy');
+$d.send('other', 'hello');
+is $msg.receive<content>, "xyzzy", 'router-dealer message sent and received';
+is $msg.receive<content>, "hello", 'router-dealer message sent and received';
 
-sleep 1;
-
-is $msg<content>, "xyzzy", 'router-dealer message sent and received';
-
+$d.send('other','π');
+is $msg.receive<content>, "π", 'router-dealer message sent and received';
