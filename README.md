@@ -35,6 +35,16 @@ Which is more convenient as a shell alias:
 alias iperl6='jupyter-console --kernel=perl6'
 ```
 
+Note that to configure the above, you might want to run
+```
+jupyter-console --generate-config
+```
+
+Then, for instance, you can customize the highlighting with:
+```
+c.ZMQTerminalInteractiveShell.highlighting_style = 'vim'
+```
+
 SEE ALSO
 --------
 
