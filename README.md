@@ -29,6 +29,12 @@ You can try it in the console like this:
 jupyter-console --kernel=perl6
 ```
 
+Which is more convenient as a shell alias:
+
+```
+alias iperl6='jupyter-console --kernel=perl6'
+```
+
 SEE ALSO
 --------
 

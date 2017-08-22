@@ -2,6 +2,7 @@ unit class Jupyter::Kernel::Service;
 
 use Net::ZMQ;
 use Net::ZMQ::Constants;
+use Net::ZMQ::Message;
 use UUID;
 use Log::Async;
 use Digest::HMAC;
@@ -37,8 +38,6 @@ method setup {
     self
 }
 
-constant $separator = buf8.new: "<IDS|MSG>".encode;
-
 method !hmac(@m) {
     hmac-hex $!key, @m[0] ~ @m[1] ~ @m[2] ~ @m[3], &sha256;
 }
@@ -47,6 +46,7 @@ method read-message {
     my @identities;
     my @message;
     my $separated = False;
+    my $separator = buf8.new: "<IDS|MSG>".encode;
     while $!socket.receive.data() -> $data {
         if !$separated {
             if $data eqv $separator  {
@@ -83,21 +83,36 @@ method send($type, $message, :$metadata = {} ) {
         version => '5.0',
     };
 
-    my @parts = ( $header, $!parent<header> // {}, $metadata, $message
-        ).map({ to-json($_).encode });
-    my $hmac = self!hmac(@parts).encode;
+    my @parts = (
+        $header,
+        $!parent<header> // {},
+        $metadata,
+        $message
+    ).map({
+       to-json($_)
+    });
+    my $hmac = self!hmac(@parts);
 
-    for |( @$identities.grep(*.defined) ), $separator, $hmac, |@parts[0..2] {
-        $!socket.send: $_, ZMQ_SNDMORE
+    for |( @$identities.grep(*.defined) ) {
+        my $data = $_;
+        my $msg = Net::ZMQ::Message.new(:$data);
+        $!socket.send: $msg, ZMQ_SNDMORE;
     }
-    $!socket.send: @parts[3];
+    my $sep = "<IDS|MSG>";
+    for $sep, $hmac, |@parts[0..2] {
+        my $data = $_;
+        my $msg = Net::ZMQ::Message.new(message => $data);
+        $!socket.send: $msg, ZMQ_SNDMORE;
+    }
+    my $msg = Net::ZMQ::Message.new(message => @parts[3]);
+    $!socket.send: $msg;
 }
 
 method start-heartbeat {
     loop {
         try zmq_device(ZMQ_FORWARDER, $!socket, $!socket);
         error $! if $!;
-        info 'heartbeat';
+        debug 'heartbeat';
         sleep 1;
     }
 }

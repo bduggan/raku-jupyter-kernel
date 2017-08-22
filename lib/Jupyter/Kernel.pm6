@@ -43,7 +43,7 @@ method run {
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
 
-    start loop {
+    start {
         $hb.start-heartbeat;
     }
 
@@ -99,10 +99,10 @@ method run {
                 my $code = ~ $msg<content><code>;
                 my $result = $sandbox.eval($code);
                 my $status = 'complete';
-                debug $result.exception.gist;
+                debug "exception from sandbox: { .gist }" with $result.exception;
                 $status = 'invalid' if $result.exception;
                 $status = 'incomplete' if $result.incomplete;
-                debug "sending completion status $status";
+                debug "sending is_complete_reply: $status";
                 $shell.send: 'is_complete_reply', { :$status };
             }
             when 'shutdown_request' {
