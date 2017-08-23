@@ -1,7 +1,8 @@
 Jupyter::Kernel for Perl 6
 ----------------
-
 [![Build Status](https://travis-ci.org/bduggan/p6-jupyter-kernel.svg)](https://travis-ci.org/bduggan/p6-jupyter-kernel)
+
+[![asciicast](https://asciinema.org/a/rdezRa5QQMbxi4L5D5zEtj6Y0.png)](https://asciinema.org/a/rdezRa5QQMbxi4L5D5zEtj6Y0?autoplay=1)
 
 This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter notebooks.
 
