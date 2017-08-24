@@ -2,7 +2,7 @@
 
 use lib 'lib';
 
-use Net::ZMQ::Constants;
+use Net::ZMQ4::Constants;
 use Jupyter::Kernel::Service;
 use Log::Async;
 
@@ -42,7 +42,8 @@ ok $d.setup, 'setup worked for dealer';
 my $msg = Channel.new;
 
 start loop {
-    $msg.send: $s.read-message;
+    $msg.send: try $s.read-message;
+    note $! if $!;
 }
 
 $d.send('other', 'xyzzy');
@@ -52,3 +53,5 @@ is $msg.receive<content>, "hello", 'router-dealer message sent and received';
 
 $d.send('other','π');
 is $msg.receive<content>, "π", 'router-dealer message sent and received';
+
+# vim: ft=perl6

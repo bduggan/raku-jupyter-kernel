@@ -10,7 +10,7 @@
     },
     "tags" : [ ],
     "depends" : [
-        "UUID", "Log::Async", "Net::ZMQ", "JSON::Tiny",
+        "UUID", "Log::Async", "Net::ZMQ:ver<0.8>", "JSON::Tiny",
         "Digest::HMAC", "Digest"
     ],
     "description" : "Perl 6 Kernel for Jupyter Notebooks",
