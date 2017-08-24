@@ -2,7 +2,7 @@
 
 use lib 'lib';
 
-use Net::ZMQ::Constants;
+use Net::ZMQ4::Constants;
 use Jupyter::Kernel::Service;
 use Log::Async;
 
