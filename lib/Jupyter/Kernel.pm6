@@ -3,7 +3,7 @@ unit class Jupyter::Kernel;
 
 use JSON::Tiny;
 use Log::Async;
-use Net::ZMQ::Constants;
+use Net::ZMQ4::Constants;
 use UUID;
 
 use Jupyter::Kernel::Service;
