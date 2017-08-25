@@ -23,10 +23,13 @@ has $.kernel-info = {
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
 }
 
-method run {
+method resources {
+    return %?RESOURCES;
+}
+
+method run($spec-file!) {
     info 'starting jupyter kernel';
 
-    my $spec-file = @*ARGS[0] or die "no spec file";
     my $spec = from-json($spec-file.IO.slurp);
     my $url = "$spec<transport>://$spec<ip>";
     my $key = $spec<key> or die "no key";
@@ -124,4 +127,3 @@ method run {
 
     loop { }
 }
-

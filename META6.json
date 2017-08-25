@@ -8,6 +8,7 @@
         "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
         "Jupyter::Kernel::Service" : "lib/Jupyter/Kernel/Service.pm6"
     },
+    "resources" : [ "logo-32x32.png", "logo-64x64.png" ],
     "tags" : [ ],
     "depends" : [
         "UUID", "Log::Async", "Net::ZMQ:ver<0.8>", "JSON::Tiny",

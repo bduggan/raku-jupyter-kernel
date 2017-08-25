@@ -41,17 +41,17 @@ of the `bin/` directory which has `jupyter-kernel.p6`.  Make
 sure that is in your `PATH`.
 
 ### Configuration
-`jupyter --paths` will tell you where to put configuration
-files.  On Ubuntu, it's `~/.local/share/jupyter/kernels/perl6/`.
-
-A sample configuration file is available [here](https://github.com/bduggan/p6-jupyter-kernel/blob/master/etc/kernel.json).
-
-So:
+To generate a configuration directory, and to install a kernel
+config file and icons into the default location:
 ```
-mkdir -p ~/.local/share/jupyter/kernels/perl6/
-cd ~/.local/share/jupyter/kernels/perl6/
-wget https://raw.githubusercontent.com/bduggan/p6-jupyter-kernel/master/etc/kernel.json
+jupyter-kernel.p6 --generate-config
 ```
+* Use `--location=XXX` to specify another location.
+* Use `--force` to override an existing configuration.
+
+By default a log file `jupyter.log` will be written in the
+current directory.  An option `--logfile=XXX` argument can be
+added to the kernel configuration file to change this.
 
 ### Running
 Start the web UI with:
@@ -73,28 +73,14 @@ alias iperl6='jupyter-console --kernel=perl6'
 
 SEE ALSO
 --------
-
-https://github.com/dsblank/simple_kernel
+https://github.com/timo/iperl6kernel
 
 http://andrew.gibiansky.com/blog/ipython/ipython-kernels/
 
-https://github.com/timo/iperl6kernel
+https://github.com/dsblank/simple_kernel
 
-CREDITS
+THANKS
 --------
-Some portions of this code were taken from timo's excellent
-iperl6kernel module.
+Matt Oates
 
-RANDOM NOTES
--------------
-In iTerm2 on OS/X, the default syntax highlighting colors in the
-console can be hard to read and hard to change.  One way to change
-them is:
-```
-jupyter-console --generate-config
-```
-Then set:
-```
-c.ZMQTerminalInteractiveShell.highlighting_style = 'vim'
-```
-or use something other than iTerm2.
+Timo Paulssen
