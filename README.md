@@ -14,26 +14,58 @@ Here's an example notebook: [hello-world](eg/hello-world.ipynb).
 QUICK START
 -----------
 
-```
-zef install --deps-only .
-pip install jupyter
-jupyter --paths
-# Look for a directory in the 'config' section of the output,
-# and use that below.
-mkdir -p ~/.local/share/jupyter/kernels/perl6/
-cp etc/kernel.json ~/.local/share/jupyter/kernels/perl6/
-export PATH=$PATH:`pwd`/bin
-export PERL6LIB=`pwd`/lib
-jupyter-notebook
-```
-Then select new -> perl6 and you're there!
+### Installation
+You'll need to install zmq.  Note that currently, version 4.1 is
+recommended by Net::ZMQ (though 4.2 is installed by, e.g. homebrew).
+If you run into stability issues, you may need to downgrade.
 
-You can try it in the console like this:
+```
+brew install zmq           # on OS/X
+apt-get install libzmq-dev # on Ubuntu
+```
+
+You'll also want jupyter, for the front end:
+
+```
+pip install jupyter
+```
+
+Finally, install `Jupyter::Kernel`:
+
+```
+zef install Jupyter::Kernel
+```
+
+At the end of the above installation, you'll see the location
+of the `bin/` directory which has `jupyter-kernel.p6`.  Make
+sure that is in your `PATH`.
+
+### Configuration
+`jupyter --paths` will tell you where to put configuration
+files.  On Ubuntu, it's `~/.local/share/jupyter/kernels/perl6/`.
+
+A sample configuration file is available [here](https://github.com/bduggan/p6-jupyter-kernel/blob/master/etc/kernel.json).
+
+So:
+```
+mkdir -p ~/.local/share/jupyter/kernels/perl6/
+cd ~/.local/share/jupyter/kernels/perl6/
+wget https://raw.githubusercontent.com/bduggan/p6-jupyter-kernel/master/etc/kernel.json
+```
+
+### Running
+Start the web UI with:
+```
+jupyter-notebook
+Then select new -> perl6.
+```
+
+You can also use it in the console like this:
 ```
 jupyter-console --kernel=perl6
 ```
 
-Which is more convenient as a shell alias:
+Or make a handy shell alias:
 
 ```
 alias iperl6='jupyter-console --kernel=perl6'
