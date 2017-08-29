@@ -17,8 +17,11 @@ QUICK START
 ```
 zef install --deps-only .
 pip install jupyter
-cp etc/kernel.json ~/.local/share/jupyter/kernels/perl6
-# (or see 'jupyter --paths')
+jupyter --paths
+# Look for a directory in the 'config' section of the output,
+# and use that below.
+mkdir -p ~/.local/share/jupyter/kernels/perl6/
+cp etc/kernel.json ~/.local/share/jupyter/kernels/perl6/
 export PATH=$PATH:`pwd`/bin
 export PERL6LIB=`pwd`/lib
 jupyter-notebook
