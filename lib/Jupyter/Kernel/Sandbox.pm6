@@ -10,6 +10,20 @@ my class Result {
     has Bool $.incomplete;
     has $.stdout;
     has $.stderr;
+    method !mime-type($str) {
+        given $str {
+            when /:i ^ '<svg' / {
+                return 'image/svg+xml';
+            }
+        }
+        return 'text/plain';
+    }
+    method stdout-mime-type {
+        return self!mime-type($.stdout);
+    }
+    method output-mime-type {
+        return self!mime-type($.output);
+    }
 }
 
 class Jupyter::Kernel::Sandbox is export {

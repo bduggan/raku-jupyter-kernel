@@ -78,11 +78,17 @@ method run($spec-file!) {
                 $status = 'error' with $result.exception;
                 $iopub.send: 'execute_input', { :$code, :$execution_count };
                 if $result.stdout {
-                    $iopub.send: 'stream', { :text( $result.stdout ), :name<stdout> };
+                    if $result.stdout-mime-type eq 'text/plain' {
+                        $iopub.send: 'stream', { :text( $result.stdout ), :name<stdout> };
+                    } else {
+                        $iopub.send: 'display_data', {
+                            :data( $result.stdout-mime-type => $result.stdout );
+                        }
+                    }
                 }
                 $iopub.send: 'execute_result',
                              { :$execution_count,
-                                "data" => {'text/plain' => $result.output},
+                               :data( $result.output-mime-type => $result.output ),
                              },
                              :metadata({});
                 $iopub.send: 'status', { :execution_state<idle>, }
