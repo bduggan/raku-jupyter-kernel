@@ -86,7 +86,7 @@ class Jupyter::Kernel::Sandbox is export {
             }
             my $res = self.eval($var ~ '.^methods(:all).map({.name}).join(" ")', :no-persist );
             if !$res.exception && !$res.incomplete {
-                my @methods = $res.output-raw.split(' ');
+                my @methods = $res.output-raw.split(' ').unique;
                 return $prefix.chars, @methods.grep( { / ^ "$last" / } ).sort;
             }
         }
