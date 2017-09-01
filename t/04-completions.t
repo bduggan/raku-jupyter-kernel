@@ -17,8 +17,8 @@ is $pos, 1, 'offset';
 
 my $res = $r.eval(q[my $x = 'hello'; $x]);
 is $res.output, 'hello', 'output';
-($pos,$completions) = $r.completions('$x.');
-is-deeply $completions, 'hello'.^methods(:all).map({.name}).unique.sort, 'got methods for str';
+($pos,$completions) = $r.completions('$x.pe');
+is-deeply $completions, <perl perlseen permutations>, 'autocomplete for a string';
 
 $res = $r.eval(q|class Foo { method barglefloober { ... } }; my $y = Foo.new;|);
 is $res.output, 'Foo.new', 'declared class';
