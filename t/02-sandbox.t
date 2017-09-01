@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 24;
+plan 27;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -39,7 +39,7 @@ $res = $r.eval('my @bound := <1 2 3>;');
 ok !$res.exception, 'bound an array';
 $res = $r.eval('@bound[1]');
 is $res.output, "2", 'bound array';
-is $res.output-mime-type, 'text/plain';
+is $res.output-mime-type, 'text/plain', 'mime type';
 
 $res = $r.eval('say "<svg></svg>"');
 is $res.stdout, "<svg></svg>\n", 'generated svg on stdout';
@@ -51,3 +51,11 @@ is $res.output-mime-type, 'image/svg+xml', 'svg output mime type';
 
 $res = $r.eval('Any');
 is $res.output.perl, '"(Any)"', 'Any works';
+
+$res = $r.eval('die');
+is $res.output, 'Died', 'Die trapped';
+
+$res = $r.eval('sub foo { ... }; foo;');
+is $res.output, 'Stub code executed', 'trapped sub call that died';
+
+ok 1, 'still here';
