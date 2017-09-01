@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 17;
+plan 23;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -19,6 +19,7 @@ my $res = $r.eval('say "hello"');
 ok !$res.incomplete, 'not incomplete';
 ok $res.output, 'sent to stdout';
 is $res.stdout, "hello\n", 'right value on stdout';
+is $res.stdout-mime-type, 'text/plain', 'right mime-type on stdout';
 
 $res = $r.eval('floobody doop');
 ok $res.exception, 'caught exception';
@@ -38,4 +39,12 @@ $res = $r.eval('my @bound := <1 2 3>;');
 ok !$res.exception, 'bound an array';
 $res = $r.eval('@bound[1]');
 is $res.output, "2", 'bound array';
+is $res.output-mime-type, 'text/plain';
 
+$res = $r.eval('say "<svg></svg>"');
+is $res.stdout, "<svg></svg>\n", 'generated svg on stdout';
+is $res.stdout-mime-type, 'image/svg+xml', 'svg mime type on stdout';
+
+$res = $r.eval('"<svg></svg>";');
+is $res.output, '<svg></svg>', 'generated svg output';
+is $res.output-mime-type, 'image/svg+xml', 'svg output mime type';
