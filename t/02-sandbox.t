@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 23;
+plan 24;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -48,3 +48,6 @@ is $res.stdout-mime-type, 'image/svg+xml', 'svg mime type on stdout';
 $res = $r.eval('"<svg></svg>";');
 is $res.output, '<svg></svg>', 'generated svg output';
 is $res.output-mime-type, 'image/svg+xml', 'svg output mime type';
+
+$res = $r.eval('Any');
+is $res.output.perl, '"(Any)"', 'Any works';

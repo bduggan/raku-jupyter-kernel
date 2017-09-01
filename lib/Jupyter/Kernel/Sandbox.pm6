@@ -11,12 +11,12 @@ my class Result {
     has $.stdout;
     has $.stderr;
     method !mime-type($str) {
-        given $str {
+        return do given $str {
             when /:i ^ '<svg' / {
-                return 'image/svg+xml';
+                'image/svg+xml';
             }
+            default { 'text/plain' }
         }
-        return 'text/plain';
     }
     method stdout-mime-type {
         return self!mime-type($.stdout);
