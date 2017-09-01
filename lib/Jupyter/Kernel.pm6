@@ -106,13 +106,25 @@ method run($spec-file!) {
             }
             when 'is_complete_request' {
                 my $code = ~ $msg<content><code>;
-                my $result = $sandbox.eval($code);
+                my $result = $sandbox.eval($code, :no-persist);
                 my $status = 'complete';
                 debug "exception from sandbox: { .gist }" with $result.exception;
                 $status = 'invalid' if $result.exception;
                 $status = 'incomplete' if $result.incomplete;
                 debug "sending is_complete_reply: $status";
                 $shell.send: 'is_complete_reply', { :$status };
+            }
+            when 'complete_request' {
+                my $code = ~$msg<content><code>;
+                my $cursor_end = $msg<content><cursor_pos>;
+                my (Int $cursor_start, $completions) = $sandbox.completions($code);
+                $shell.send: 'complete_reply',
+                  { matches => $completions,
+                    :$cursor_end,
+                    :$cursor_start,
+                    metadata => {},
+                    status => 'ok'
+                  }
             }
             when 'shutdown_request' {
                 my $restart = $msg<content><restart>;
