@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 12;
+plan 13;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -21,6 +21,7 @@ is $res.output, 'hello', 'output';
 is-deeply $completions, 'hello'.^methods(:all).map({.name}).sort, 'got methods for str';
 
 $res = $r.eval(q|class Foo { method barglefloober { ... } }; my $y = Foo.new;|);
+is $res.output, 'Foo.new', 'declared class';
 ($pos,$completions) = $r.completions('$y.barglefl');
 is-deeply $completions, $( 'barglefloober', ) , 'Declared a class and completion was a method';
 
