@@ -1,4 +1,6 @@
 language: perl6
+env:
+  - MVM_SPESH_DISABLE=1
 perl6:
   - latest
   - 2017.08
