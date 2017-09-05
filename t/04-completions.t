@@ -3,6 +3,9 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
+unless %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
+    plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
+}
 plan 13;
 
 my $r = Jupyter::Kernel::Sandbox.new;

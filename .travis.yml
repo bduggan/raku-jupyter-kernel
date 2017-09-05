@@ -1,6 +1,6 @@
 language: perl6
 env:
-  - MVM_SPESH_DISABLE=1
+  - MVM_SPESH_DISABLE=1 P6_JUPYTER_TEST_AUTOCOMPLETE=1
 perl6:
   - latest
   - 2017.08

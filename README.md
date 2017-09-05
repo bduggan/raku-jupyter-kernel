@@ -79,6 +79,14 @@ http://andrew.gibiansky.com/blog/ipython/ipython-kernels/
 
 https://github.com/dsblank/simple_kernel
 
+KNOWN ISSUES
+---------
+* Definitions of operators are not preserved (see [bug 131530](https://rt.perl.org/Public/Bug/Display.html?id=131530)).
+
+* Newly declared methods might not be available in autocompletion unless SPESH is disabled (see tests in [this PR](https://github.com/bduggan/p6-jupyter-kernel/pull/11).
+
+* More work needs to be done on autocompletion.
+
 THANKS
 --------
 Matt Oates

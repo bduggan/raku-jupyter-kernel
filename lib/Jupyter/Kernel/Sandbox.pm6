@@ -92,14 +92,13 @@ class Jupyter::Kernel::Sandbox is export {
         }
 
         # Also handle variables
-        # todo.  REPL doesn't preserve ::.keys in context.
-        # if $prefix and substr($prefix,*-1,1) eq any('$','%','@','&') {
-        #     my $res = self.eval('::.keys.join(" ")');
-        #     say "want ----------- { $res.output-raw.perl } ";
-        #     my @possible = $res.output-raw.split(' ');
-        #     my @found = ( |@possible, |( CORE::.keys ) ).grep( { /^ "$last" / } ).sort;
-        #     return $prefix.chars, @found;
-        # }
+        # TODO: REPL doesn't currently preserve ::.keys in context.
+        if $prefix and substr($prefix,*-1,1) eq any('$','%','@','&') {
+            my $res = self.eval('::.keys.join(" ")');
+            my @possible = $res.output-raw.split(' ');
+            my @found = ( |@possible, |( CORE::.keys ) ).grep( { /^ "$last" / } ).sort;
+            return $prefix.chars, @found;
+        }
 
         my @completions = $!repl.completions-for-line($str,$str.chars-1).map({ .subst(/^ "$prefix" /,'') });
         return $prefix.chars, @completions;
