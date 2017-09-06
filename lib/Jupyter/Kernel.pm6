@@ -60,7 +60,7 @@ method run($spec-file!) {
     # Shell
     my $execution_count = 1;
     my $sandbox = Jupyter::Kernel::Sandbox.new;
-    start loop {
+    my $promise = start loop {
     try {
         my $msg = $shell.read-message;
         $iopub.parent = $msg;
@@ -142,6 +142,5 @@ method run($spec-file!) {
         }
     }
     }
-
-    loop { }
+    await $promise;
 }
