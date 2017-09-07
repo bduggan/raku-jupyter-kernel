@@ -2,14 +2,12 @@ Jupyter::Kernel for Perl 6
 ----------------
 [![Build Status](https://travis-ci.org/bduggan/p6-jupyter-kernel.svg)](https://travis-ci.org/bduggan/p6-jupyter-kernel)
 
-[![asciicast](https://asciinema.org/a/rdezRa5QQMbxi4L5D5zEtj6Y0.png)](https://asciinema.org/a/rdezRa5QQMbxi4L5D5zEtj6Y0?autoplay=1)
+![autocomplete](https://user-images.githubusercontent.com/58956/29986517-c6a2020e-8f31-11e7-83da-086ad18bc662.gif)
 
 This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter notebooks.
 
 Jupyter notebooks provide a web-based (or console-based) REPL for running
 code and serializing input and output.
-
-Here's an example notebook: [hello-world](eg/hello-world.ipynb).
 
 QUICK START
 -----------
@@ -71,13 +69,26 @@ Or make a handy shell alias:
 alias iperl6='jupyter-console --kernel=perl6'
 ```
 
+Docker
+-------
+
+For an even quicker start using docker, see [this blog post](https://sumdoc.wordpress.com/2017/09/06/how-to-run-perl-6-notebook/).
+
+EXAMPLES
+--------
+
+The [eg/](eg/) directory of this repository has some
+example notebooks:
+
+*  [Hello, world](eg/hello-world.ipynb).
+
+*  [Generating an SVG](eg/svg.ipynb).
+
 SEE ALSO
 --------
+https://hub.docker.com/r/sumdoc/perl-6-notebook/
+
 https://github.com/timo/iperl6kernel
-
-http://andrew.gibiansky.com/blog/ipython/ipython-kernels/
-
-https://github.com/dsblank/simple_kernel
 
 KNOWN ISSUES
 ---------
@@ -89,6 +100,9 @@ KNOWN ISSUES
 
 THANKS
 --------
+Suman Khanal
+
 Matt Oates
 
 Timo Paulssen
+
