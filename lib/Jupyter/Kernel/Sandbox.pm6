@@ -92,7 +92,7 @@ class Jupyter::Kernel::Sandbox is export {
             $all = ':all' if $!show-all;
             my ($pre,$what) = extract-last-word(substr($prefix,0,*-1));
             my $var = $what;
-            if $pre ~~ /$<sigil>=<[&$@%]>$/ {
+            if $pre ~~ /$<sigil>=[<[&$@%]><[*!?.^:=~]>?]$/ {
                 my $sigil = ~$<sigil>;
                 $var = $sigil ~ $what;
             }
