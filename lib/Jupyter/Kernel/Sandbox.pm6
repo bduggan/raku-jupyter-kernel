@@ -33,6 +33,8 @@ class Jupyter::Kernel::Sandbox is export {
     has $.save_ctx;
     has $.compiler;
     has $.repl;
+    has $.last-prefix;
+    has Bool $.show-all = False;
 
     method TWEAK {
         $!compiler := nqp::getcomp('perl6');
@@ -78,13 +80,23 @@ class Jupyter::Kernel::Sandbox is export {
 
         # Handle methods ourselves.
         if $prefix and substr($prefix,*-1,1) eq '.' {
+            if $!last-prefix {
+                if $prefix eq $!last-prefix {
+                    $!show-all = not $!show-all;
+                } else {
+                    $!show-all = False;
+                }
+            }
+            $!last-prefix = $prefix;
+            my $all = '';
+            $all = ':all' if $!show-all;
             my ($pre,$what) = extract-last-word(substr($prefix,0,*-1));
             my $var = $what;
             if $pre ~~ /$<sigil>=<[&$@%]>$/ {
                 my $sigil = ~$<sigil>;
                 $var = $sigil ~ $what;
             }
-            my $res = self.eval($var ~ '.^methods(:all).map({.name}).join(" ")', :no-persist );
+            my $res = self.eval($var ~ '.^methods(' ~ $all ~ ').map({.name}).join(" ")', :no-persist );
             if !$res.exception && !$res.incomplete {
                 my @methods = $res.output-raw.split(' ').unique;
                 return $prefix.chars, @methods.grep( { / ^ "$last" / } ).sort;
