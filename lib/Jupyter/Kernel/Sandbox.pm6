@@ -74,12 +74,38 @@ class Jupyter::Kernel::Sandbox is export {
         ( ~$m<prefix>, ~$m<last_word> )
     }
 
+    sub extract-last-operator(Str $line) {
+        return '(';
+    }
+
+    sub unigrep(Str $str) {
+        my @got = (0..0x10FFFF).grep: { uniname($_).fc.contains($str.fc) };
+        return @got.map({.chr});
+    }
+
+
     #! returns offset and list of completions
     method completions($str) {
         my ($prefix,$last) = extract-last-word($str);
 
+        my $before-word = '';
+        $before-word = substr($prefix, * - 1, 1) if $prefix.chars and $last.chars;
+
+        # unicode search
+        if $before-word eq '\\' {
+            my @candidates = unigrep($last);
+            return $prefix.chars - 1, @candidates;
+        }
+
+        # Texas to unicode
+        my $op = extract-last-operator($str);
+        if !$last and $op {
+            return $prefix.chars, <∈ ∉ ∋ ∌ ⊆ ⊈ ⊂ ⊄ ⊇ ⊉ ⊃ ⊅ ≼ ≽>;
+        }
+
         # Handle methods ourselves.
-        if $prefix and substr($prefix,*-1,1) eq '.' {
+        if $before-word eq '.' {
+            $prefix = '$_' unless $prefix.chars;
             if $!last-prefix {
                 if $prefix eq $!last-prefix {
                     $!show-all = not $!show-all;
