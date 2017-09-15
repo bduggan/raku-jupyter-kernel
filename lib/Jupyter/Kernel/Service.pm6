@@ -6,7 +6,7 @@ use Net::ZMQ4::Proxy;
 use UUID;
 use Log::Async;
 use Digest::HMAC;
-use Digest::SHA;
+use Digest::SHA256::Native;
 use JSON::Tiny;
 use NativeCall;
 
