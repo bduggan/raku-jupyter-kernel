@@ -3,7 +3,7 @@
 use Log::Async;
 use Jupyter::Kernel;
 
-multi MAIN($spec-file, :$logfile = './juypter.log') {
+multi MAIN($spec-file, :$logfile = './jupyter.log') {
     logger.send-to($logfile);
     Jupyter::Kernel.new.run($spec-file);
 }
