@@ -8,39 +8,43 @@ unless %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
 }
 plan 13;
 
+unless %*ENV<MVM_SPESH_DISABLE> {
+    diag "You may need to set MVM_SPESH_DISABLE=1 for these to pass";
+}
+
 my $r = Jupyter::Kernel::Sandbox.new;
 
-my ($pos, $completions) = $r.completions('sa');
+my ($pos, $end, $completions) = $r.completions('sa', 1);
 is-deeply $completions, [<samecase samemark samewith say>], 'completions for "sa"';
 is $pos, 0, 'offset';
 
-($pos, $completions) = $r.completions(' sa');
+($pos, $end, $completions) = $r.completions(' sa');
 is-deeply $completions, [<samecase samemark samewith say>], 'completions for "sa"';
 is $pos, 1, 'offset';
 
 my $res = $r.eval(q[my $x = 'hello'; $x]);
 is $res.output, 'hello', 'output';
-($pos,$completions) = $r.completions('$x.pe');
+($pos,$end,$completions) = $r.completions('$x.pe');
 is-deeply $completions, <perl perlseen permutations>, 'autocomplete for a string';
 
 $res = $r.eval(q|class Foo { method barglefloober { ... } }; my $y = Foo.new;|);
 is $res.output, 'Foo.new', 'declared class';
-($pos,$completions) = $r.completions('$y.barglefl');
+($pos,$end,$completions) = $r.completions('$y.barglefl');
 is-deeply $completions, $( 'barglefloober', ) , 'Declared a class and completion was a method';
 
 $res = $r.eval('my $abc = 12;');
-($pos,$completions) = $r.completions('$abc.is-prim');
+($pos,$end,$completions) = $r.completions('$abc.is-prim');
 is-deeply $completions, $('is-prime', ), 'method with a -';
 
-($pos,$completions) = $r.completions('if 15.is-prim');
+($pos,$end,$completions) = $r.completions('if 15.is-prim');
 is-deeply $completions, $( 'is-prime', ), 'is-prime for a number';
 
-($pos,$completions) = $r.completions('if "hello world".sa');
+($pos,$end,$completions) = $r.completions('if "hello world".sa');
 is-deeply $completions, $( 'say', ), 'say for a string';
 
 $res = $r.eval('my $ghostbusters = 99');
 is $res.output, 99, 'made a var';
-($pos,$completions) = $r.completions('say $ghost');
+($pos,$end,$completions) = $r.completions('say $ghost');
 todo 'autocomplete variables';
 is-deeply $completions, $( '$ghostbusters', ), 'completed a variable';
 

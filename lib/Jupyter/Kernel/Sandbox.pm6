@@ -1,6 +1,7 @@
 #!perl6
 
 use Log::Async;
+use Jupyter::Kernel::Sandbox::Autocomplete;
 use nqp;
 
 %*ENV<RAKUDO_LINE_EDITOR> = 'none';
@@ -33,6 +34,7 @@ class Jupyter::Kernel::Sandbox is export {
     has $.save_ctx;
     has $.compiler;
     has $.repl;
+    has $.completer = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
     method TWEAK {
         $!compiler := nqp::getcomp('perl6');
@@ -65,43 +67,8 @@ class Jupyter::Kernel::Sandbox is export {
         return Result.new(:output($output.gist),:output-raw($output),:$stdout,:$exception, :$incomplete);
     }
 
-    sub extract-last-word(Str $line) {
-        # based on src/core/REPL.pm
-        my $m = $line ~~ /^ $<prefix>=[.*?] <|w>$<last_word>=[ [\w | '-' | '_' ]* ]$/;
-        return ( $line, '') unless $m;
-        ( ~$m<prefix>, ~$m<last_word> )
-    }
-
-    #! returns offset and list of completions
-    method completions($str) {
-        my ($prefix,$last) = extract-last-word($str);
-
-        # Handle methods ourselves.
-        if $prefix and substr($prefix,*-1,1) eq '.' {
-            my ($pre,$what) = extract-last-word(substr($prefix,0,*-1));
-            my $var = $what;
-            if $pre ~~ /$<sigil>=<[&$@%]>$/ {
-                my $sigil = ~$<sigil>;
-                $var = $sigil ~ $what;
-            }
-            my $res = self.eval($var ~ '.^methods(:all).map({.name}).join(" ")', :no-persist );
-            if !$res.exception && !$res.incomplete {
-                my @methods = $res.output-raw.split(' ').unique;
-                return $prefix.chars, @methods.grep( { / ^ "$last" / } ).sort;
-            }
-        }
-
-        # Also handle variables
-        # TODO: REPL doesn't currently preserve ::.keys in context.
-        if $prefix and substr($prefix,*-1,1) eq any('$','%','@','&') {
-            my $res = self.eval('::.keys.join(" ")');
-            my @possible = $res.output-raw.split(' ');
-            my @found = ( |@possible, |( CORE::.keys ) ).grep( { /^ "$last" / } ).sort;
-            return $prefix.chars, @found;
-        }
-
-        my @completions = $!repl.completions-for-line($str,$str.chars-1).map({ .subst(/^ "$prefix" /,'') });
-        return $prefix.chars, @completions;
+    method completions($str, $cursor-pos = $str.chars ) {
+        return self.completer.complete($str,$cursor-pos,self);
     }
 }
 
