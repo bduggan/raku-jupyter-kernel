@@ -97,6 +97,8 @@ example notebooks:
 
 *  [Generating an SVG](eg/svg.ipynb).
 
+*  [Some unicodey math examples](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/math.ipynb)
+
 SEE ALSO
 --------
 https://hub.docker.com/r/sumdoc/perl-6-notebook/
