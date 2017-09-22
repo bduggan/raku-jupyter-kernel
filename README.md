@@ -79,6 +79,8 @@ alias iperl6='jupyter-console --kernel=perl6'
 
   * equality/inequality operators: after `=`, `<`, or `>`, related operators will be shown
 
+  * autocompleting `*` or `/` will give `×` or `÷` respectively
+
 
 Docker
 -------
