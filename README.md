@@ -69,6 +69,17 @@ Or make a handy shell alias:
 alias iperl6='jupyter-console --kernel=perl6'
 ```
 
+### Features
+
+* Autocompletion.  Typing `[tab]` in the client will send an autocomplete request.  Possible autocompletions are:
+
+  * methods: after a `.` the invocant will be evaluated to find methods
+
+  * set operators: after a `(`, set operators (unicode and texas) will be shown
+
+  * equality/inequality operators: after `=`, `<`, or `>`, related operators will be shown
+
+
 Docker
 -------
 
@@ -96,8 +107,6 @@ KNOWN ISSUES
 
 * Newly declared methods might not be available in autocompletion unless SPESH is disabled (see tests in [this PR](https://github.com/bduggan/p6-jupyter-kernel/pull/11)).
 
-* More work needs to be done on autocompletion.
-
 THANKS
 --------
 Suman Khanal
@@ -105,4 +114,3 @@ Suman Khanal
 Matt Oates
 
 Timo Paulssen
-
