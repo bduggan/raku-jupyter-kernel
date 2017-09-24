@@ -72,7 +72,10 @@ method complete($str,$cursor-pos,$sandbox) {
            my $sigil = ~$<sigil>;
            $var = $sigil ~ $what;
        }
-       my $res = $sandbox.eval($var ~ '.^methods(:all).map({.name}).join(" ")', :no-persist );
+       my $all = ':all';
+       $all = '' unless $last.chars; # local methods only unless at least 1 char
+       my $eval-str = $var ~ '.^methods(' ~ $all ~ ').map({.name}).join(" ")';
+       my $res = $sandbox.eval($eval-str, :no-persist );
        if !$res.exception && !$res.incomplete {
            my @methods = $res.output-raw.split(' ').unique;
            return $prefix.chars, $cursor-pos, @methods.grep( { / ^ "$last" / } ).sort;
@@ -88,6 +91,6 @@ method complete($str,$cursor-pos,$sandbox) {
        return $prefix.chars, $cursor-pos, @found;
    }
 
-   my @completions = $sandbox.repl.completions-for-line($str,$str.chars-1).map({ .subst(/^ "$prefix" /,'') });
-   return $prefix.chars, $cursor-pos, @completions;
+   my @possible = CORE::.keys.grep({ /^ '&' / }).map( { .subst(/ ^ '&' /, '') } );
+   return $prefix.chars, $cursor-pos, [ @possible.grep( { / ^ "$last" / } ).sort ];
 }
