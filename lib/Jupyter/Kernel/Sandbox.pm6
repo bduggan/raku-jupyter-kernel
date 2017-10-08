@@ -55,7 +55,7 @@ class Jupyter::Kernel::Sandbox is export {
         my $exception;
         my $eval-code = $code;
         if $store {
-            $eval-code = "my \\_$store = \$Out[$store] = $code";
+            $eval-code = "my \\_$store = \$Out[$store] = \$( $code )";
         }
         my $output =
             try $!repl.repl-eval(
