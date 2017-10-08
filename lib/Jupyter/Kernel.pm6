@@ -73,7 +73,7 @@ method run($spec-file!) {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
                 my $status = 'ok';
-                my $result = $sandbox.eval($code);
+                my $result = $sandbox.eval($code, :store($execution_count));
                 my %extra;
                 $status = 'error' with $result.exception;
                 $iopub.send: 'execute_input', { :$code, :$execution_count };
