@@ -42,7 +42,11 @@ class Jupyter::Kernel::Sandbox is export {
         self.eval(q:to/INIT/);
             my $Out = [];
             sub Out { $Out };
-            sub _ { $Out[*-1] }
+            my \_ = do {
+                state $last;
+                Proxy.new( FETCH => method () { $last },
+                           STORE => method ($x) { $last = $x } );
+            }
         INIT
     }
 
@@ -55,7 +59,11 @@ class Jupyter::Kernel::Sandbox is export {
         my $exception;
         my $eval-code = $code;
         if $store {
-            $eval-code = "my \\_$store = \$Out[$store] = \$( $code )";
+            $eval-code = qq:to/DONE/
+                my \\_$store = \$( $code );
+                \$Out[$store] := _$store;
+                _ = _$store;
+                DONE
         }
         my $output =
             try $!repl.repl-eval(

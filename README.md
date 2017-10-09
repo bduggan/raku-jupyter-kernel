@@ -81,6 +81,14 @@ alias iperl6='jupyter-console --kernel=perl6'
 
   * autocompleting `*` or `/` will give `×` or `÷` respectively
 
+* All cells are evaluated in item context.  Outputs are then saved to an array
+named `$Out`.  You can read from this directly or:
+
+  * via the subroutine `Out` (e.g. `Out[3]`)
+
+  * via an underscore and the output number (e.g. `_3`)
+
+  * for the most recent output: via a plain underscore (`_`).
 
 Docker
 -------
