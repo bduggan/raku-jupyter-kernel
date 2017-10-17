@@ -8,6 +8,7 @@ use UUID;
 
 use Jupyter::Kernel::Service;
 use Jupyter::Kernel::Sandbox;
+use Jupyter::Kernel::Magics;
 
 has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
@@ -22,6 +23,7 @@ has $.kernel-info = {
     },
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
 }
+has $.magics = Jupyter::Kernel::Magics.new;
 
 method resources {
     return %?RESOURCES;
@@ -73,11 +75,12 @@ method run($spec-file!) {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
                 my $status = 'ok';
-                my $result = $sandbox.eval($code, :store($execution_count));
+                my $result = $.magics.preprocess($code) || $sandbox.eval($code, :store($execution_count));
+                $.magics.postprocess($code, $result);
                 my %extra;
                 $status = 'error' with $result.exception;
-                $iopub.send: 'execute_input', { :$code, :$execution_count };
-                if $result.stdout {
+                $iopub.send: 'execute_input', { :$code, :$execution_count, :metadata(Hash.new()) };
+                if defined( $result.stdout ) {
                     if $result.stdout-mime-type eq 'text/plain' {
                         $iopub.send: 'stream', { :text( $result.stdout ), :name<stdout> };
                     } else {
@@ -86,11 +89,12 @@ method run($spec-file!) {
                         }
                     }
                 }
-                $iopub.send: 'execute_result',
-                             { :$execution_count,
-                               :data( $result.output-mime-type => $result.output ),
-                             },
-                             :metadata({});
+                if defined( $result.output) {
+                    $iopub.send: 'execute_result',
+                                { :$execution_count,
+                                :data( $result.output-mime-type => $result.output ),
+                                }
+                }
                 $iopub.send: 'status', { :execution_state<idle>, }
                 my $content = { :$status, |%extra, :$execution_count,
                        user_variables => {}, payload => [], user_expressions => {} };

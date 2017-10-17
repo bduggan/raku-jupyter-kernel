@@ -2,12 +2,13 @@
 
 use Log::Async;
 use Jupyter::Kernel::Sandbox::Autocomplete;
+use Jupyter::Kernel::Response;
 use nqp;
 
 %*ENV<RAKUDO_LINE_EDITOR> = 'none';
 %*ENV<RAKUDO_DISABLE_MULTILINE> = 0;
 
-my class Result {
+my class Result does Jupyter::Kernel::Response {
     has Str $.output;
     has $.output-raw;
     has $.exception;
@@ -81,7 +82,14 @@ class Jupyter::Kernel::Sandbox is export {
 
         $output = ~$_ with $exception // $caught;
         my $incomplete = so $!repl.input-incomplete($output);
-        return Result.new(:output($output.gist),:output-raw($output),:$stdout,:$exception, :$incomplete);
+        my $result = Result.new:
+            :output($output.gist),
+            :output-raw($output),
+            :$stdout,
+            :$exception,
+            :$incomplete;
+
+        $result;
     }
 
     method completions($str, $cursor-pos = $str.chars ) {
