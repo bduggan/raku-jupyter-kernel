@@ -5,6 +5,8 @@
     "build-depends" : [ ],
     "provides" : {
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.pm6",
+        "Jupyter::Kernel::Comm" : "lib/Jupyter/Kernel/Comm.pm6",
+        "Jupyter::Kernel::Comms" : "lib/Jupyter/Kernel/Comms.pm6",
         "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
         "Jupyter::Kernel::Service" : "lib/Jupyter/Kernel/Service.pm6",
         "Jupyter::Kernel::Sandbox::Autocomplete" : "lib/Jupyter/Kernel/Sandbox/Autocomplete.pm6",

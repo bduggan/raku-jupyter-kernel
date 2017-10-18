@@ -9,6 +9,7 @@ use UUID;
 use Jupyter::Kernel::Service;
 use Jupyter::Kernel::Sandbox;
 use Jupyter::Kernel::Magics;
+use Jupyter::Kernel::Comms;
 
 has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
@@ -24,6 +25,7 @@ has $.kernel-info = {
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
 }
 has $.magics = Jupyter::Kernel::Magics.new;
+has $.comms = Jupyter::Kernel::Comms.new;
 
 method resources {
     return %?RESOURCES;
@@ -92,7 +94,8 @@ method run($spec-file!) {
                         $iopub.send: 'stream', { :text( $result.stdout ), :name<stdout> };
                     } else {
                         $iopub.send: 'display_data', {
-                            :data( $result.stdout-mime-type => $result.stdout );
+                            :data( $result.stdout-mime-type => $result.stdout ),
+                            :metadata(Hash.new());
                         }
                     }
                 }
@@ -100,6 +103,7 @@ method run($spec-file!) {
                     $iopub.send: 'execute_result',
                                 { :$execution_count,
                                 :data( $result.output-mime-type => $result.output ),
+                                :metadata(Hash.new());
                                 }
                 }
                 $iopub.send: 'status', { :execution_state<idle>, }
@@ -150,6 +154,50 @@ method run($spec-file!) {
                 # > Jupyter frontends, and many kernels do not implement them.
                 # > The notebook interface does not use history messages at all.
                 # − http://jupyter-client.readthedocs.io/en/latest/messaging.html#history
+            }
+            when 'comm_open' {
+                debug "--- got a comm_open message ---";
+                my $content = $msg<content>;
+                my $id = $content<comm_id>;
+                my $data = $content<data>;
+                my $name = $content<target_name>;
+                my $comm = self.comms.add-comm(:$id, :$data, :$name);
+                if $comm {
+                    start react whenever $comm.out -> $msg {
+                        debug "sending a message from $name";
+                        $iopub.send( 'comm_msg', {
+                            'comm_id' => $id,
+                            'data' => $msg
+                        });
+                    }
+                } else {
+                    $iopub.send( 'comm_close', {} );
+                }
+            }
+            when 'comm_msg' {
+                debug "--- got a comm_msg message ---";
+                my $content = $msg<content>;
+                my $id = $content<comm_id>;
+                my $data = $content<data>;
+                debug "got comm id $id";
+                debug "got data : { $data.perl }";
+                self.comms.send-to-comm(:$id,:$data);
+
+                #debug "testing comm!";
+                # $iopub.send: 'comm_open', {
+                #     'comm_id' => ~UUID.new(:version(4)),
+                # 'target_name' => 'my_comm_target',
+                # 'data' => '42'
+                #}
+                #sleep 2;
+                # $iopub.send: 'comm_msg', {
+                #     'comm_msg' => ~UUID.new(:version(4)),
+                #     'target_name' => 'my_comm_target',
+                #     'data' => '999'
+                # }
+                $execution_count++;
+                next;
+
             }
             default {
                 warning "unimplemented message type: $_";
