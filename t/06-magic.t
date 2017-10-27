@@ -6,7 +6,7 @@ use Jupyter::Kernel::Magics;
 
 logger.add-tap( -> $msg { diag $msg<msg> } );
 
-plan 9;
+plan 15;
 
 my $m = Jupyter::Kernel::Magics.new;
 
@@ -45,13 +45,30 @@ class MockResult {
     hello latex
     DONE
 
-    ok my $magic = $m.find-magic($code), 'preprocess recognized %% latex';
+    ok my $magic = $m.find-magic($code), 'find-magic recognized %% latex';
     is $code, "hello latex\n", 'find-magic removed magic line';
     ok !$magic.preprocess($code), "preprocess did not return a result";
     is $code, "hello latex\n", 'preprocess removed magic line';
     my $result = $magic.postprocess(:result(MockResult.new));
     is $result.output-mime-type, 'text/latex', 'latex magic set the output mime type';
 }
+{
+    my $code = q:to/DONE/;
+    %% latex(equation)
+    hello latex
+    DONE
 
+    ok my $magic = $m.find-magic($code), 'find-magic recognized %% latex';
+    is $code, "hello latex\n", 'find-magic removed magic line';
+    ok !$magic.preprocess($code), "preprocess did not return a result";
+    is $code, "hello latex\n", 'preprocess removed magic line';
+    my $result = $magic.postprocess(:result(MockResult.new(:output<foo>)));
+    is $result.output-mime-type, 'text/latex', 'latex magic set the output mime type';
+    is $result.output, q:to/LATEX/, 'latex magic set the output mime type';
+        \begin{equation}
+        foo
+        \end{equation}
+        LATEX
+}
 
 # vim: syn=perl6

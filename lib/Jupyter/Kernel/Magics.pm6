@@ -14,7 +14,7 @@ my class Result does Jupyter::Kernel::Response {
     }
 }
 
-role Magic {
+class Magic {
     method keyword { ... }
     #| May return a Result.
     method preprocess($code!) { ... }
@@ -25,7 +25,7 @@ role Magic {
     }
 }
 
-my class Magic::JS does Magic {
+my class Magic::JS is Magic {
     has $.keyword = 'javascript';
     method preprocess($code!) {
         return Result.new:
@@ -35,14 +35,25 @@ my class Magic::JS does Magic {
     method postprocess(:$result!) { }
 }
 
-my class Magic::Latex does Magic {
+my class Magic::Latex is Magic {
     has $.keyword = 'latex';
+    has $.wrapper is rw;
+    method applies(:$magic-line, :$keyword) {
+        return unless callsame;
+        if $magic-line ~~ /'latex' '(' $<inner>=[\w+] ')'/ {
+            $.wrapper = ~$<inner>;
+        }
+        return True;
+    }
     method preprocess($code!) { }
     method postprocess(:$result!) {
+        my $output = $result.output;
+        $output = '\begin{' ~ $_ ~ "}\n" ~ $output ~ "\n" ~
+                  '\end{' ~ $_  ~ "}\n" with $.wrapper;
         return Result.new:
             stdout => $result.stdout,
             stdout-mime-type => $result.stdout-mime-type,
-            output => $result.output,
+            output => $output,
             output-mime-type => 'text/latex',
             stderr => $result.stderr,
             exception => $result.exception,
@@ -57,7 +68,7 @@ our @MAGICS = (
 
 method find-magic($code is rw) {
     my regex keyword { \w+ }
-    my regex magic-line { ^^ [ '#%' | '%%' ] \s* <keyword> "\n"}
+    my regex magic-line { ^^ [ '#%' | '%%' ] \s* <keyword> <?wb> \V* "\n"}
     my ( $keyword, $magic-line );
     $code ~~ /^ <magic-line> $<rest>=[.*]$/ or return Nil;
     $keyword = ~$<magic-line><keyword>;
