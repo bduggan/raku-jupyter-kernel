@@ -7,7 +7,9 @@
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.pm6",
         "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
         "Jupyter::Kernel::Service" : "lib/Jupyter/Kernel/Service.pm6",
-        "Jupyter::Kernel::Sandbox::Autocomplete" : "lib/Jupyter/Kernel/Sandbox/Autocomplete.pm6"
+        "Jupyter::Kernel::Sandbox::Autocomplete" : "lib/Jupyter/Kernel/Sandbox/Autocomplete.pm6",
+        "Jupyter::Kernel::Response" : "lib/Jupyter/Kernel/Response.pm6",
+        "Jupyter::Kernel::Magics" :  "lib/Jupyter/Kernel/Magics.pm6"
     },
     "resources" : [ "logo-32x32.png", "logo-64x64.png" ],
     "tags" : [ ],

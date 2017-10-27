@@ -106,8 +106,9 @@ named `$Out`.  You can read from this directly or:
   * for the most recent output: via a plain underscore (`_`).
 
 * Magics.  There is some support for jupyter "magics".  Currently, two magic directives
-are defined: `latex` and `javascript`.  See the [magics example](eg/magics.ipynb) for
-more details.
+are defined: `latex` and `javascript`.  See the
+[magics example](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/magics.ipynb)
+for more details.
 
 Docker
 -------
