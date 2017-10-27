@@ -47,6 +47,21 @@ jupyter-kernel.p6 --generate-config
 * Use `--location=XXX` to specify another location.
 * Use `--force` to override an existing configuration.
 
+### Client configuration
+The jupyter documentation describes the client configuration.
+To start, you can generate files for the notebook or
+console clients like this:
+```
+jupyter notebook --generate-config
+jupyter console --generate-config
+```
+For the console, you may want to set `kernel_is_complete_timeout`
+to a high number.  Without this, if the kernel takes more than 1
+second to respond, then when entering subsequent lines, the client
+won't be able to recognize when a statement is finished (and
+you'll have to hit return several times).
+
+### Logging
 By default a log file `jupyter.log` will be written in the
 current directory.  An option `--logfile=XXX` argument can be
 added to the kernel configuration file to change this.
