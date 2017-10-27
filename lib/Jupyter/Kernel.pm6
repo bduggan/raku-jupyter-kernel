@@ -75,8 +75,15 @@ method run($spec-file!) {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
                 my $status = 'ok';
-                my $result = $.magics.preprocess($code) || $sandbox.eval($code, :store($execution_count));
-                $.magics.postprocess($code, $result);
+                my $magic = $.magics.find-magic($code);
+                my $result;
+                $result = .preprocess($code) with $magic;
+                $result //= $sandbox.eval($code, :store($execution_count));
+                if $magic {
+                    with $magic.postprocess(:$code,:$result) -> $new-result {
+                        $result = $new-result;
+                    }
+                }
                 my %extra;
                 $status = 'error' with $result.exception;
                 $iopub.send: 'execute_input', { :$code, :$execution_count, :metadata(Hash.new()) };

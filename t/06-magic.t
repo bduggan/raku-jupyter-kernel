@@ -6,7 +6,7 @@ use Jupyter::Kernel::Magics;
 
 logger.add-tap( -> $msg { diag $msg<msg> } );
 
-plan 7;
+plan 9;
 
 my $m = Jupyter::Kernel::Magics.new;
 
@@ -14,7 +14,7 @@ my $m = Jupyter::Kernel::Magics.new;
     my $code = q:to/DONE/;
         no magic
         DONE
-    ok !$m.preprocess($code), 'preprocess recognized no magic';
+    ok !$m.find-magic($code), 'no magic';
 }
 
 {
@@ -23,21 +23,35 @@ my $m = Jupyter::Kernel::Magics.new;
     hello world
     DONE
 
-    ok my $r = $m.preprocess($code), 'preprocess recognized %% javascript';
-    is $code, "hello world\n", 'preprocess removed magic line';
+    ok my $magic = $m.find-magic($code), 'preprocess recognized %% javascript';
+    is $code, "hello world\n", 'find-magic removed magic line';
+    my $r = $magic.preprocess($code);
     is $r.stdout-mime-type, 'application/javascript', 'js magic set the mime type';
 }
-{
-    my $code = q:to/DONE/;
-    #% javascript
-    hello world
-    DONE
 
-    ok my $r = $m.preprocess($code), 'preprocess recognized #% javascript';
-    is $code, "hello world\n", 'preprocess removed magic line for #%';
-    is $r.stdout-mime-type, 'application/javascript', 'js magic set the mime type for #%';
+class MockResult {
+    has $.output;
+    has $.output-mime-type;
+    has $.stdout;
+    has $.stdout-mime-type;
+    has $.stderr;
+    has $.exception;
+    has $.incomplete;
 }
 
+{
+    my $code = q:to/DONE/;
+    %% latex
+    hello latex
+    DONE
+
+    ok my $magic = $m.find-magic($code), 'preprocess recognized %% latex';
+    is $code, "hello latex\n", 'find-magic removed magic line';
+    ok !$magic.preprocess($code), "preprocess did not return a result";
+    is $code, "hello latex\n", 'preprocess removed magic line';
+    my $result = $magic.postprocess(:result(MockResult.new));
+    is $result.output-mime-type, 'text/latex', 'latex magic set the output mime type';
+}
 
 
 # vim: syn=perl6
