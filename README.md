@@ -38,7 +38,7 @@ At the end of the above installation, you'll see the location
 of the `bin/` directory which has `jupyter-kernel.p6`.  Make
 sure that is in your `PATH`.
 
-### Configuration
+### Server Configuration
 To generate a configuration directory, and to install a kernel
 config file and icons into the default location:
 ```
@@ -55,16 +55,20 @@ console clients like this:
 jupyter notebook --generate-config
 jupyter console --generate-config
 ```
-For the console, you may want to set `kernel_is_complete_timeout`
-to a high number.  Without this, if the kernel takes more than 1
-second to respond, then when entering subsequent lines, the client
-won't be able to recognize when a statement is finished (and
-you'll have to hit return several times).
+Some suggested configuration changes for the console client:
+
+   * set `kernel_is_complete_timeout` to a high number.  Otherwise,
+     if the kernel takes more than 1 second to respond, then from
+     then on, the console client uses internal (non-Perl6) heuristics
+     to guess when a block of code is complete.
+
+   * set `highlighting_style` to `vim`.  This avoids having dark blue
+     on a black background in the console client.
 
 ### Logging
 By default a log file `jupyter.log` will be written in the
 current directory.  An option `--logfile=XXX` argument can be
-added to the kernel configuration file to change this.
+added to the server configuration file to change this.
 
 ### Running
 Start the web UI with:
@@ -126,6 +130,8 @@ example notebooks:
 *  [Generating an SVG](eg/svg.ipynb).
 
 *  [Some unicodey math examples](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/math.ipynb)
+
+*  [magics](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/magics.ipynb)
 
 SEE ALSO
 --------
