@@ -66,6 +66,19 @@ class Jupyter::Kernel::Sandbox is export {
                 _ = _$store;
                 DONE
         }
+        if $no-persist {
+            # use a temporary package
+            $eval-code = qq:to/DONE/;
+            my \$out;
+            package JupTemp \{
+                \$out = $( $code)
+            \}
+            for (JupTemp::).keys \{
+                (JupTemp::)\{\$_\}:delete;
+            \}
+            \$out;
+            DONE
+        }
         my $output =
             try $!repl.repl-eval(
                 $eval-code,

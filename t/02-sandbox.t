@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 35;
+plan 38;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -67,5 +67,9 @@ is $r.eval('my $y = 3; my $x = 99; $x + 1').output, "100", 'two statements';
 is $r.eval('my $yy = 3; my $xx = 99; $xx + 1', :store(5)).output, "100", 'two statements';
 is $r.eval('_').output, "100", 'saved the right thing';
 is $r.eval('_ + 1').output, "101", 'used _ in an expression';
+
+is $r.eval('class Foo { method bar { ... } }', :no-persist).output, '(Foo)', 'class decl';
+is $r.eval('class Foo { method bar { ... } }', :no-persist).output, '(Foo)', 'class decl';
+is $r.eval('class Foo { method bar { ... } }').output, '(Foo)', 'no-persist a class';
 
 ok 1, 'still here';
