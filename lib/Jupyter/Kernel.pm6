@@ -130,15 +130,14 @@ method run($spec-file!) {
                 my $cursor_pos = $msg<content><cursor_pos>;
                 my (Int $cursor_start, Int $cursor_end, $completions)
                     = $sandbox.completions($code,$cursor_pos);
-                if $completions and $completions.chars {
-                    $shell.send: 'complete_reply',
+                $completions //= [];
+                $shell.send: 'complete_reply',
                       { matches => $completions,
                         :$cursor_end,
                         :$cursor_start,
                         metadata => {},
                         status => 'ok'
-                      }
-                  }
+                }
             }
             when 'shutdown_request' {
                 my $restart = $msg<content><restart>;
