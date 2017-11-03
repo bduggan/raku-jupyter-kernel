@@ -145,6 +145,12 @@ method run($spec-file!) {
                 $shell.send: 'shutdown_reply', { :$restart };
                 exit;
             }
+            when 'history_request' {
+                # > Most of the history messaging options are not used by
+                # > Jupyter frontends, and many kernels do not implement them.
+                # > The notebook interface does not use history messages at all.
+                # − http://jupyter-client.readthedocs.io/en/latest/messaging.html#history
+            }
             default {
                 warning "unimplemented message type: $_";
             }
