@@ -24,10 +24,10 @@ my class Result does Jupyter::Kernel::Response {
         }
     }
     method stdout-mime-type {
-        return self!mime-type($.stdout);
+        return self!mime-type($.stdout // '');
     }
     method output-mime-type {
-        return self!mime-type($.output);
+        return self!mime-type($.output // '');
     }
 }
 

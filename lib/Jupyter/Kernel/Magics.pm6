@@ -14,65 +14,117 @@ my class Result does Jupyter::Kernel::Response {
     }
 }
 
-class Magic {
-    method keyword { ... }
-    #| May return a Result.
-    method preprocess($code!) { ... }
-    method postprocess(:$result!) { ... }
-    method applies(:$magic-line, :$keyword) {
-        return self if $keyword eq self.keyword;
-        return Nil;
+class Magic::Filter {
+    method transform($str) {
+        # no transformation by default
+        $str;
     }
+}
+class Magic::Filter::HTML is Magic::Filter {
+    has $.mime-type = 'text/html';
+}
+class Magic::Filter::Latex is Magic::Filter {
+    has $.mime-type = 'text/latex';
+    has Str $.enclosure;
+    method transform($str) {
+        with $.enclosure {
+            return
+                '\begin{' ~ $_ ~ "}\n"
+                ~ $str ~ "\n" ~
+                '\end{' ~ $_  ~ "}\n";
+        }
+        return $str;
+    }
+}
+class Magic::Filter::Plain is Magic::Filter {
+    has $.mime-type = 'text/plain';
+}
+
+class Magic {
+    has Match $.parsed;
+    method preprocess($code!) { Nil }
+    method postprocess(:$result! ) { $result }
 }
 
 my class Magic::JS is Magic {
-    has $.keyword = 'javascript';
     method preprocess($code!) {
         return Result.new:
             stdout => $code,
             stdout-mime-type => 'application/javascript';
     }
-    method postprocess(:$result!) { }
 }
-
-my class Magic::Latex is Magic {
-    has $.keyword = 'latex';
-    has $.wrapper is rw;
-    method applies(:$magic-line, :$keyword) {
-        return unless callsame;
-        if $magic-line ~~ /'latex' '(' $<inner>=[\w+] ')'/ {
-            $.wrapper = ~$<inner>;
+class Magic::Filters is Magic {
+    # Attributes match magic-params in grammar.
+    has Magic::Filter $.out;
+    has Magic::Filter $.stdout;
+    method postprocess(:$result) {
+        my $out = $.out;
+        my $stdout = $.stdout;
+        return $result but role {
+            method stdout-mime-type { $stdout.mime-type }
+            method output-mime-type { $out.mime-type }
+            method output { $out.transform(callsame) }
+            method stdout { $stdout.transform(callsame) }
         }
-        return True;
-    }
-    method preprocess($code!) { }
-    method postprocess(:$result!) {
-        my $output = $result.output;
-        $output = '\begin{' ~ $_ ~ "}\n" ~ $output ~ "\n" ~
-                  '\end{' ~ $_  ~ "}\n" with $.wrapper;
-        return Result.new:
-            stdout => $result.stdout,
-            stdout-mime-type => $result.stdout-mime-type,
-            output => $output,
-            output-mime-type => 'text/latex',
-            stderr => $result.stderr,
-            exception => $result.exception,
-            incomplete => $result.incomplete;
     }
 }
 
-our @MAGICS = (
-    Magic::JS.new,
-    Magic::Latex.new,
-);
+
+grammar Magic::Grammar {
+    rule TOP {
+        [ '%%' | '#%' ]
+        [ <simple> | <filter> ]
+    }
+    token simple {
+       $<key>='javascript'
+    }
+    rule filter {
+       $<out>=<mime> ['>' $<stdout>=<mime>]?
+    }
+    token mime {
+       | <html>
+       | <latex>
+    }
+    token html {
+        'html'
+    }
+    token latex {
+        'latex' [ '(' $<enclosure>=\w+ ')' ]?
+    }
+}
+
+class Magic::Actions {
+    method TOP($/) {
+        $/.make: $<simple>.made // $<filter>.made
+    }
+    method simple($/) {
+        $/.make: Magic::JS.new;
+    }
+    method filter($/) {
+        my %args = 
+            |($<out>    ?? |(out => $<out>.made) !! Empty),
+            |($<stdout> ?? |(stdout => $<stdout>.made) !! Empty);
+        $/.make: Magic::Filters.new: |%args;
+    }
+    method mime($/) {
+        $/.make: $<html>.made // $<latex>.made;
+    }
+    method html($/) {
+        $/.make: Magic::Filter::HTML.new;
+    }
+    method latex($/) {
+        my %args = :enclosure('');
+        %args<enclosure> = ~$_ with $<enclosure>;
+        $/.make: Magic::Filter::Latex.new(|%args);
+    }
+}
 
 method find-magic($code is rw) {
-    my regex keyword { \w+ }
-    my regex magic-line { ^^ [ '#%' | '%%' ] \s* <keyword> <?wb> \V* "\n"}
-    my ( $keyword, $magic-line );
-    $code ~~ /^ <magic-line> $<rest>=[.*]$/ or return Nil;
-    $keyword = ~$<magic-line><keyword>;
-    $magic-line = ~$<magic-line>;
-    $code = ~$<rest>;
-    return @MAGICS.first( *.applies(:$magic-line,:$keyword) );
+    my $magic-line = $code.lines[0] or return Nil;
+    $magic-line ~~ /^ [ '#%' | '%%' ]/ or return Nil;
+    my $actions = Magic::Actions.new;
+    my $match = Magic::Grammar.new.parse($magic-line,:$actions) or return Nil;
+    $code .= subst( $magic-line, '');
+    $code .= subst( /\n/, '');
+    return $match.made;
 }
