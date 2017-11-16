@@ -117,12 +117,12 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
 
   * `#% html`: return the output as html
 
-  * `#% latex`: return the output as latex.  Use `latex(equation)` to wrap
-   the output in `\begin{equation}` and `\end{equation}`.  (`equation` can
-   be any string)
+  * `#% latex`: return the output as LaTeX.  Use `latex(equation)` to wrap
+   the output in `\begin{equation}` and `\end{equation}`.  (Or replace
+   "`equation`" with another string to use something else.)
 
-  * `#% html > latex`: Return output as htmllatex and stdout as latex.  These
-  can be switched and the latex output can be wrapped (as described above).
+  * `#% html > latex`: The above two can be combined to render, for instance,
+  the output cell as HTML, but stdout as LaTeX.
 
 Docker
 -------
