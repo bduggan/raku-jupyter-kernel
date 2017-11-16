@@ -110,7 +110,7 @@ named `$Out`.  You can read from this directly or:
   * for the most recent output: via a plain underscore (`_`).
 
 * Magics.  There is some support for jupyter "magics".  If the first line
-of a code cell starts with `#%` or `%%`, it may be interepreted as a directive
+of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
 by the kernel.  See EXAMPLES.  The following magics are supported:
 
   * `#% javascript`: return the code as javascript to the browser
