@@ -27,11 +27,11 @@ class Magic::Filter::Latex is Magic::Filter {
     has $.mime-type = 'text/latex';
     has Str $.enclosure;
     method transform($str) {
-        with $.enclosure {
+        if $.enclosure {
             return
-                '\begin{' ~ $_ ~ "}\n"
+                '\begin{' ~ $.enclosure ~ "}\n"
                 ~ $str ~ "\n" ~
-                '\end{' ~ $_  ~ "}\n";
+                '\end{' ~ $.enclosure  ~ "}\n";
         }
         return $str;
     }

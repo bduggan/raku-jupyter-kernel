@@ -109,10 +109,20 @@ named `$Out`.  You can read from this directly or:
 
   * for the most recent output: via a plain underscore (`_`).
 
-* Magics.  There is some support for jupyter "magics".  Currently, two magic directives
-are defined: `latex` and `javascript`.  See the
-[magics example](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/magics.ipynb)
-for more details.
+* Magics.  There is some support for jupyter "magics".  If the first line
+of a code cell starts with `#%` or `%%`, it may be interepreted as a directive
+by the kernel.  See EXAMPLES.  The following magics are supported:
+
+  * `#% javascript`: return the code as javascript to the browser
+
+  * `#% html`: return the output as html
+
+  * `#% latex`: return the output as latex.  Use `latex(equation)` to wrap
+   the output in `\begin{equation}` and `\end{equation}`.  (`equation` can
+   be any string)
+
+  * `#% html > latex`: Return output as htmllatex and stdout as latex.  These
+  can be switched and the latex output can be wrapped (as described above).
 
 Docker
 -------
