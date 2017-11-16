@@ -52,20 +52,20 @@ class MockResult {
 }
 {
     my $code = q:to/DONE/;
-    %% latex(equation)
+    %% latex(equation*)
     hello latex
     DONE
 
-    ok my $magic = $m.find-magic($code), 'find-magic recognized %% latex(equation)';
+    ok my $magic = $m.find-magic($code), 'find-magic recognized %% latex(equation*)';
     is $code, "hello latex\n", 'find-magic removed magic line';
     ok !$magic.preprocess($code), "preprocess did not return a result";
     is $code, "hello latex\n", 'preprocess removed magic line';
     my $result = $magic.postprocess(:result(MockResult.new(:output<foo>)));
     is $result.output-mime-type, 'text/latex', 'latex magic set the output mime type';
     is $result.output, q:to/LATEX/, 'latex magic enclosed the output';
-        \begin{equation}
+        \begin{equation*}
         foo
-        \end{equation}
+        \end{equation*}
         LATEX
 }
 {

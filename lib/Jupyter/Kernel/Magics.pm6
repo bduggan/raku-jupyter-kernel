@@ -89,7 +89,7 @@ grammar Magic::Grammar {
         'html'
     }
     token latex {
-        'latex' [ '(' $<enclosure>=\w+ ')' ]?
+        'latex' [ '(' $<enclosure>=[ \w | '*' ]+ ')' ]?
     }
 }
 
