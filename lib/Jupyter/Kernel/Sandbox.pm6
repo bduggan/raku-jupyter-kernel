@@ -61,7 +61,9 @@ class Jupyter::Kernel::Sandbox is export {
         my $eval-code = $code;
         if $store {
             $eval-code = qq:to/DONE/
-                my \\_$store = \$( $code );
+                my \\_$store = \$(
+                    $code
+                );
                 \$Out[$store] := _$store;
                 _ = _$store;
                 DONE

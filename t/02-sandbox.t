@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 38;
+plan 40;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -71,5 +71,9 @@ is $r.eval('_ + 1').output, "101", 'used _ in an expression';
 is $r.eval('class Foo { method bar { ... } }', :no-persist).output, '(Foo)', 'class decl';
 is $r.eval('class Foo { method bar { ... } }', :no-persist).output, '(Foo)', 'class decl';
 is $r.eval('class Foo { method bar { ... } }').output, '(Foo)', 'no-persist a class';
+
+$res = $r.eval(q['hi'; # foo], :store(6));
+ok $res, "Produced output when ending with a comment";
+is $res.output, "hi", "got right output when ending with a comment";
 
 ok 1, 'still here';
