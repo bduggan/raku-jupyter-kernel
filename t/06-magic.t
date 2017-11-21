@@ -40,26 +40,26 @@ class MockResult {
 {
     my $code = q:to/DONE/;
     %% latex
-    hello latex
+    "hello latex";
     DONE
 
     ok my $magic = $m.find-magic($code), 'find-magic recognized %% latex';
-    is $code, "hello latex\n", 'find-magic removed magic line';
+    is $code, qq["hello latex";\n], 'find-magic removed magic line';
     ok !$magic.preprocess($code), "preprocess did not return a result";
-    is $code, "hello latex\n", 'preprocess removed magic line';
+    is $code, qq["hello latex";\n], 'preprocess did not change code';
     my $result = $magic.postprocess(:result(MockResult.new));
     is $result.output-mime-type, 'text/latex', 'latex magic set the output mime type';
 }
 {
     my $code = q:to/DONE/;
     %% latex(equation*)
-    hello latex
+    "hello latex";
     DONE
 
     ok my $magic = $m.find-magic($code), 'find-magic recognized %% latex(equation*)';
-    is $code, "hello latex\n", 'find-magic removed magic line';
+    is $code, qq["hello latex";\n], 'find-magic removed magic line';
     ok !$magic.preprocess($code), "preprocess did not return a result";
-    is $code, "hello latex\n", 'preprocess removed magic line';
+    is $code, qq["hello latex";\n], 'preprocess did not change code';
     my $result = $magic.postprocess(:result(MockResult.new(:output<foo>)));
     is $result.output-mime-type, 'text/latex', 'latex magic set the output mime type';
     is $result.output, q:to/LATEX/, 'latex magic enclosed the output';
