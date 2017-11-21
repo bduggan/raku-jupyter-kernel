@@ -19,6 +19,10 @@ class Magic::Filter {
         # no transformation by default
         $str;
     }
+    method mime-type {
+        # text/plain by default
+        'text/plain';
+    }
 }
 class Magic::Filter::HTML is Magic::Filter {
     has $.mime-type = 'text/html';
@@ -36,12 +40,8 @@ class Magic::Filter::Latex is Magic::Filter {
         return $str;
     }
 }
-class Magic::Filter::Plain is Magic::Filter {
-    has $.mime-type = 'text/plain';
-}
 
 class Magic {
-    has Match $.parsed;
     method preprocess($code!) { Nil }
     method postprocess(:$result! ) { $result }
 }
@@ -79,7 +79,10 @@ grammar Magic::Grammar {
        $<key>='javascript'
     }
     rule filter {
-       $<out>=<mime> ['>' $<stdout>=<mime>]?
+       [
+           | $<out>=<mime> ['>' $<stdout>=<mime>]?
+           | '>' $<stdout>=<mime>
+       ]
     }
     token mime {
        | <html>
@@ -101,7 +104,7 @@ class Magic::Actions {
         $/.make: Magic::JS.new;
     }
     method filter($/) {
-        my %args = 
+        my %args =
             |($<out>    ?? |(out => $<out>.made) !! Empty),
             |($<stdout> ?? |(stdout => $<stdout>.made) !! Empty);
         $/.make: Magic::Filters.new: |%args;

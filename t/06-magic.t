@@ -71,16 +71,46 @@ class MockResult {
 {
     my $code = q:to/DONE/;
     %% html
-    hello html
+    say "this is stdout";
+    '<b>output</b>';
     DONE
 
     ok my $magic = $m.find-magic($code), 'find-magic recognized %% html';
-    is $code, "hello html\n", 'find-magic removed magic line';
+    is $code, q:to/DONE/, 'find-magic removed magic line';
+        say "this is stdout";
+        '<b>output</b>';
+        DONE
     ok !$magic.preprocess($code), "preprocess did not return a result";
-    is $code, "hello html\n", 'preprocess removed magic line';
-    my $result = $magic.postprocess(:result(MockResult.new(:output('hello html<>'))));
+    my $result = $magic.postprocess(:result(MockResult.new(
+        :output('<b>output</b>'),
+        :stdout("this is stdout\n"),
+        )));
     is $result.output-mime-type, 'text/html', 'html magic set the output mime type';
-    is $result.output, 'hello html<>', 'html unchanged';
+    is $result.output, '<b>output</b>', 'html unchanged';
+    is $result.stdout-mime-type, 'text/plain', 'stdout is text/plain';
+    is $result.stdout, "this is stdout\n", 'stdout worked';
+}
+{
+    my $code = q:to/DONE/;
+    %% > html
+    say '<b>this is stdout</b>';
+    'output';
+    DONE
+
+    ok my $magic = $m.find-magic($code), 'find-magic recognized %% html';
+    is $code, q:to/DONE/, 'find-magic removed magic line';
+        say '<b>this is stdout</b>';
+        'output';
+        DONE
+    ok !$magic.preprocess($code), "preprocess did not return a result";
+    my $result = $magic.postprocess(:result(MockResult.new(
+        :output('output'),
+        :stdout("<b>this is stdout</b>\n"),
+        )));
+    is $result.output-mime-type, 'text/plain', 'html magic did not set output mime type';
+    is $result.output, 'output', 'html unchanged';
+    is $result.stdout-mime-type, 'text/html', 'stdout is text/html';
+    is $result.stdout, "<b>this is stdout</b>\n", 'stdout worked';
 }
 {
     my $code = '#% html > html';
