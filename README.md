@@ -9,6 +9,12 @@ This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter notebooks.
 Jupyter notebooks provide a web-based (or console-based) REPL for running
 code and serializing input and output.
 
+REALLY QUICK START
+-------------------
+
+* Click here: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/mybinder)
+* Select "Perl 6"
+
 QUICK START
 -----------
 
