@@ -14,6 +14,8 @@ REALLY QUICK START
 
 * Click here: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master)
 
+* Wait a few seconds.
+
 * Select New -> "Perl 6"
 
 QUICK START
