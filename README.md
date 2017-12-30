@@ -12,8 +12,9 @@ code and serializing input and output.
 REALLY QUICK START
 -------------------
 
-* Click here: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/mybinder)
-* Select "Perl 6"
+* Click here: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master)
+
+* Select New -> "Perl 6"
 
 QUICK START
 -----------
