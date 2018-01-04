@@ -55,7 +55,10 @@ class Jupyter::Kernel::Sandbox is export {
         my $stdout;
         my $*CTXSAVE = $!repl;
         my $*MAIN_CTX;
-        my $*OUT = class { method print(*@args) { $stdout ~= @args.join }
+        my $*OUT = class { method print(*@args) {
+                              $stdout ~= @args.join;
+                              return True but role { method __hide { True } }
+                           }
                            method flush { } }
         my $exception;
         my $eval-code = $code;
@@ -73,7 +76,7 @@ class Jupyter::Kernel::Sandbox is export {
             $eval-code = qq:to/DONE/;
             my \$out;
             package JupTemp \{
-                \$out = $( $code)
+                \$out = $( $code )
             \}
             for (JupTemp::).keys \{
                 (JupTemp::)\{\$_\}:delete;
@@ -88,6 +91,7 @@ class Jupyter::Kernel::Sandbox is export {
                 :outer_ctx($!save_ctx),
                 :interactive(1)
             );
+        $output = Nil if $output.?__hide;
         my $caught;
         $caught = $! if $!;
 
