@@ -15,10 +15,10 @@ is $r.eval('my $x = 12; 123;').output, '123', 'made a var';
 is $r.eval('$x + 10;').output, "22", 'saved state';
 
 my $res = $r.eval('say "hello"');
+ok !$res.output-raw, 'no output, sent to stdout';
+is $res.stdout, "hello\n", 'right value on stdout';
 
 ok !$res.incomplete, 'not incomplete';
-ok $res.output, 'sent to stdout';
-is $res.stdout, "hello\n", 'right value on stdout';
 is $res.stdout-mime-type, 'text/plain', 'right mime-type on stdout';
 
 $res = $r.eval('floobody doop');
