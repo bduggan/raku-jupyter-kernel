@@ -10,7 +10,7 @@ use nqp;
 
 my class Result does Jupyter::Kernel::Response {
     has Str $.output;
-    has $.output-raw;
+    has $.output-raw is default(Nil);
     has $.exception;
     has Bool $.incomplete;
     has $.stdout;
@@ -74,7 +74,7 @@ class Jupyter::Kernel::Sandbox is export {
         if $no-persist {
             # use a temporary package
             $eval-code = qq:to/DONE/;
-            my \$out;
+            my \$out is default(Nil);
             package JupTemp \{
                 \$out = $( $code )
             \}
@@ -84,7 +84,8 @@ class Jupyter::Kernel::Sandbox is export {
             \$out;
             DONE
         }
-        my $output =
+
+        my $output is default(Nil) =
             try $!repl.repl-eval(
                 $eval-code,
                 $exception,
@@ -92,6 +93,8 @@ class Jupyter::Kernel::Sandbox is export {
                 :interactive(1)
             );
         $output = Nil if $output.?__hide;
+        $output = Nil if $output ~~ List and $output[*-1].?__hide;
+        $output = Nil if $output === Any;
         my $caught;
         $caught = $! if $!;
 
