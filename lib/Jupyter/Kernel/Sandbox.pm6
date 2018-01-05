@@ -92,9 +92,11 @@ class Jupyter::Kernel::Sandbox is export {
                 :outer_ctx($!save_ctx),
                 :interactive(1)
             );
-        $output = Nil if $output.?__hide;
-        $output = Nil if $output ~~ List and $output[*-1].?__hide;
-        $output = Nil if $output === Any;
+        given $output {
+            $_ = Nil if .?__hide;
+            $_ = Nil if $_ ~~ List and .elems and .[*-1].?__hide;
+            $_ = Nil if $_ === Any;
+        }
         my $caught;
         $caught = $! if $!;
 
