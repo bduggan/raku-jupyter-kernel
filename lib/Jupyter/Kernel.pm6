@@ -96,7 +96,7 @@ method run($spec-file!) {
                         }
                     }
                 }
-                if defined( $result.output-raw ) {
+                unless $result.output-raw === Nil {
                     $iopub.send: 'execute_result',
                                 { :$execution_count,
                                 :data( $result.output-mime-type => $result.output ),
