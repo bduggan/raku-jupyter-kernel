@@ -3,6 +3,7 @@ use Jupyter::Kernel::Response;
 
 my class Result does Jupyter::Kernel::Response {
     has $.output;
+    method output-raw { $.output }
     has $.output-mime-type is rw;
     has $.stdout;
     has $.stdout-mime-type;
