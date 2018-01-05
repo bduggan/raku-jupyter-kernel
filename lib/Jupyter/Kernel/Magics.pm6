@@ -2,7 +2,7 @@ unit class Jupyter::Kernel::Magics;
 use Jupyter::Kernel::Response;
 
 my class Result does Jupyter::Kernel::Response {
-    has $.output;
+    has $.output is default(Nil);
     method output-raw { $.output }
     has $.output-mime-type is rw;
     has $.stdout;
