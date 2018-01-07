@@ -115,7 +115,6 @@ class Jupyter::Kernel::Sandbox is export {
             $output = ~$_;
             $gist = $output;
         }
-        $gist //= $output;
         my $incomplete = so $!repl.input-incomplete($output);
         my $result = Result.new:
             :output($gist),
