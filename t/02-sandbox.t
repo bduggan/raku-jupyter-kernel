@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 46;
+plan 48;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -86,3 +86,8 @@ is $r.eval('my Int $x;').output, "(Int)", "Output from a type (undefined)";
 my $result = $r.eval('.say for 1..10', :store(7));
 ok $result.output-raw === Nil, "No output for multiple say's";
 is $result.stdout, (1..10).join("\n") ~ "\n", "right stdout for multiple say's";
+
+$res = $r.eval('1/0');
+ok $res, 'survived exception';
+like $res.output, /:i 'attempt to divide' .* 'by zero' /, 'trapped 1/0 error';
+
