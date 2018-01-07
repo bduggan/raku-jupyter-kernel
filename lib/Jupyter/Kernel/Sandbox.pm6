@@ -85,29 +85,40 @@ class Jupyter::Kernel::Sandbox is export {
             DONE
         }
 
-        my $output is default(Nil) =
-            try $!repl.repl-eval(
+        my $output is default(Nil);
+        my $gist;
+        try {
+            $output = $!repl.repl-eval(
                 $eval-code,
                 $exception,
                 :outer_ctx($!save_ctx),
                 :interactive(1)
             );
+            $gist = $output.gist;
+            CATCH {
+                default {
+                    $exception = $_;
+                }
+            }
+        }
         given $output {
             $_ = Nil if .?__hide;
             $_ = Nil if $_ ~~ List and .elems and .[*-1].?__hide;
             $_ = Nil if $_ === Any;
         }
-        my $caught;
-        $caught = $! if $!;
 
         if $*MAIN_CTX and !$no-persist {
             $!save_ctx := $*MAIN_CTX;
         }
 
-        $output = ~$_ with $exception // $caught;
+        with $exception {
+            $output = ~$_;
+            $gist = $output;
+        }
+        $gist //= $output;
         my $incomplete = so $!repl.input-incomplete($output);
         my $result = Result.new:
-            :output($output.gist),
+            :output($gist),
             :output-raw($output),
             :$stdout,
             :$exception,
