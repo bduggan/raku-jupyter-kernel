@@ -57,9 +57,14 @@ my class Magic::JS is Magic {
 
 my class Magic::Bash is Magic {
     method postprocess($code!) {
+        my $cmd = (shell $code, :out, :err);
+
         return Result.new:
-            output => (shell $code, :out).out.slurp(:close),
-            output-mime-type => 'text/plain';
+            output => $cmd.out.slurp(:close),
+            output-mime-type => 'text/plain',
+            stdout => $cmd.err.slurp(:close),
+            stdout-mime-type => 'text/plain',
+            ;
     }
 }
 
