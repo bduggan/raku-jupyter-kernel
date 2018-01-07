@@ -146,6 +146,17 @@ class MockResult {
        is .stdout-mime-type, 'text/html', 'but html on stdout';
     }
 }
+{
+    my $cell = ( '%% bash', 'echo hello').join("\n");
+    my $magic = $m.find-magic($cell);
+    ok $magic.perl, 'found bash magic';
+    given $magic.postprocess("echo hello") {
+        is .output, "hello\n", 'got output';
+        is .output-mime-type, 'text/plain', 'got right mime type';
+       }
+
+
+}
 done-testing;
 
 # vim: syn=perl6
