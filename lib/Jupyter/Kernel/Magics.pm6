@@ -56,7 +56,7 @@ my class Magic::JS is Magic {
 }
 
 my class Magic::Bash is Magic {
-    method postprocess($code!) {
+    method preprocess($code!) {
         my $cmd = (shell $code, :out, :err);
 
         return Result.new:
