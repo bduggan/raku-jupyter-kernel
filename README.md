@@ -133,6 +133,9 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
   * `#% html > latex`: The above two can be combined to render, for instance,
   the output cell as HTML, but stdout as LaTeX.
 
+  * '%% bash': Interpret the cell as bash.  stdout becomes the contents of
+  the next cell.  Behaves like Perl 6's built-in `shell`.
+
 Docker
 -------
 
