@@ -12,11 +12,15 @@ code and serializing input and output.
 REALLY QUICK START
 -------------------
 
-* Click here: [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master)
+mybinder.org provides a way to instantly launch a docker
+image for a notebook kernel.  To start one, just click on
+one of the links below, wait a few seconds, and
+then select New -> "Perl 6" from the menu on the right
+(try refreshing the page if the menu is empty at first).
 
-* Wait a few seconds.
-
-* Select New -> "Perl 6"
+* [latest rakudo](https://mybinder.org/v2/gh/sumandoc/Perl-6-notebook/master)
+* [rakudo 2017.12 + SVG::Plot + other languages](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master)
+  (based on the [all spark base image](https://github.com/jupyter/docker-stacks/tree/master/all-spark-notebook)).
 
 QUICK START
 -----------
@@ -139,7 +143,9 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
 Docker
 -------
 
-For an even quicker start using docker, see [this blog post](https://sumdoc.wordpress.com/2017/09/06/how-to-run-perl-6-notebook/).
+[This blog post](https://sumdoc.wordpress.com/2017/09/06/how-to-run-perl-6-notebook/) provides
+a tutorial for running this kernel with Docker.  [This one](https://sumdoc.wordpress.com/2018/01/04/using-perl-6-notebooks-in-binder/)
+describes usage with mybinder.org.
 
 EXAMPLES
 --------
@@ -157,9 +163,9 @@ example notebooks:
 
 SEE ALSO
 --------
-https://hub.docker.com/r/sumdoc/perl-6-notebook/
+* [Docker image for Perl 6](https://hub.docker.com/r/sumdoc/perl-6-notebook/)
 
-https://github.com/timo/iperl6kernel
+* [iperl6kernel](https://github.com/timo/iperl6kernel)
 
 KNOWN ISSUES
 ---------
