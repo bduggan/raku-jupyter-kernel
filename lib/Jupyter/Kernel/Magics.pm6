@@ -43,7 +43,7 @@ class Magic::Filter::Latex is Magic::Filter {
 }
 
 class Magic {
-    method preprocess($code!) { Nil }
+    method preprocess($code! is rw) { Nil }
     method postprocess(:$result! ) { $result }
 }
 
@@ -68,6 +68,13 @@ my class Magic::Bash is Magic {
     }
 }
 
+my class Magic::Run is Magic {
+    has Str $.file;
+    method preprocess($code! is rw) {
+        $code = join ' ', "EVALFILE", $.file.trim;
+        return;
+    }
+}
 class Magic::Filters is Magic {
     # Attributes match magic-params in grammar.
     has Magic::Filter $.out;
@@ -88,10 +95,13 @@ class Magic::Filters is Magic {
 grammar Magic::Grammar {
     rule TOP {
         [ '%%' | '#%' ]
-        [ <simple> | <filter> ]
+        [ <simple> || <args> || <filter> ]
     }
     token simple {
        $<key>=[ 'javascript' | 'bash' ]
+    }
+    token args {
+       $<key>='run' $<rest>=.*
     }
     rule filter {
        [
@@ -113,7 +123,7 @@ grammar Magic::Grammar {
 
 class Magic::Actions {
     method TOP($/) {
-        $/.make: $<simple>.made // $<filter>.made
+        $/.make: $<simple>.made // $<filter>.made // $<args>.made
     }
     method simple($/) {
         given "$<key>" {
@@ -122,6 +132,13 @@ class Magic::Actions {
             }
             when 'bash' {
                 $/.make: Magic::Bash.new;
+            }
+        }
+    }
+    method args($/) {
+        given ("$<key>") {
+            when 'run' {
+                $/.make: Magic::Run.new(file => ~$<rest>);
             }
         }
     }
