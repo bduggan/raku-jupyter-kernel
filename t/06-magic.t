@@ -168,6 +168,14 @@ class MockResult {
         like .stdout, /:i 'no such file'/, 'errors on stdout';
        }
 }
+{
+    my $file = "/tmp/test.$*PID";
+    my $cell = "%% run '$file'";
+    my $magic = $m.find-magic($cell);
+    ok $magic, 'found run magic';
+    nok $magic.preprocess($cell), 'no return value from preprocess';
+    is $cell, "EVALFILE '$file'", "made EVALFILE command";
+}
 done-testing;
 
 # vim: syn=perl6
