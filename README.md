@@ -140,8 +140,11 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
   * `%% bash`: Interpret the cell as bash.  stdout becomes the contents of
   the next cell.  Behaves like Perl 6's built-in `shell`.
 
-  * `%% run 'filename.p6'`: Run 'filename.p6', and put the final
-  expression into `_`.  Equivalent to `EVALFILE 'filename.p6'`.
+  * `%% run FILENAME`: Prepend the contents of FILENAME to the
+  contents of the current cell (if any) before execution.
+  Note this is different from the built-in `EVALFILE` in that
+  if any lexical variables, subroutines, etc. are declared in FILENAME,
+  they will become available in the notebook execution context.
 
 Docker
 -------
