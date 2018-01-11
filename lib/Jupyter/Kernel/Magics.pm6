@@ -71,7 +71,11 @@ my class Magic::Bash is Magic {
 my class Magic::Run is Magic {
     has Str $.file;
     method preprocess($code! is rw) {
-        $code = join ' ', "EVALFILE", $.file.trim;
+        given $code {
+            $_ = $.file.IO.slurp
+                ~ ( "\n" x so $_ )
+                ~ ( $_ // '')
+        }
         return;
     }
 }
@@ -138,7 +142,7 @@ class Magic::Actions {
     method args($/) {
         given ("$<key>") {
             when 'run' {
-                $/.make: Magic::Run.new(file => ~$<rest>);
+                $/.make: Magic::Run.new(file => trim ~$<rest>);
             }
         }
     }

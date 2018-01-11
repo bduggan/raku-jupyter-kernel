@@ -169,12 +169,40 @@ class MockResult {
        }
 }
 {
-    my $file = "/tmp/test.$*PID";
-    my $cell = "%% run '$file'";
+    my $code =  q:to/DONE/;
+        my $x = 1;
+        my $y = 2;
+        my $z = $x + $y;
+        42;
+        DONE
+    my $file will leave {.unlink} = $*TMPDIR.child("test.$*PID");
+    $file.spurt: $code;
+    my $cell = "%% run $file";
     my $magic = $m.find-magic($cell);
     ok $magic, 'found run magic';
     nok $magic.preprocess($cell), 'no return value from preprocess';
-    is $cell, "EVALFILE '$file'", "made EVALFILE command";
+    is $cell, $code, "Cell now has code";
+}
+{
+    my $code =  q:to/CODE/;
+        my $x = 1;
+        my $y = 2;
+        my $z = $x + $y;
+        42;
+        CODE
+    my $more = q:to/MORE/;
+        my $pdq = 99;
+        MORE
+    my $file will leave {.unlink} = $*TMPDIR.child("test.$*PID");
+    $file.spurt: $code;
+    my $cell = qq:to/CELL/;
+        %% run $file
+        $more
+        CELL
+    my $magic = $m.find-magic($cell);
+    ok $magic, 'found run magic';
+    nok $magic.preprocess($cell), 'no return value from preprocess';
+    is $cell, ($code,$more).join("\n") ~ "\n", "Cell now has more code";
 }
 done-testing;
 
