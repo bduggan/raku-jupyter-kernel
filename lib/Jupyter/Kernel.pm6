@@ -64,7 +64,9 @@ method run($spec-file!) {
     # Shell
     my $execution_count = 1;
     my $sandbox = Jupyter::Kernel::Sandbox.new;
-    my $promise = start loop {
+    my $promise = start {
+    my $*JUPYTER = Jupyter::Handler.new;
+    loop {
     try {
         my $msg = $shell.read-message;
         $iopub.parent = $msg;
@@ -207,7 +209,6 @@ method run($spec-file!) {
             error "shell: $_";
             error "trace: { .backtrace.list.map: ~* }";
         }
-    }
-    }
+    }}}
     await $promise;
 }

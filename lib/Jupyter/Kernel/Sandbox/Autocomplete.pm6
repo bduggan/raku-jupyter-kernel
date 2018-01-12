@@ -1,6 +1,7 @@
 #= Autocompletion for the sandbox.
 unit class Jupyter::Kernel::Sandbox::Autocomplete;
 use Log::Async;
+use Jupyter::Handler;
 
 constant set-operators = <<
         & ^ | ∈ ∉ ∋ ∌ ∖ ∩ ∪ ⊂ ⊃ ⊄ ⊅ ⊆ ⊇ ⊈ ⊍ ⊎ ⊖ ≼ ≽
@@ -56,8 +57,17 @@ sub extract-last-word(Str $line) {
     ( ~$m<prefix>, ~$m<last_word> )
 }
 
+sub add-sigil-or-twigil($prefix is rw, $word) {
+   return $word unless $prefix;
+   if $prefix.subst-mutate( / $<sigil> = <[$%@&]> $$/, '') {
+       return "$<sigil>" ~ $word;
+   }
+}
+
 method complete($str,$cursor-pos,$sandbox) {
+    my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Handler.new;
     my ($prefix,$last) = extract-last-word($str.substr(0,$cursor-pos));
+    my $identifier = add-sigil-or-twigil($prefix, $last);
 
     with self.complete-syntactic( $prefix, $str.substr($cursor-pos)) -> $got {
         my ($start, $end, $completions) = @$got;
@@ -83,12 +93,10 @@ method complete($str,$cursor-pos,$sandbox) {
    }
 
    # Also handle variables
-   # TODO: REPL doesn't currently preserve ::.keys in context.
-   if $prefix and substr($prefix,*-1,1) eq any('$','%','@','&') {
-       my $res = $sandbox.eval('::.keys.join(" ")');
-       my @possible = $res.output-raw.split(' ');
-       my @found = ( |@possible, |( CORE::.keys ) ).grep( { /^ "$last" / } ).sort;
-       return $prefix.chars, $cursor-pos, @found;
+   if $identifier {
+       my $possible = $*JUPYTER.lexicals;
+       my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
+       return $prefix.chars, $cursor-pos, $found if $found;
    }
 
    my @possible = CORE::.keys.grep({ /^ '&' / }).map( { .subst(/ ^ '&' /, '') } );

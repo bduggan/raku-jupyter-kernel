@@ -2,17 +2,19 @@
 use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
+use Jupyter::Handler;
 
 unless %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
     plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
 }
-plan 14;
+plan 15;
 
 unless %*ENV<MVM_SPESH_DISABLE> {
     diag "You may need to set MVM_SPESH_DISABLE=1 for these to pass";
 }
 
 my $r = Jupyter::Kernel::Sandbox.new;
+my $*JUPYTER = Jupyter::Handler.new;
 
 my ($pos, $end, $completions) = $r.completions('sa', 2);
 is-deeply $completions, [<samecase samemark samewith say>], 'completions for "sa"';
@@ -42,11 +44,11 @@ is-deeply $completions, $( 'is-prime', ), 'is-prime for a number';
 ($pos,$end,$completions) = $r.completions('if "hello world".sa');
 is-deeply $completions, $( 'say', ), 'say for a string';
 
-$res = $r.eval('my $ghostbusters = 99');
+$res = $r.eval('my $ghostbusters = 99', :store);
 is $res.output, 99, 'made a var';
 ($pos,$end,$completions) = $r.completions('say $ghost');
-todo 'autocomplete variables';
 is-deeply $completions, $( '$ghostbusters', ), 'completed a variable';
+is $pos, 4, 'position is correct';
 
 # Generate and error but still get something sane
 my $from-here = q[my $d = Flannel.new; $d.ch].chars;

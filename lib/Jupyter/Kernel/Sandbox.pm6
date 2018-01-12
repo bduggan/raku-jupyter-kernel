@@ -56,7 +56,7 @@ class Jupyter::Kernel::Sandbox is export {
         my $stdout;
         my $*CTXSAVE = $!repl;
         my $*MAIN_CTX;
-        my $*JUPYTER = Jupyter::Handler.new;
+        my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Handler.new;
         my $*OUT = class { method print(*@args) {
                               $stdout ~= @args.join;
                               return True but role { method __hide { True } }
@@ -69,6 +69,7 @@ class Jupyter::Kernel::Sandbox is export {
                 my \\_$store = \$(
                     $code
                 );
+                \$*JUPYTER.add-lexicals( MY::.keys );
                 \$Out[$store] := _$store;
                 _ = _$store;
                 DONE
