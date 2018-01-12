@@ -69,8 +69,13 @@ my class Magic::Bash is Magic {
 }
 
 my class Magic::Run is Magic {
-    has Str $.file;
+    has Str:D $.file is required;
     method preprocess($code! is rw) {
+        $.file.IO.e or
+            return Result.new(
+                stdout => "Could not find file: {$.file}",
+                stdout-mime-type => 'text/plain'
+            );
         given $code {
             $_ = $.file.IO.slurp
                 ~ ( "\n" x so $_ )

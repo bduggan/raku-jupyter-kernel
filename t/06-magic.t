@@ -6,7 +6,7 @@ use Jupyter::Kernel::Magics;
 
 logger.add-tap( -> $msg { diag $msg<msg> } );
 
-# plan 21;
+plan 56;
 
 my $m = Jupyter::Kernel::Magics.new;
 class MockResult {
@@ -204,6 +204,13 @@ class MockResult {
     nok $magic.preprocess($cell), 'no return value from preprocess';
     is $cell, ($code,$more).join("\n") ~ "\n", "Cell now has more code";
 }
-done-testing;
+
+{
+    my $cell = '%% run nosuchfile.abc';
+    my $magic = $m.find-magic($cell);
+    my $result = $magic.preprocess($cell);
+    ok $result, 'Handled missing file';
+    like $result.stdout, / 'not find' /, 'error message';
+}
 
 # vim: syn=perl6
