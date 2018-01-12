@@ -5,16 +5,16 @@ has $.id;
 has $.data;
 has $.name;
 has Channel $.out .= new;
+has Channel $.in .= new;
 has &.cb is required;
 
 method run($data) {
     my %args;
-    my $params = &.cb.signature.params;
-    if $params.grep: *.name eq '$channel' {
-        %args<channel> = $.out;
-    }
-    if $params.grep: *.name eq '$data' {
-        %args<data> = $data;
+    given &.cb.signature.params {
+        %args<out>  = $.out if .grep: *.name eq '$out';
+        %args<in>   = $.in  if .grep: *.name eq '$in';
+        %args<data> = $data if .grep: *.name eq '$data';
     }
     &.cb()(|%args);
 }
+

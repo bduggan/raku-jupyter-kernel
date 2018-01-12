@@ -25,7 +25,7 @@ has $.kernel-info = {
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
 }
 has $.magics = Jupyter::Kernel::Magics.new;
-has $.comms = Jupyter::Kernel::Comms.new;
+method comms { $*JUPYTER.comms }
 
 method resources {
     return %?RESOURCES;
@@ -65,7 +65,7 @@ method run($spec-file!) {
     my $execution_count = 1;
     my $sandbox = Jupyter::Kernel::Sandbox.new;
     my $promise = start {
-    my $*JUPYTER = Jupyter::Handler.new;
+    my $*JUPYTER = Jupyter::Kernel::Handler.new;
     loop {
     try {
         my $msg = $shell.read-message;
@@ -158,48 +158,20 @@ method run($spec-file!) {
                 # − http://jupyter-client.readthedocs.io/en/latest/messaging.html#history
             }
             when 'comm_open' {
-                debug "--- got a comm_open message ---";
-                my $content = $msg<content>;
-                my $id = $content<comm_id>;
-                my $data = $content<data>;
-                my $name = $content<target_name>;
-                my $comm = self.comms.add-comm(:$id, :$data, :$name);
-                if $comm {
-                    start react whenever $comm.out -> $msg {
+                my ($comm_id,$data,$name) = $msg<content><comm_id data target_name>;
+                with self.comms.add-comm(:id($comm_id), :$data, :$name) {
+                    start react whenever .out -> $data {
                         debug "sending a message from $name";
-                        $iopub.send( 'comm_msg', {
-                            'comm_id' => $id,
-                            'data' => $msg
-                        });
+                        $iopub.send: 'comm_msg', { :$comm_id, :$data }
                     }
                 } else {
                     $iopub.send( 'comm_close', {} );
                 }
             }
             when 'comm_msg' {
-                debug "--- got a comm_msg message ---";
-                my $content = $msg<content>;
-                my $id = $content<comm_id>;
-                my $data = $content<data>;
-                debug "got comm id $id";
-                debug "got data : { $data.perl }";
-                self.comms.send-to-comm(:$id,:$data);
-
-                #debug "testing comm!";
-                # $iopub.send: 'comm_open', {
-                #     'comm_id' => ~UUID.new(:version(4)),
-                # 'target_name' => 'my_comm_target',
-                # 'data' => '42'
-                #}
-                #sleep 2;
-                # $iopub.send: 'comm_msg', {
-                #     'comm_msg' => ~UUID.new(:version(4)),
-                #     'target_name' => 'my_comm_target',
-                #     'data' => '999'
-                # }
-                $execution_count++;
-                next;
-
+                my ($comm_id, $data) = $msg<content><comm_id data>;
+                debug "comm_msg for $comm_id";
+                self.comms.send-to-comm(:id($comm_id),:$data);
             }
             default {
                 warning "unimplemented message type: $_";

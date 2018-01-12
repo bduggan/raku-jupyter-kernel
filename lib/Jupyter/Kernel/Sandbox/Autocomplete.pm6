@@ -1,7 +1,7 @@
 #= Autocompletion for the sandbox.
 unit class Jupyter::Kernel::Sandbox::Autocomplete;
 use Log::Async;
-use Jupyter::Handler;
+use Jupyter::Kernel::Handler;
 
 constant set-operators = <<
         & ^ | ∈ ∉ ∋ ∌ ∖ ∩ ∪ ⊂ ⊃ ⊄ ⊅ ⊆ ⊇ ⊈ ⊍ ⊎ ⊖ ≼ ≽
@@ -65,7 +65,7 @@ sub add-sigil-or-twigil($prefix is rw, $word) {
 }
 
 method complete($str,$cursor-pos,$sandbox) {
-    my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Handler.new;
+    my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
     my ($prefix,$last) = extract-last-word($str.substr(0,$cursor-pos));
     my $identifier = add-sigil-or-twigil($prefix, $last);
 
