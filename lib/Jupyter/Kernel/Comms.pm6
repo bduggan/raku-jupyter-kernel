@@ -4,6 +4,7 @@ use Log::Async;
 
 our %COMM-CALLBACKS;  # keyed on global names
 has %.comms;          # keyed on id
+has %.running;
 
 method add-comm-callback($name,&callback) {
     %COMM-CALLBACKS{ $name } = &callback;
@@ -13,7 +14,7 @@ method add-comm(Str:D :$id, :$name, :$data) {
     %COMM-CALLBACKS{ $name }:exists or return;
     my &cb = %COMM-CALLBACKS{ $name };
     my $new = Jupyter::Kernel::Comm.new(:$id,:$data,:$name,:&cb);
-    $new.run($data);
+    %.running{ $id } = start $new.run($data);
     %.comms{ $id } = $new;
     return $new;
 }
