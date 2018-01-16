@@ -146,6 +146,9 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
   if any lexical variables, subroutines, etc. are declared in FILENAME,
   they will become available in the notebook execution context.
 
+* Comms.  Comms allow for asynchronous communication between a notebook
+and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
+
 Docker
 -------
 
