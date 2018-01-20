@@ -9,7 +9,7 @@ RUN apt-get update \
   && make && make install && cd .. && rm -rf rakudo \
   && git clone https://github.com/ugexe/zef.git && cd zef && perl6 -Ilib bin/zef install . \
   && export PATH=$PATH:/usr/share/perl6/site/bin \
-  && zef -v install Jupyter::Kernel SVG::Plot --force-test \
+  && zef -v install "Jupyter::Kernel:ver<0.0.6>" SVG::Plot --force-test \
   && jupyter-kernel.p6 --generate-config
 
 ENV PATH /usr/share/perl6/site/bin:$PATH
