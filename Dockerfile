@@ -15,6 +15,8 @@ RUN apt-get update \
   && zef -v install SVG::Plot --force-test \
   && git clone https://github.com/bduggan/p6-jupyter-kernel.git \
   && mv p6-jupyter-kernel/eg . && rm -rf p6-jupyter-kernel \
+  && chown -R $NB_USER:$NB_GID eg \
+  && fix-permissions eg \
   && jupyter-kernel.p6 --generate-config
 
 ENV PATH /usr/share/perl6/site/bin:$PATH
