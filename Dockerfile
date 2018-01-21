@@ -8,9 +8,13 @@ RUN apt-get update \
   && cd rakudo && perl Configure.pl --prefix=/usr --gen-moar --gen-nqp --backends=moar \
   && make && make install && cd .. && rm -rf rakudo \
   && export PATH=$PATH:/usr/share/perl6/site/bin \
-  && git clone https://github.com/ugexe/zef.git && cd zef && perl6 -Ilib bin/zef install . \
+  && git clone https://github.com/ugexe/zef.git \
+     && cd zef && perl6 -Ilib bin/zef install . \
+     && cd .. && rm -rf zef \
   && zef -v install https://github.com/bduggan/p6-jupyter-kernel.git@0.0.7 \
   && zef -v install SVG::Plot --force-test \
+  && git clone https://github.com/bduggan/p6-jupyter-kernel.git \
+  && mv p6-jupyter-kernel/eg . && rm -rf p6-jupyter-kernel \
   && jupyter-kernel.p6 --generate-config
 
 ENV PATH /usr/share/perl6/site/bin:$PATH
