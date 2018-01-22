@@ -1,5 +1,7 @@
 FROM jupyter/all-spark-notebook:033056e6d164
 
+# last update: Mon Jan 22 09:34:22 EST 2018 
+
 USER root
 
 RUN apt-get update \
