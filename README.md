@@ -112,6 +112,8 @@ alias iperl6='jupyter-console --kernel=perl6'
 
   * autocompleting ` **` or a superscript will give you superscripts (for typing exponents).
 
+  * the word 'atomic' autocompletes to the [atomic operators](https://docs.perl6.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
+
 * All cells are evaluated in item context.  Outputs are then saved to an array
 named `$Out`.  You can read from this directly or:
 

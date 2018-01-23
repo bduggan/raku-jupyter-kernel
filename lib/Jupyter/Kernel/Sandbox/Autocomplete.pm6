@@ -12,6 +12,7 @@ constant equality-operators = << ≠ ≅ == != <=> =:= === =~= >>;
 constant less-than-operators = << < ≤ <= >>;
 constant greater-than-operators = << > ≥ >= >>;
 constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ>;
+constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
 
 method complete-ops($str, $next = '') {
     return unless $str.chars > 0;
@@ -66,6 +67,12 @@ method complete($str,$cursor-pos,$sandbox) {
     my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
     my ($prefix,$last) = extract-last-word($str.substr(0,$cursor-pos));
     my $identifier = add-sigil-or-twigil($prefix, $last);
+
+    # Special handling for atomic (subs that are operators).
+    if $last eq 'atomic' {
+        return $cursor-pos - 'atomic'.chars,
+               $cursor-pos, atomic-operators;
+    }
 
     with self.complete-syntactic( $prefix, $str.substr($cursor-pos)) -> $got {
         my ($start, $end, $completions) = @$got;

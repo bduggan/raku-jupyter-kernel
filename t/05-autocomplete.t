@@ -6,7 +6,7 @@ use Jupyter::Kernel::Sandbox::Autocomplete;
 
 logger.add-tap(  -> $msg { diag $msg<msg> } );
 
-plan 8;
+plan 10;
 
 my $c = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
@@ -29,5 +29,11 @@ my $c = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
 is $c.complete-ops('*'), (0, << * × >>), 'multiplication';
 is $c.complete-ops('<'), (0, << < ≤ <= >>), 'less than';
+
+{
+    my ($pos,$offset,$atomic) = $c.complete('$a atomic','$a atomic'.chars,Nil);
+    ok @$atomic > 0, 'got some atomic ops';
+    ok <⚛= ⚛> ⊂ $atomic, 'atomic ops contains ⚛= ⚛';
+}
 
 # vim: syn=perl6
