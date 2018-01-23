@@ -104,11 +104,13 @@ alias iperl6='jupyter-console --kernel=perl6'
 
   * methods: after a `.` the invocant will be evaluated to find methods
 
-  * set operators: after a `(`, set operators (unicode and texas) will be shown
+  * set operators: after a ` (`, set operators (unicode and texas) will be shown (note the whitespace before the `(`)).
 
-  * equality/inequality operators: after `=`, `<`, or `>`, related operators will be shown
+  * equality/inequality operators: after `=`, ` <`, or ` >`, related operators will be shown.
 
-  * autocompleting `*` or `/` will give `×` or `÷` respectively
+  * autocompleting ` *` or ` /` will give `×` or `÷` respectively.
+
+  * autocompleting ` **` or a superscript will give you superscripts (for typing exponents).
 
 * All cells are evaluated in item context.  Outputs are then saved to an array
 named `$Out`.  You can read from this directly or:
