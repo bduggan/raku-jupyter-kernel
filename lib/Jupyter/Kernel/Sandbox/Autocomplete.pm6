@@ -15,15 +15,13 @@ constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ �
 
 method complete-ops($str, $next = '') {
     return unless $str.chars > 0;
-    given substr($str,*-1,1) {
-        when '(' { return 1, set-operators if $str && $str eq ')';
-                   return 0, set-operators;
-                 }
-        when '=' { return 0, equality-operators }
-        when '<' { return 0, less-than-operators }
-        when '>' { return 0, greater-than-operators }
-        when '*' { return 0, << * × >> }
-        when '/' { return 0, << / ÷ >> }
+    given $str {
+        when / [ \s|^] '(' $/ { return 0, set-operators; }
+        when / [ \s|^] '='? '=' $/ { return 0, equality-operators }
+        when / [ \s|^] '<' $/ { return 0, less-than-operators }
+        when / [ \s|^] '>' $/ { return 0, greater-than-operators }
+        when / [ \s|^] '*' $/ { return 0, << * × >> }
+        when / [ \s|^] '/' $/ { return 0, << / ÷ >> }
     }
     return;
 }
