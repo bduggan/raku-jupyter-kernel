@@ -114,6 +114,11 @@ alias iperl6='jupyter-console --kernel=perl6'
 
   * the word 'atomic' autocompletes to the [atomic operators](https://docs.perl6.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
 
+  * a colon followed by a sequence of word characters will autocomplete
+    to characters whose unicode name contains that string.  Dashes are
+    treated as spaces.
+    e.g. :straw will find 🍓 ("STRAWBERRY") or 🥤 ("CUP WITH STRAW")  and :smiling-face-with-smiling-eye will find 😊 ("SMILING FACE WITH SMILING EYES")
+
 * All cells are evaluated in item context.  Outputs are then saved to an array
 named `$Out`.  You can read from this directly or:
 

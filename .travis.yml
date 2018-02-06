@@ -2,12 +2,12 @@ language: perl6
 env:
   - MVM_SPESH_DISABLE=1 P6_JUPYTER_TEST_AUTOCOMPLETE=1
 perl6:
-  - 2017.08
+  - 2018.01
 before_install:
   - wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
   - tar -xzvf zeromq-4.2.2.tar.gz
   - pushd zeromq-4.2.2 && ./configure --prefix=/usr && make && sudo make install && popd
 install:
   - rakudobrew build zef
-  - zef install --depsonly .
-
+  - travis_retry zef install --depsonly .
+sudo: false

@@ -104,6 +104,23 @@ method complete($str,$cursor-pos,$sandbox) {
        return $prefix.chars, $cursor-pos, $found if $found;
    }
 
+   # Unicode lookup
+   my regex uniname { [ \w | '-' ]+ }
+   if $str ~~ / ':' $<word>=<uniname> $/ {
+      my $word = "$<word>".fc;
+      my $alt;
+      $alt = $word.subst('-',' ', :global) if $word.contains('-');
+      my @chars = (1 .. 0x1ffff)
+        .map({.chr})
+        .grep({
+            my $u = .uniname.fc;
+            $u.contains($word)
+                or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
+         }).head(10);
+      my $pos = $str.chars - $word.chars - 1;
+      return ( $pos, $pos + $word.chars + 1, @chars ) if @chars;
+   }
+
    my @possible = CORE::.keys.grep({ /^ '&' / }).map( { .subst(/ ^ '&' /, '') } );
    return $prefix.chars, $cursor-pos, [ @possible.grep( { / ^ "$last" / } ).sort ];
 }

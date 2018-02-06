@@ -6,7 +6,7 @@ use Jupyter::Kernel::Sandbox::Autocomplete;
 
 logger.add-tap(  -> $msg { diag $msg<msg> } );
 
-plan 10;
+plan 17;
 
 my $c = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
@@ -35,5 +35,27 @@ is $c.complete-ops('<'), (0, << < ≤ <= >>), 'less than';
     ok @$atomic > 0, 'got some atomic ops';
     ok <⚛= ⚛> ⊂ $atomic, 'atomic ops contains ⚛= ⚛';
 }
+
+{
+    my ($pos,$end,$beer) = $c.complete('some :beer','some :beer'.chars,Nil);
+    ok @$beer > 0, 'got some beer';
+    ok <🍺 🍻> ⊆ $beer, 'beer contains🍺 and 🍻 ';
+    is $pos, 5, 'got right start';
+    is $end, '10', 'got right end';
+}
+{
+    my ($pos,$end,$beer) = $c.complete('some :b','some :b'.chars,Nil);
+    ok $beer.elems ≤ 10, '10 or fewer results'; 
+}
+{
+    my ($pos,$end,$got) = $c.complete(':less-than',':less-than'.chars,Nil);
+    ok '≤' ∈ @$got, 'found less-than';
+}
+{
+    my ($pos,$end,$got) = $c.complete(':less-than-or-equal',':less-than'.chars,Nil);
+    ok '≤' ∈ @$got, 'found ≤';
+}
+
+
 
 # vim: syn=perl6
