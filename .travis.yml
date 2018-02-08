@@ -1,13 +1,13 @@
-language: perl6
 env:
   - MVM_SPESH_DISABLE=1 P6_JUPYTER_TEST_AUTOCOMPLETE=1
-perl6:
-  - 2017.08
 before_install:
+  - wget https://github.com/nxadm/rakudo-pkg/releases/download/v2018.01/rakudo-pkg-Ubuntu17.10_2018.01-01_amd64.deb && sudo dpkg -i *.deb
+  - sudo install-zef-as-root
   - wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
   - tar -xzvf zeromq-4.2.2.tar.gz
   - pushd zeromq-4.2.2 && ./configure --prefix=/usr && make && sudo make install && popd
+script:
+  - prove -eperl6 t/*
 install:
-  - rakudobrew build zef
   - zef install --depsonly .
-
+sudo: true
