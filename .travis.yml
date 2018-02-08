@@ -7,7 +7,9 @@ before_install:
   - wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
   - tar -xzvf zeromq-4.2.2.tar.gz
   - pushd zeromq-4.2.2 && ./configure --prefix=/usr && make && sudo make install && popd
+script:
+  - wget https://github.com/nxadm/rakudo-pkg/releases/download/v2018.01/rakudo-pkg-Ubuntu17.10_2018.01-01_amd64.deb
+  - dpkg -i *.deb
+  - install-zef-as-root
 install:
-  - rakudobrew build zef
   - zef install --depsonly .
-
