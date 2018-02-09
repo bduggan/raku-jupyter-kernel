@@ -13,7 +13,7 @@ RUN apt-get update \
   && git clone https://github.com/ugexe/zef.git \
      && cd zef && perl6 -Ilib bin/zef install . \
      && cd .. && rm -rf zef \
-  && zef -v install https://github.com/bduggan/p6-jupyter-kernel.git@0.0.7 \
+  && zef -v install https://github.com/bduggan/p6-jupyter-kernel.git@0.0.8 \
   && zef -v install SVG::Plot --force-test \
   && git clone https://github.com/bduggan/p6-jupyter-kernel.git \
   && mv p6-jupyter-kernel/eg . && rm -rf p6-jupyter-kernel \
