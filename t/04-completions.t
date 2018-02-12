@@ -7,7 +7,7 @@ use Jupyter::Kernel::Handler;
 unless %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
     plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
 }
-plan 15;
+plan 16;
 
 unless %*ENV<MVM_SPESH_DISABLE> {
     diag "You may need to set MVM_SPESH_DISABLE=1 for these to pass";
@@ -17,11 +17,11 @@ my $r = Jupyter::Kernel::Sandbox.new;
 my $*JUPYTER = Jupyter::Kernel::Handler.new;
 
 my ($pos, $end, $completions) = $r.completions('sa', 2);
-is-deeply $completions, [<samecase samemark samewith say>], 'completions for "sa"';
+is-deeply $completions, [ <samecase samemark samewith say> ], 'completions for "sa"';
 is $pos, 0, 'offset';
 
 ($pos, $end, $completions) = $r.completions(' sa');
-is-deeply $completions, [<samecase samemark samewith say>], 'completions for "sa"';
+is-deeply $completions, [ <samecase samemark samewith say> ], 'completions for "sa"';
 is $pos, 1, 'offset';
 
 my $res = $r.eval(q[my $x = 'hello'; $x]);
@@ -50,10 +50,14 @@ is $res.output, 99, 'made a var';
 is-deeply $completions, $( '$ghostbusters', ), 'completed a variable';
 is $pos, 4, 'position is correct';
 
-# Generate and error but still get something sane
+# Generate an error but still get something sane
 my $from-here = q[my $d = Flannel.new; $d.ch].chars;
 my $str = q[my $d = Flannel.new; $d.ch  and say 'ok'];
 ($pos,$end,$completions) = $r.completions($str,$from-here);
-is $completions, <chars chdir chmod chomp chop chr chrs>, 'got something sane despite error'
+is $completions, <chars chdir chmod chomp chop chr chrs>, 'got something sane despite error';
+
+$res = $r.eval(q|sub flubber { 99 };|, :11store );
+($pos,$end,$completions) = $r.completions('flubb');
+is-deeply $completions, [ <flubber>, ], 'found a subroutine declaration';
 
 # vim: syn=perl6

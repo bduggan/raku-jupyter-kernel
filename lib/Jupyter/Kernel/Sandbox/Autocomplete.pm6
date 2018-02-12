@@ -79,8 +79,8 @@ method complete($str,$cursor-pos,$sandbox) {
         return $prefix.chars-$start, $str.chars + $end, $completions;
     }
 
-   # Handle methods.
-   if $prefix and $prefix ~~ /'.'$/ {
+    # Handle methods.
+    if $prefix and $prefix ~~ /'.'$/ {
        my ($pre,$what) = extract-last-word(substr($prefix,0,*-1));
        my $var = $what;
        if $pre ~~ /$<sigil>=<[&$@%]>$/ {
@@ -95,32 +95,47 @@ method complete($str,$cursor-pos,$sandbox) {
            my @methods = $res.output-raw.split(' ').unique;
            return $prefix.chars, $cursor-pos, @methods.grep( { / ^ "$last" / } ).sort;
        }
-   }
+    }
 
-   # Also handle variables
-   if $identifier {
-       my $possible = $*JUPYTER.lexicals;
-       my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
-       return $prefix.chars, $cursor-pos, $found if $found;
-   }
-
-   # Unicode lookup
-   my regex uniname { [ \w | '-' ]+ }
-   if $str ~~ / ':' $<word>=<uniname> $/ {
+    # Unicode lookup
+    my regex uniname { [ \w | '-' ]+ }
+    if $str ~~ / ':' $<word>=<uniname> $/ {
       my $word = "$<word>".fc;
       my $alt;
       $alt = $word.subst('-',' ', :global) if $word.contains('-');
       my @chars = (1 .. 0x1ffff)
-        .map({.chr})
-        .grep({
-            my $u = .uniname.fc;
-            $u.contains($word)
-                or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
-         }).head(10);
+          .map({.chr})
+          .grep({
+                my $u = .uniname.fc;
+                $u.contains($word)
+                    or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
+          }).head(10);
       my $pos = $str.chars - $word.chars - 1;
       return ( $pos, $pos + $word.chars + 1, @chars ) if @chars;
-   }
+    }
 
-   my @possible = CORE::.keys.grep({ /^ '&' / }).map( { .subst(/ ^ '&' /, '') } );
-   return $prefix.chars, $cursor-pos, [ @possible.grep( { / ^ "$last" / } ).sort ];
+    # Look for subroutines/barewords
+    if $last and $last ~~ /^ \w / {
+       my @bare;
+       my %barewords = pi => 'π', inf => '∞';
+       with %barewords{ $last } {
+           @bare.push: $_
+       }
+       my $possible = $*JUPYTER.lexicals;
+       my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ '&'? "$last" / } )
+        .sort.map: { .subst('&','') }
+       @bare.append: @$found if $found;
+       return $prefix.chars, $cursor-pos, @bare if @bare;
+    }
+
+    # Variables
+    if $identifier {
+       my $possible = $*JUPYTER.lexicals;
+       my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
+       return $prefix.chars, $cursor-pos, $found if $found;
+    }
+
+
+    my @possible = CORE::.keys.grep({ /^ '&' / }).map( { .subst(/ ^ '&' /, '') } );
+    return $prefix.chars, $cursor-pos, [ @possible.grep( { / ^ "$last" / } ).sort ];
 }
