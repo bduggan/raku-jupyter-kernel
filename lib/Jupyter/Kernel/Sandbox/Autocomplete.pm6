@@ -80,7 +80,7 @@ method complete($str,$cursor-pos,$sandbox) {
     }
 
     # Handle methods.
-    if $prefix and $prefix ~~ /'.'$/ {
+    if $prefix and $prefix ~~ / <!after '.'> '.'$/ {
        my ($pre,$what) = extract-last-word(substr($prefix,0,*-1));
        my $var = $what;
        if $pre ~~ /$<sigil>=<[&$@%]>$/ {
@@ -91,7 +91,7 @@ method complete($str,$cursor-pos,$sandbox) {
        $all = '' unless $last.chars; # local methods only unless at least 1 char
        my $eval-str = $var ~ '.^methods(' ~ $all ~ ').map({.name}).join(" ")';
        my $res = $sandbox.eval($eval-str, :no-persist );
-       if !$res.exception && !$res.incomplete {
+       if $res and !$res.exception and !$res.incomplete {
            my @methods = $res.output-raw.split(' ').unique;
            return $prefix.chars, $cursor-pos, @methods.grep( { / ^ "$last" / } ).sort;
        }
@@ -117,7 +117,7 @@ method complete($str,$cursor-pos,$sandbox) {
     # Look for subroutines/barewords
     if $last and $last ~~ /^ \w / {
        my @bare;
-       my %barewords = pi => 'π', inf => '∞', tau => 'τ';
+       my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
        with %barewords{ $last } {
            @bare.push: $_
        }
