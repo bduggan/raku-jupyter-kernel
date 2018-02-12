@@ -6,7 +6,7 @@ use Jupyter::Kernel::Sandbox::Autocomplete;
 
 logger.add-tap(  -> $msg { diag $msg<msg> } );
 
-plan 19;
+plan 20;
 
 my $c = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
@@ -62,5 +62,9 @@ is $c.complete-ops('<'), (0, << < ≤ <= >>), 'less than';
 {
     my ($pos,$end,$got) = $c.complete('pi','pi'.chars,Nil);
     ok 'π' ∈ @$got, 'found π';
+}
+{
+    my ($pos,$end,$got) = $c.complete('tau','tau'.chars,Nil);
+    ok 'τ' ∈ @$got, 'found τ';
 }
 # vim: syn=perl6

@@ -117,7 +117,7 @@ method complete($str,$cursor-pos,$sandbox) {
     # Look for subroutines/barewords
     if $last and $last ~~ /^ \w / {
        my @bare;
-       my %barewords = pi => 'π', inf => '∞';
+       my %barewords = pi => 'π', inf => '∞', tau => 'τ';
        with %barewords{ $last } {
            @bare.push: $_
        }
