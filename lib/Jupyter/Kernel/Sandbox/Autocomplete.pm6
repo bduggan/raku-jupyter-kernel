@@ -25,17 +25,32 @@ method !find-methods(:$sandbox, Bool :$all, :$var) {
        $res.output-raw.split(' ').unique;
 }
 
+my @CANDIDATES;
+my $loading;
+unless @CANDIDATES {
+    $loading = start @CANDIDATES = (1 .. 0x1ffff).map({.chr})
+                      .grep({ not .uniprop.starts-with('C')
+                            and not .uniprop.starts-with('Z')
+                            and not .uniprop.starts-with('M') });
+}
+
 method !unisearch($word) {
-  my $alt;
-  $alt = $word.subst('-',' ', :global) if $word.contains('-');
-  my @chars = (1 .. 0x1ffff)
-     .map({.chr})
-     .grep({
-        my $u = .uniname.fc;
-        $u.contains($word)
-           or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
-     }).head(10);
-  return @chars;
+  state %cache;
+  await $loading;
+  %cache{$word} //= do {
+    my $alt;
+    $alt = $word.subst('-',' ', :global) if $word.contains('-');
+    my @chars = @CANDIDATES
+        .hyper
+        .grep({
+            my $u = .uniname.fc;
+            $u.contains($word)
+            or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
+        }).head(10);
+    @chars;
+  }
+  my $chars = %cache{$word};
+  %cache{$word}
 }
 
 method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
