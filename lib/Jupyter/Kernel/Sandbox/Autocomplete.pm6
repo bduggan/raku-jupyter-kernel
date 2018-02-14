@@ -86,7 +86,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when /  'atomic'  $/       { return $p - 'atomic'.chars, $p, atomic-operators; }
         when / '**' $/             { return $p-2, $p, superscripts }
         when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
-        when / <invocant> '.' <method-call>? $/ {
+        when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
