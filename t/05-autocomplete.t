@@ -10,10 +10,12 @@ my $c = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
 ok $c.complete('prin')[2].contains('print'), 'print';
 ok $c.complete('(')[2] ⊃ <∩ ∪ ⊂ ⊃>, 'found set ops';
+ok $c.complete('( <a b c d>',1)[2] ⊃ <∩ ∪ ⊂ ⊃>, 'found set ops in the middle';
+ok $c.complete('(1..10) (')[0,1] eqv (8,9), 'right position';
 ok $c.complete('<1 2 3> (')[2] ⊃ <∩ ∪ ⊂ ⊃>, 'found set ops';
 ok $c.complete('**')[2] ⊃ <³ ⁴ ⁵ ⁶ ⁷>, 'got some exponents';
-is $c.complete('*'), (1, 0, << * × >>), 'multiplication';
-is $c.complete('<'), (1, 0, << < ≤ <= >>), 'less than';
+is $c.complete('*'), (0, 1, << * × >>), 'multiplication';
+is $c.complete('<'), (0, 1, << < ≤ <= >>), 'less than';
 
 {
     my ($pos,$offset,$atomic) = $c.complete('$a atomic','$a atomic'.chars,Nil);

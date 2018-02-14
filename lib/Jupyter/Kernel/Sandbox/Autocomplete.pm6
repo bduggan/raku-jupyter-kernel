@@ -65,21 +65,22 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     }
     my regex uniname { [ \w | '-' ]+ }
 
-    given $str.substr(0,$cursor-pos) {
-        when / [ \s|^] '(' $/      { return 1, 0, set-operators; }
-        when / [ \s|^] '='? '=' $/ { return 1, 0, equality-operators }
-        when / [ \s|^] '<' $/      { return 1, 0, less-than-operators }
-        when / [ \s|^] '>' $/      { return 1, 0, greater-than-operators }
-        when / [ \s|^] '*' $/      { return 1, 0, << * × >> }
-        when / [ \s|^] '/' $/      { return 1, 0, << / ÷ >> }
-        when /  'atomic'  $/       { return $cursor-pos - 'atomic'.chars, $cursor-pos, atomic-operators; }
-        when / '**' $/             { return 2, 0, superscripts }
-        when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ("$/".chars, 0, [ "$/" X~ superscripts ]); }
+    my $p = $cursor-pos;
+    given $str.substr(0,$p) {
+        when / [\s|^] '(' $/       { return $p-1, $p, set-operators; }
+        when / [\s|^] '='? '=' $/  { return $p-1, $p, equality-operators }
+        when / [\s|^] '<' $/       { return $p-1, $p, less-than-operators }
+        when / [\s|^] '>' $/       { return $p-1, $p, greater-than-operators }
+        when / [\s|^] '*' $/       { return $p-1, $p, << * × >> }
+        when / [\s|^] '/' $/       { return $p-1, $p, << / ÷ >> }
+        when /  'atomic'  $/       { return $p - 'atomic'.chars, $p, atomic-operators; }
+        when / '**' $/             { return $p-2, $p, superscripts }
+        when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
         when / <invocant> '.' <method-call>? $/ {
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
-            my $len = $cursor-pos - "$<method-call>".chars;
+            my $len = $p - "$<method-call>".chars;
             my $last = ~ ( $<method-call> // '' );
-            return $len, $cursor-pos, @methods.grep( { / ^ "$last" / } ).sort;
+            return $len, $p, @methods.grep( { / ^ "$last" / } ).sort;
         }
         when / ':' <uniname> $/ {
             my $word = ~ $<uniname>;
@@ -99,15 +100,17 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
                         ).grep( { /^ '&'? "$last" / }
                         ).sort.map: { .subst('&','') }
             @bare.append: @$found if $found;
-            return $str.chars - $last.chars, $cursor-pos, @bare if @bare;
+            return $p - $last.chars, $p, @bare if @bare;
         }
         when / <sigil> <identifier> $/ {
             my $identifier = "$/";
             my $possible = $*JUPYTER.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
-            return $str.chars - $identifier.chars, $cursor-pos, $found if $found;
+            return $p - $identifier.chars, $p, $found if $found;
         }
         default {
+            my $found = ( |( CORE::.keys ) ).sort;
+            return $p, $p, $found;
         }
     }
 }
