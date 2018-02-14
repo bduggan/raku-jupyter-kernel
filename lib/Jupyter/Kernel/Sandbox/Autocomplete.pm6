@@ -67,7 +67,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
 
     my regex identifier { [ \w | '-' | '_' ]+ }
-    my regex sigil { <[&$@%]> }
+    my regex sigil { <[&$@%]> | '$*' }
     my regex method-call { [ \w | '-' | '_' ]+ }
     my regex invocant {
        | <sigil>? <identifier>
