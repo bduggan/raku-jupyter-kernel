@@ -45,7 +45,7 @@ method !unisearch($word) {
             my $u = .uniname.fc;
             $u.contains($word)
             or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
-        }).head(10);
+        }).head(30);
     @chars;
   }
   my $chars = %cache{$word};

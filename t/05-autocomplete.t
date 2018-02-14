@@ -32,7 +32,7 @@ is $c.complete('<'), (0, 1, << < ≤ <= >>), 'less than';
 }
 {
     my ($pos,$end,$beer) = $c.complete('some :b','some :b'.chars,Nil);
-    ok $beer.elems ≤ 10, '10 or fewer results'; 
+    ok $beer.elems ≤ 30, '30 or fewer results';
 }
 {
     my ($pos,$end,$got) = $c.complete(':less-than',':less-than'.chars,Nil);
