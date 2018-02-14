@@ -18,8 +18,7 @@ method !find-methods(:$sandbox, Bool :$all, :$var) {
        my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
        my $res = $sandbox.eval($eval-str, :no-persist );
        unless $res and !$res.exception and !$res.incomplete {
-           say 'error';
-           say $res;
+           debug 'autocomplete produced an error';
            return;
        }
        $res.output-raw.split(' ').unique;
@@ -53,6 +52,17 @@ method !unisearch($word) {
   %cache{$word}
 }
 
+my sub find-dynamics($str) {
+    # Is there a way to get these programmatically?
+    # Otherwise:
+    #     find src -type f | \
+    #     xargs perl -ln -e "/REGISTER-DYNAMIC: '(.*)'.*\$/ and print \$1 =~ s/'.*$//r"
+    my @dyns = <ARGFILES COLLATION CWD DEFAULT-READ-ELEMS DISTRO EXECUTABLE EXECUTABLE-NAME
+    GROUP HOME INIT-INSTANT INITTIME KERNEL PERL PROGRAM PROGRAM-NAME
+    RAKUDO_MODULE_DEBUG REPO THREAD TMPDIR TOLERANCE TZ USER VM>;
+    return @dyns.grep: { .fc.starts-with($str.fc) }
+}
+
 method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
 
@@ -78,9 +88,9 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
         when / <invocant> '.' <method-call>? $/ {
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
-            my $len = $p - "$<method-call>".chars;
-            my $last = ~ ( $<method-call> // '' );
-            return $len, $p, @methods.grep( { / ^ "$last" / } ).sort;
+            my $meth = ~( $<method-call> // "" );
+            my $len = $p - $meth.chars;
+            return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
         }
         when / ':' <uniname> $/ {
             my $word = ~ $<uniname>;
@@ -106,7 +116,12 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my $identifier = "$/";
             my $possible = $*JUPYTER.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
-            return $p - $identifier.chars, $p, $found if $found;
+            return $p - $identifier.chars, $p, $found;
+        }
+        when / '$*' <identifier>? $/ {
+            my $identifier = $<identifier> // '';
+            my $found = map { '$*' ~ $_ }, find-dynamics($identifier);
+            return $p - $identifier.chars - 2, $p, $found;
         }
         default {
             my $found = ( |( CORE::.keys ) ).sort;

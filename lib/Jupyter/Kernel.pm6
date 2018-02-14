@@ -137,13 +137,14 @@ method run($spec-file!) {
                 my (Int $cursor_start, Int $cursor_end, $completions)
                     = $sandbox.completions($code,$cursor_pos);
                 $completions //= [];
+                $completions .= grep: *.defined;
                 $shell.send: 'complete_reply',
                       { matches => $completions,
                         :$cursor_end,
                         :$cursor_start,
                         metadata => {},
                         status => 'ok'
-                }
+                };
             }
             when 'shutdown_request' {
                 my $restart = $msg<content><restart>;
