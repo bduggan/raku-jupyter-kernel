@@ -3,6 +3,9 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 use Jupyter::Kernel::Handler;
+use Log::Async;
+
+logger.send-to($*ERR);
 
 unless %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
     plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
@@ -51,14 +54,22 @@ is $pos, 4, 'position is correct';
 
 # Generate an error but still get something sane
 $r.eval('class Flannel { }; my $d = Flannel.new;', :11store); 
-my $from-here = q[$d.ch].chars;
-my $str = q['$d.ch  and say 'ok'];
+my $from-here = q[$d.c].chars;
+my $str = q[$d.c  and say 'ok'];
 ($pos,$end,$completions) = $r.completions($str,$from-here);
 is $completions, <cache can categorize classify clone collate combinations>, 'Mu class';
 
-$res = $r.eval(q|sub flubber { 99 };|, :11store );
+$res = $r.eval(q|sub flubber { 99 };|, :12store );
 ($pos,$end,$completions) = $r.completions('flubb');
 is-deeply $completions, [ <flubber>, ], 'found a subroutine declaration';
+
+{
+    my $str = '(1..100).';
+    $res = $r.eval(q|(1..100).|, :13store );
+    ($pos,$end,$completions) = $r.completions($str);
+    ok 'max' ∈ $completions, 'complete an expression';
+}
+
 
 done-testing;
 

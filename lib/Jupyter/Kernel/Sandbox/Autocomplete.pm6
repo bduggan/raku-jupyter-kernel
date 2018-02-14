@@ -70,8 +70,8 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     my regex sigil { <[&$@%]> | '$*' }
     my regex method-call { [ \w | '-' | '_' ]+ }
     my regex invocant {
-       | <sigil>? <identifier>
        | '"' <-["]>+ '"'
+       | [ \S+ ]
     }
     my regex uniname { [ \w | '-' ]+ }
 
