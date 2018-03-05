@@ -22,7 +22,7 @@
     ],
     "description" : "Perl 6 Kernel for Jupyter Notebooks",
     "test-depends" : [ ],
-    "version" : "0.0.8",
+    "version" : "0.0.9",
     "license" : "Artistic-2.0",
     "authors" : [
         "Brian Duggan"
