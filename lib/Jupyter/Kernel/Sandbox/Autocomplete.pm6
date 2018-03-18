@@ -110,7 +110,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
                         ).grep( { /^ '&'? "$last" / }
                         ).sort.map: { .subst('&','') }
             @bare.append: @$found if $found;
-            return $p - $last.chars, $p, @bare if @bare;
+            return $p - $last.chars, $p, @bare;
         }
         when / <sigil> <identifier> $/ {
             my $identifier = "$/";

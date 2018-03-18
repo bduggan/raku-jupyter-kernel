@@ -69,7 +69,14 @@ is-deeply $completions, [ <flubber>, ], 'found a subroutine declaration';
     ($pos,$end,$completions) = $r.completions($str);
     ok 'max' ∈ $completions, 'complete an expression';
 }
-
+{
+    my ($pos,$end,$completions) = $r.completions('wp');
+    ok $completions.defined, 'did not get undef';
+}
+{
+    my ($pos,$end,$completions) = $r.completions('2');
+    ok $completions.defined, 'did not get undef';
+}
 
 done-testing;
 
