@@ -133,17 +133,20 @@ method run($spec-file!) {
             }
             when 'complete_request' {
                 my $code = ~$msg<content><code>;
-                my $cursor_pos = $msg<content><cursor_pos>;
-                my (Int $cursor_start, Int $cursor_end, $completions)
+                my Int:D $cursor_pos = $msg<content><cursor_pos>;
+                my (Int:D $cursor_start, Int:D $cursor_end, $completions)
                     = $sandbox.completions($code,$cursor_pos);
-                $completions //= [];
-                $completions .= grep: *.defined;
-                $shell.send: 'complete_reply',
-                      { matches => $completions,
-                        :$cursor_end,
-                        :$cursor_start,
-                        metadata => {},
-                        status => 'ok'
+                if $completions {
+                    $shell.send: 'complete_reply',
+                          { matches => $completions,
+                            :$cursor_end,
+                            :$cursor_start,
+                            metadata => {},
+                            status => 'ok'
+                    }
+                } else {
+                    $shell.send: 'complete_reply',
+                          { :matches([]), :cursor_end($cursor_pos), :0cursor_start, metadata => {}, :status<ok> }
                 }
             }
             when 'shutdown_request' {
