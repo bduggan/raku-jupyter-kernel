@@ -1,5 +1,5 @@
 
-unit class Jupyter::Kernel:ver<0.0.7>;
+unit class Jupyter::Kernel:ver<0.0.9>;
 
 use JSON::Tiny;
 use Log::Async;
