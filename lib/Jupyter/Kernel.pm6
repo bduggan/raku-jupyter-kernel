@@ -1,5 +1,5 @@
 
-unit class Jupyter::Kernel;
+unit class Jupyter::Kernel:ver<0.0.7>;
 
 use JSON::Tiny;
 use Log::Async;
@@ -15,7 +15,7 @@ has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
     protocol_version => '5.0',
     implementation => 'p6-jupyter-kernel',
-    implementation_version => $*REPO.need(CompUnit::DependencySpecification.new(:short-name<Jupyter::Kernel>)).distribution.meta<ver>,
+    implementation_version => '',
     language_info => {
         name => 'perl6',
         version => ~$*PERL.version,
@@ -23,6 +23,9 @@ has $.kernel-info = {
         file_extension => '.p6',
     },
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
+}
+method TWEAK {
+    self.kernel-info<implementation_version> = self.^ver.Str;
 }
 has $.magics = Jupyter::Kernel::Magics.new;
 method comms { $*JUPYTER.comms }
