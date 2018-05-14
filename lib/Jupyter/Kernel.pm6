@@ -101,6 +101,9 @@ method run($spec-file!) {
                         }
                     }
                 }
+                if defined ($result.stderr ) {
+                    $iopub.send: 'stream', { :text( $result.stderr ), :name<stderr> }
+                }
                 unless $result.output-raw === Nil {
                     $iopub.send: 'execute_result',
                                 { :$execution_count,
