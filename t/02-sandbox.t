@@ -3,7 +3,7 @@ use lib 'lib';
 use Test;
 use Jupyter::Kernel::Sandbox;
 
-plan 48;
+plan 50;
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
@@ -20,6 +20,10 @@ is $res.stdout, "hello\n", 'right value on stdout';
 
 ok !$res.incomplete, 'not incomplete';
 is $res.stdout-mime-type, 'text/plain', 'right mime-type on stdout';
+
+$res = $r.eval('note "goodbye"');
+ok !$res.output-raw, 'no output, sent to stderr';
+is $res.stderr, "goodbye\n", 'correct value on stderr';
 
 $res = $r.eval('floobody doop');
 ok $res.exception, 'caught exception';
