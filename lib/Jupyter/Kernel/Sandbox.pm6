@@ -78,6 +78,8 @@ class Jupyter::Kernel::Sandbox is export {
             }
             method flush { }
         }
+        # without setting $PROCESS:: variants, output from Test.pm6
+        # is not visible in the notebook.
         $PROCESS::OUT = $*OUT;
         $PROCESS::ERR = $*ERR;
         my $exception;
