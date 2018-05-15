@@ -80,8 +80,8 @@ class Jupyter::Kernel::Sandbox is export {
         }
         # without setting $PROCESS:: variants, output from Test.pm6
         # is not visible in the notebook.
-        $PROCESS::OUT = $*OUT;
-        $PROCESS::ERR = $*ERR;
+        temp $PROCESS::OUT = $*OUT;
+        temp $PROCESS::ERR = $*ERR;
         my $exception;
         my $eval-code = $code;
         if $store {
