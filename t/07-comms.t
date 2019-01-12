@@ -29,7 +29,7 @@ $c = $m.add-comm(:id<3>, :name<hello>, :data<world>);
 ok $c, 'made a comm';
 is $c.out.receive, "hello, world", 'received message back from comm';
 
-is $m.comm-names.Set, <hello goodbye>.Set, 'List comms';
+is $m.comm-names.sort, <hello goodbye>.sort, 'List comms';
 
 is $m.comm-ids.keys.sort, <1 2 3>.sort, '3 ids';
 
