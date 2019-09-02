@@ -1,7 +1,7 @@
 {
     "name" : "Jupyter::Kernel",
     "source-url" : "git://github.com/bduggan/p6-jupyter-kernel.git",
-    "perl" : "6.c",
+    "perl" : "6.*",
     "build-depends" : [ ],
     "provides" : {
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.pm6",
@@ -22,7 +22,7 @@
     ],
     "description" : "Perl 6 Kernel for Jupyter Notebooks",
     "test-depends" : [ ],
-    "version" : "0.0.9",
+    "version" : "0.0.10",
     "license" : "Artistic-2.0",
     "authors" : [
         "Brian Duggan"
