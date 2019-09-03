@@ -155,6 +155,25 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
 * Comms.  Comms allow for asynchronous communication between a notebook
 and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
 
+### Usage notes
+
+* In the console, pressing return will execute the code in a cell.  If you want
+a cell to span several lines, put a `\` at the end of the line, like so:
+
+```
+In [1]: 42
+Out[1]: 42
+
+In [2]: 42 +
+Out[2]: Missing required term after infix
+
+In [3]: 42 + \
+      : 10 + \
+      : 3 + \
+      : 12
+Out[3]: 67
+```
+
 Docker
 -------
 

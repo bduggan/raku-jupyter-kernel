@@ -126,11 +126,11 @@ method run($spec-file!) {
             }
             when 'is_complete_request' {
                 my $code = ~ $msg<content><code>;
-                my $result = $sandbox.eval($code, :no-persist);
                 my $status = 'complete';
-                debug "exception from sandbox: { .gist }" with $result.exception;
-                $status = 'invalid' if $result.exception;
-                $status = 'incomplete' if $result.incomplete;
+                if $code.ends-with('\\') {
+                  $status = 'incomplete';
+                }
+                # invalid?
                 debug "sending is_complete_reply: $status";
                 $shell.send: 'is_complete_reply', { :$status }
             }
