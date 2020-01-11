@@ -1,4 +1,4 @@
-#!/usr/bin/env perl6
+#!/usr/bin/env raku
 
 use Log::Async;
 use Jupyter::Kernel;
@@ -20,7 +20,7 @@ sub default-location {
             %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
         }
     }
-    return $default.IO.child('kernels').child('perl6').Str;
+    return $default.IO.child('kernels').child('raku').Str;
 }
 
 multi MAIN(Bool :$generate-config!, Str :$location = default-location(), Bool :$force) {
@@ -32,10 +32,10 @@ multi MAIN(Bool :$generate-config!, Str :$location = default-location(), Bool :$
     }
     my $spec = q:to/DONE/;
         {
-            "display_name": "Perl 6",
-            "language": "perl6",
+            "display_name": "Raku",
+            "language": "raku",
             "argv": [
-                "jupyter-kernel.p6",
+                "jupyter-kernel.raku",
                 "{connection_file}"
             ]
         }
