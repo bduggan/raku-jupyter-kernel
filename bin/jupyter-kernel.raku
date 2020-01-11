@@ -20,7 +20,7 @@ sub default-location {
             %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
         }
     }
-    return $default.IO.child('kernels').child('raku').Str;
+    return $default.IO.child('kernels').child('perl6').Str;
 }
 
 multi MAIN(Bool :$generate-config!, Str :$location = default-location(), Bool :$force) {

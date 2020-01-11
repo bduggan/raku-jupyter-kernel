@@ -1,4 +1,4 @@
-Jupyter::Kernel for Perl 6
+Jupyter::Kernel for Raku
 ----------------
 [![Build Status](https://travis-ci.org/bduggan/p6-jupyter-kernel.svg?branch=master)](https://travis-ci.org/bduggan/p6-jupyter-kernel)
 
@@ -6,7 +6,7 @@ Jupyter::Kernel for Perl 6
 
 ![autocomplete](https://user-images.githubusercontent.com/58956/29986517-c6a2020e-8f31-11e7-83da-086ad18bc662.gif)
 
-This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter notebooks.
+This is a pure Raku implementation of a Raku kernel for Jupyter notebooks.
 
 Jupyter notebooks provide a web-based (or console-based) REPL for running
 code and serializing input and output.
@@ -14,8 +14,8 @@ code and serializing input and output.
 REALLY QUICK START
 -------------------
 
-mybinder.org provides a way to instantly launch a Docker
-image and open a notebook.  Click 'launch binder' above
+[Binder](https://mybinder.org/) provides a way to instantly launch a Docker
+image and open a notebook.  Click `launch | binder` above
 to start this kernel with a sample notebook.  (See below
 for similar alternatives.)
 
@@ -45,14 +45,14 @@ zef install Jupyter::Kernel
 ```
 
 At the end of the above installation, you'll see the location
-of the `bin/` directory which has `jupyter-kernel.p6`.  Make
+of the `bin/` directory which has `jupyter-kernel.raku`.  Make
 sure that is in your `PATH`.
 
 ### Server Configuration
 To generate a configuration directory, and to install a kernel
 config file and icons into the default location:
 ```
-jupyter-kernel.p6 --generate-config
+jupyter-kernel.raku --generate-config
 ```
 * Use `--location=XXX` to specify another location.
 * Use `--force` to override an existing configuration.
@@ -84,18 +84,18 @@ added to the server configuration file to change this.
 Start the web UI with:
 ```
 jupyter-notebook
-Then select new -> perl6.
+Then select new -> Raku
 ```
 
 You can also use it in the console like this:
 ```
-jupyter-console --kernel=perl6
+jupyter-console --kernel=raku
 ```
 
 Or make a handy shell alias:
 
 ```
-alias iperl6='jupyter-console --kernel=perl6'
+alias iraku='jupyter-console --kernel=raku'
 ```
 
 ### Features
