@@ -177,8 +177,8 @@ Out[3]: 67
 Docker
 -------
 
-[This blog post](https://sumdoc.wordpress.com/2017/09/06/how-to-run-perl-6-notebook/) provides
-a tutorial for running this kernel with Docker.  [This one](https://sumdoc.wordpress.com/2018/01/04/using-perl-6-notebooks-in-binder/) describes using mybinder.org.
+[This blog post](https://sumankhanal.netlify.com/post/raku_notebook/) provides
+a tutorial for running this kernel with Docker.  [This one](https://sumdoc.wordpress.com/2018/01/04/using-perl-6-notebooks-in-binder/) describes using [Binder](https://mybinder.org/).
 
 EXAMPLES
 --------
@@ -196,7 +196,7 @@ example notebooks:
 
 SEE ALSO
 --------
-* [Docker image for Perl 6](https://hub.docker.com/r/sumdoc/perl-6-notebook/)
+* [Docker image for Perl 6](https://hub.docker.com/r/sumankhanal/raku-notebook/)
 
 * [iperl6kernel](https://github.com/timo/iperl6kernel)
 
