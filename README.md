@@ -196,7 +196,7 @@ example notebooks:
 
 SEE ALSO
 --------
-* [Docker image for Perl 6](https://hub.docker.com/r/sumankhanal/raku-notebook/)
+* [Docker image for Raku](https://hub.docker.com/r/sumankhanal/raku-notebook/)
 
 * [iperl6kernel](https://github.com/timo/iperl6kernel)
 

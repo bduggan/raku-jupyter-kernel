@@ -1,13 +1,17 @@
-language: perl6
+language:
+  - minimal
+
+services:
+  - docker
 env:
-  - MVM_SPESH_DISABLE=1 P6_JUPYTER_TEST_AUTOCOMPLETE=1
-perl6:
-  - 2019.03.1
-before_install:
-  - wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
-  - tar -xzvf zeromq-4.2.2.tar.gz
-  - pushd zeromq-4.2.2 && ./configure --prefix=/usr && make && sudo make install && popd
-install:
-  - rakudobrew build zef
-  - travis_retry zef install --depsonly .
-sudo: false
+  matrix:
+    - RAKUDO_VERSION=2019.11
+    - RAKUDO-VERSION=daily
+    # Add here with recent versions in future
+ 
+
+script: |
+  docker run -it -v $(pwd):/tmp -w /tmp sumankhanal/rakudo:${RAKUDO_VERSION} /bin/sh -c '
+  apt-get update
+  apt-get install -y build-essential wget libzmq3-dev ca-certificates
+  prove6 --lib t/'
