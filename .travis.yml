@@ -12,5 +12,5 @@ services:
  
 
 script: |
-  docker run -it -v $(pwd):/tmp -w /tmp sumankhanal/rakudo:2019.11 /bin/sh -c " apt-get update && apt-get install -y build-essential wget libzmq3-dev ca-certificates \
+  docker run -it -v $(pwd):/tmp -w /tmp sumankhanal/rakudo:2019.11 /bin/sh -c " sudo apt-get update && sudo apt-get install -y build-essential wget libzmq3-dev ca-certificates \
   && prove6 --lib t/"
