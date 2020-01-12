@@ -4,13 +4,16 @@ language:
 services:
   - docker
 
-# env:
-#   matrix:
-#     - RAKUDO-VERSION=2019.11
-#     - RAKUDO-VERSION=daily
-    # Add here with recent versions in future
+env:
+  matrix:
+    - RAKUDO_VERSION=daily
+    - RAKUDO_VERSION=2019.11
+    
  
 
 script: |
-  docker run -it -v $(pwd):/tmp -w /tmp sumankhanal/rakudo:2019.11 /bin/sh -c " sudo apt-get update && sudo apt-get install -y build-essential wget libzmq3-dev ca-certificates \
-  && prove6 --lib t/"
+  docker run -it -v $(pwd):/home -w /home sumankhanal/rakudo:${RAKUDO_VERSION} /bin/sh -c "
+  apt-get update && 
+  apt-get install -y libzmq3-dev &&
+  prove6 --lib t/"
+
