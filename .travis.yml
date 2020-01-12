@@ -15,6 +15,5 @@ script: |
   docker run -it -v $(pwd):/home -w /home sumankhanal/rakudo:${RAKUDO_VERSION} /bin/sh -c "
   apt-get update && 
   apt-get install -y libzmq3-dev gcc make &&
-  zef install --depsonly . &&
-  prove6 --lib t/"
+  zef install --depsonly ."
 
