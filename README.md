@@ -82,13 +82,14 @@ current directory.  An option `--logfile=XXX` argument can be
 added to the server configuration file to change this.
 
 ### Running
-Start the web UI with:
-```
-jupyter-notebook
-Then select new -> Raku
-```
 
++ Click here: [![Binder](imgs/binder-logo.svg)](https://mybinder.org/v2/gh/sumanstats/p6-jupyter-kernel/master)
++ Wait a few seconds.
++ Select `New` -> `Raku`
+
+And dive into the raku notebook.
 You can also use it in the console like this:
+
 ```
 jupyter-console --kernel=raku
 ```
