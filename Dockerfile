@@ -21,6 +21,7 @@ RUN apt-get update \
     python3-pip python3-setuptools \
     && rm -rf /var/lib/apt/lists/* && pip3 install jupyter notebook asciinema jupyterlab pyscaffold --no-cache-dir \
     && zef -v install git://github.com/sumanstats/p6-jupyter-kernel.git --force-test \ 
+    && zef install SVG::Plot --force-test \
     && jupyter-kernel.raku --generate-config \
     && ln -s /usr/share/perl6/site/bin/* /usr/local/bin
 
