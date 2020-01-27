@@ -39,7 +39,7 @@ class Jupyter::Kernel::Sandbox is export {
     has $.completer = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
     method TWEAK {
-        $!compiler := nqp::getcomp('perl6');
+        $!compiler := nqp::getcomp("Raku") // nqp::getcomp('perl6');
         $!repl = REPL.new($!compiler, {});
         self.eval(q:to/INIT/);
             my $Out = [];
