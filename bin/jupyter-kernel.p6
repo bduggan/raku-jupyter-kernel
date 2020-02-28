@@ -8,22 +8,7 @@ multi MAIN($spec-file, :$logfile = './jupyter.log') {
     Jupyter::Kernel.new.run($spec-file);
 }
 
-sub default-location {
-    my $default = do given ($*DISTRO) {
-        when .is-win {
-            '%APPDATA%'.IO.child('jupyter')
-        }
-        when .name eq 'macosx' {
-            %*ENV<HOME>.IO.child('Library').child('Jupyter')
-        }
-        default {
-            %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
-        }
-    }
-    return $default.IO.child('kernels').child('perl6').Str;
-}
-
-multi MAIN(Bool :$generate-config!, Str :$location = default-location(), Bool :$force) {
+multi MAIN(Bool :$generate-config!, Str :$location = Jupyter::Kernel.default-location(), Bool :$force) {
     # from http://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs
 
     $location.IO.d and !$force and do {

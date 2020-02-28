@@ -191,3 +191,20 @@ method run($spec-file!) {
     }}}
     await $promise;
 }
+
+
+method default-location {
+    # Same as qqx{ jupyter --data-dir }
+    my $default = do given ($*DISTRO) {
+        when .is-win {
+            '%APPDATA%'.IO.child('jupyter')
+        }
+        when .name eq 'macosx' {
+            %*ENV<HOME>.IO.child('Library').child('Jupyter')
+        }
+        default {
+            %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
+        }
+    }
+    return $default.IO.child('kernels').child('perl6').Str;
+}
