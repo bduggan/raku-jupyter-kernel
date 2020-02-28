@@ -37,6 +37,8 @@ method run($spec-file!) {
     my $spec = from-json($spec-file.IO.slurp);
     my $url = "$spec<transport>://$spec<ip>";
     my $key = $spec<key> or die "no key";
+    my $h_history = self.default-location.IO.child('history.p6').open(:a, :!out-buffer);
+
     debug "read $spec-file";
     debug "listening on $url";
 
@@ -78,6 +80,8 @@ method run($spec-file!) {
             when 'execute_request' {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
+                # Save to history file
+                start $h_history.say([1, $execution_count, $code].perl ~ ',');
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);
                 my $result;
@@ -159,10 +163,9 @@ method run($spec-file!) {
                 exit;
             }
             when 'history_request' {
-                # > Most of the history messaging options are not used by
-                # > Jupyter frontends, and many kernels do not implement them.
-                # > The notebook interface does not use history messages at all.
-                # − http://jupyter-client.readthedocs.io/en/latest/messaging.html#history
+                use MONKEY-SEE-NO-EVAL;
+                my $history = EVAL $h_history.Str.IO.slurp;
+                $shell.send: 'history_reply', { :$history };
             }
             when 'comm_open' {
                 my ($comm_id,$data,$name) = $msg<content><comm_id data target_name>;
