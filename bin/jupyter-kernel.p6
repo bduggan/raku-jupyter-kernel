@@ -18,7 +18,7 @@ multi MAIN($spec-file, :$logfile = './jupyter.log') {
 
 
 multi MAIN(Bool :$generate-config!,
-        Str :$location = Jupyter::Kernel::Paths.data-dir.Str,
+        Str :$location = Jupyter::Kernel::Paths.raku-dir.Str,
         Bool :$force) {
 
     my $dest-spec = $location.IO.child('kernel.json');
