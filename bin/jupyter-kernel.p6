@@ -3,6 +3,7 @@
 =begin pod
 
 from http://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs
+Colored output can be disabled with RAKUDO_ERROR_COLOR environment variable
 
 =end pod
 
@@ -21,14 +22,18 @@ multi MAIN(Bool :$generate-config!,
         Str :$location = Jupyter::Kernel::Paths.raku-dir.Str,
         Bool :$force) {
 
+    # Retrieve color code
+    my ($red,$clear,$green,$yellow,$eject) = Rakudo::Internals.error-rcgye;
+
+    # Check if need to work
     my $dest-spec = $location.IO.child('kernel.json');
     $dest-spec.f and !$force and do {
-        say "File $dest-spec already exists => exiting the configuration."
-            ~ "\nYou can force the configuration with '--force'"
-            ~ "\nMay the force be with you!";
+        say "File $dest-spec already exists => exiting the configuration.";
+        say "You can force the configuration with '" ~ $red~"--force"~$clear ~ "'";
         exit;
     }
 
+    # Declare kernel.json content
     my $spec = q:to/DONE/;
         {
             "display_name": "Perl 6",
@@ -40,6 +45,7 @@ multi MAIN(Bool :$generate-config!,
         }
         DONE
 
+    # Create kernel file system
     note "Creating directory $location";
     mkdir $location;
     note "Writing kernel.json to $dest-spec";
@@ -55,4 +61,11 @@ multi MAIN(Bool :$generate-config!,
         note "Copying $file to $location";
         copy $resource.IO, $location.IO.child($file) or die "Failed to copy $file to $location.";
     }
+
+    # Say Success
+    say "Congratulation, configuration files have been "
+        ~ $green~"successfully"~$clear ~ " written!";
+    say $green~"Happy Perling!"~$clear
+        ~ " <- " ~ $yellow~"jupyter console --kernel=perl6"~$clear;
+    say '';
 }
