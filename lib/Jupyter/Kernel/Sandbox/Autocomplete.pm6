@@ -67,7 +67,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
 
     my regex identifier { [ \w | '-' | '_' ]+ }
-    my regex sigil { <[&$@%]> | '$*' }
+    my regex sigil { <[&$@%]> }
     my regex method-call { [ \w | '-' | '_' ]+ }
     my regex invocant {
        | '"' <-["]>+ '"'
@@ -99,7 +99,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
                 return ( $pos, $pos + $word.chars + 1, @chars );
             }
         }
-        when /<|w> <!after <[$@%&]>> <identifier> $/ {
+        when /<|w> <!after <[$@%&*]>> <identifier> $/ {
             # subs/barewords
             my $last = ~ $<identifier>;
             my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
