@@ -37,6 +37,16 @@ method run($spec-file!) {
     my $spec = from-json($spec-file.IO.slurp);
     my $url = "$spec<transport>://$spec<ip>";
     my $key = $spec<key> or die "no key";
+
+    # Get session
+    my $session_count = 1;
+    my $history-file = Jupyter::Kernel::Paths.history-file;
+    if $history-file.e {
+        my $old-session = ($history-file.lines[*-1] ~~ / ^ \[ (\d+) \, /);
+        if $old-session {
+            $session_count = $old-session[0].Int + 1;
+        }
+    }
     my $h_history = Jupyter::Kernel::Paths.history-file.open(:a, :!out-buffer);
 
     debug "read $spec-file";
@@ -89,7 +99,7 @@ method run($spec-file!) {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
                 # Save to history file
-                start $h_history.say([1, $execution_count, $code].perl ~ ',');
+                start $h_history.say([$session_count, $execution_count, $code].perl ~ ',');
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);
                 my $result;
