@@ -97,7 +97,7 @@ method send($type, $message, :$metadata = {} ) {
 
 method start-heartbeat {
     loop {
-        try Net::ZMQ::Proxy::zmq_proxy($!socket, $!socket);
+        try Net::ZMQ4::Proxy::zmq_proxy($!socket, $!socket, Nil);
         error ~$! if $!;
         debug 'heartbeat';
         sleep 1;
