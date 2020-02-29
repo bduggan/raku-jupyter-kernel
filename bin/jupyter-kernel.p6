@@ -1,5 +1,11 @@
 #!/usr/bin/env perl6
 
+=begin pod
+
+from http://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs
+
+=end pod
+
 use Log::Async;
 use Jupyter::Kernel;
 
@@ -8,13 +14,15 @@ multi MAIN($spec-file, :$logfile = './jupyter.log') {
     Jupyter::Kernel.new.run($spec-file);
 }
 
-multi MAIN(Bool :$generate-config!, Str :$location = Jupyter::Kernel.default-location(), Bool :$force) {
-    # from http://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs
+multi MAIN(Bool :$generate-config!,
+        Str :$location = Jupyter::Kernel::Paths.data-dir,
+        Bool :$force) {
 
     $location.IO.d and !$force and do {
         say "Directory $location already exists.";
         exit;
     }
+
     my $spec = q:to/DONE/;
         {
             "display_name": "Perl 6",
@@ -43,4 +51,3 @@ multi MAIN(Bool :$generate-config!, Str :$location = Jupyter::Kernel.default-loc
         copy $resource.IO, $location.IO.child($file) or die "Failed to copy $file to $location.";
     }
 }
-

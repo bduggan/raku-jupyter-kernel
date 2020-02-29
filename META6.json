@@ -6,14 +6,15 @@
     "provides" : {
         "Jupyter::Client" : "lib/Jupyter/Client.pm6",
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.pm6",
-        "Jupyter::Kernel::Handler" : "lib/Jupyter/Kernel/Handler.pm6",
         "Jupyter::Kernel::Comm" : "lib/Jupyter/Kernel/Comm.pm6",
         "Jupyter::Kernel::Comms" : "lib/Jupyter/Kernel/Comms.pm6",
-        "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
-        "Jupyter::Kernel::Service" : "lib/Jupyter/Kernel/Service.pm6",
-        "Jupyter::Kernel::Sandbox::Autocomplete" : "lib/Jupyter/Kernel/Sandbox/Autocomplete.pm6",
+        "Jupyter::Kernel::Handler" : "lib/Jupyter/Kernel/Handler.pm6",
+        "Jupyter::Kernel::Magics" : "lib/Jupyter/Kernel/Magics.pm6",
+        "Jupyter::Kernel::Paths" : "lib/Jupyter/Kernel/Paths.pm6",
         "Jupyter::Kernel::Response" : "lib/Jupyter/Kernel/Response.pm6",
-        "Jupyter::Kernel::Magics" :  "lib/Jupyter/Kernel/Magics.pm6"
+        "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
+        "Jupyter::Kernel::Sandbox::Autocomplete" : "lib/Jupyter/Kernel/Sandbox/Autocomplete.pm6",
+        "Jupyter::Kernel::Service" : "lib/Jupyter/Kernel/Service.pm6"
     },
     "resources" : [ "logo-32x32.png", "logo-64x64.png" ],
     "tags" : [ ],
@@ -23,7 +24,7 @@
     ],
     "description" : "Perl 6 Kernel for Jupyter Notebooks",
     "test-depends" : [ ],
-    "version" : "0.0.11",
+    "version" : "0.0.12",
     "license" : "Artistic-2.0",
     "authors" : [
         "Brian Duggan"

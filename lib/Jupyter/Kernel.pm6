@@ -5,10 +5,11 @@ use Log::Async;
 use Net::ZMQ4::Constants;
 use UUID;
 
-use Jupyter::Kernel::Service;
-use Jupyter::Kernel::Sandbox;
-use Jupyter::Kernel::Magics;
 use Jupyter::Kernel::Comms;
+use Jupyter::Kernel::Magics;
+use Jupyter::Kernel::Paths;
+use Jupyter::Kernel::Sandbox;
+use Jupyter::Kernel::Service;
 
 has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
@@ -30,17 +31,13 @@ method resources {
     return %?RESOURCES;
 }
 
-method history-path {
-    return self.default-location.IO.child('history.p6');
-}
-
 method run($spec-file!) {
     info 'starting jupyter kernel';
 
     my $spec = from-json($spec-file.IO.slurp);
     my $url = "$spec<transport>://$spec<ip>";
     my $key = $spec<key> or die "no key";
-    my $h_history = self.history-path.open(:a, :!out-buffer);
+    my $h_history = Jupyter::Kernel::Paths.history-file.open(:a, :!out-buffer);
 
     debug "read $spec-file";
     debug "listening on $url";
@@ -199,21 +196,4 @@ method run($spec-file!) {
         }
     }}}
     await $promise;
-}
-
-
-method default-location {
-    # Same as qqx{ jupyter --data-dir }
-    my $default = do given ($*DISTRO) {
-        when .is-win {
-            '%APPDATA%'.IO.child('jupyter')
-        }
-        when .name eq 'macosx' {
-            %*ENV<HOME>.IO.child('Library').child('Jupyter')
-        }
-        default {
-            %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
-        }
-    }
-    return $default.IO.child('kernels').child('perl6').Str;
 }
