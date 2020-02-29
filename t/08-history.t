@@ -5,6 +5,7 @@ use lib 'lib';
 use JSON::Tiny;
 use Jupyter::Client;
 use Jupyter::Kernel;
+use Jupyter::Kernel::Paths;
 use Jupyter::Kernel::Service;
 use Log::Async;
 
@@ -35,7 +36,7 @@ my $s_connection = Q[{
   "signature_scheme": "hmac-sha256",
   "kernel_name": "perl6"
 }];
-my $spec-file = qqx[jupyter --runtime].chomp ~ "/kernel_test.json";
+my $spec-file = Jupyter::Kernel::Paths.raku-dir.child("kernel_test.json");
 $spec-file.IO.spurt($s_connection);
 my $spec = from-json($s_connection);
 
@@ -51,12 +52,12 @@ sub spawn-kernel {
 # Remove all 'GREP-TEST' in history <- run perl6
 sub clean-history {
     my $res = '';
-    my $file = Jupyter::Kernel.history-path.Str;
+    my $file = Jupyter::Kernel::Paths.history-file;
     my rule todel {^ \[ \d+ \, \d+ \, ...GREP\-TEST };
-    for $file.IO.lines -> $line {
+    for $file.lines -> $line {
         $res ~= $line ~ "\n" unless / <todel> /;
     }
-    $file.IO.spurt($res);
+    $file.spurt($res);
 }
 
 
