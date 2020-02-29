@@ -4,6 +4,7 @@
     "perl" : "6.*",
     "build-depends" : [ ],
     "provides" : {
+        "Jupyter::Client" : "lib/Jupyter/Client.pm6",
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.pm6",
         "Jupyter::Kernel::Handler" : "lib/Jupyter/Kernel/Handler.pm6",
         "Jupyter::Kernel::Comm" : "lib/Jupyter/Kernel/Comm.pm6",
