@@ -59,7 +59,7 @@ sub clean-history {
     my $file = Jupyter::Kernel::Paths.history-file;
     my rule todel {^ \[ \d+ \, \d+ \, ...GREP\-TEST };
     for $file.lines -> $line {
-        $res ~= $line ~ "\n" unless / <todel> /;
+        $res ~= $line ~ "\n" unless $line ~~ / <todel> /;
     }
     $file.spurt($res);
 }
@@ -87,4 +87,4 @@ is $last-cmd, '"GREP-TEST"', 'history is persistent';
 
 
 # Clean
-clean-history
+clean-history;
