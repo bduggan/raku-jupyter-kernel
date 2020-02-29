@@ -13,6 +13,10 @@ use Test;
 
 plan 1;
 
+# Create dirctories for the test
+Jupyter::Kernel::Paths.runtime-dir.mkdir;
+Jupyter::Kernel::Paths.raku-dir.mkdir;
+
 
 # Define logger
 my $VERBOSE = %*ENV<JUP_VERBOSE>;
@@ -36,7 +40,7 @@ my $s_connection = Q[{
   "signature_scheme": "hmac-sha256",
   "kernel_name": "perl6"
 }];
-my $spec-file = Jupyter::Kernel::Paths.raku-dir.child("kernel_test.json");
+my $spec-file = Jupyter::Kernel::Paths.runtime-dir.child("kernel_test.json");
 $spec-file.IO.spurt($s_connection);
 my $spec = from-json($s_connection);
 

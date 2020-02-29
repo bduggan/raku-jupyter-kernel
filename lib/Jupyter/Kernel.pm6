@@ -166,7 +166,7 @@ method run($spec-file!) {
             }
             when 'history_request' {
                 use MONKEY-SEE-NO-EVAL;
-                my $history = EVAL $h_history.Str.IO.slurp;
+                my $history = EVAL Jupyter::Kernel::Paths.history-file.slurp;
                 $history = [] unless $history;
                 $shell.send: 'history_reply', { :$history };
             }

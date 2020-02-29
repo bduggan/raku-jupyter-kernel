@@ -18,8 +18,11 @@ multi MAIN(Bool :$generate-config!,
         Str :$location = Jupyter::Kernel::Paths.data-dir,
         Bool :$force) {
 
-    $location.IO.d and !$force and do {
-        say "Directory $location already exists.";
+    my $dest-spec = $location.IO.child('kernel.json');
+    $dest-spec.f and !$force and do {
+        say "File $dest-spec already exists => exiting the configuration."
+            ~ "\nYou can force the configuration with '--force'"
+            ~ "\nMay the force be with you!";
         exit;
     }
 
@@ -36,7 +39,6 @@ multi MAIN(Bool :$generate-config!,
 
     note "Creating directory $location";
     mkdir $location;
-    my $dest-spec = $location.IO.child('kernel.json');
     note "Writing kernel.json to $dest-spec";
     $dest-spec.spurt($spec);
     for <32 64> {
