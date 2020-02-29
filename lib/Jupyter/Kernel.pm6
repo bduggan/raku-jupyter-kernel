@@ -30,13 +30,17 @@ method resources {
     return %?RESOURCES;
 }
 
+method history-path {
+    return self.default-location.IO.child('history.p6');
+}
+
 method run($spec-file!) {
     info 'starting jupyter kernel';
 
     my $spec = from-json($spec-file.IO.slurp);
     my $url = "$spec<transport>://$spec<ip>";
     my $key = $spec<key> or die "no key";
-    my $h_history = self.default-location.IO.child('history.p6').open(:a, :!out-buffer);
+    my $h_history = self.history-path.open(:a, :!out-buffer);
 
     debug "read $spec-file";
     debug "listening on $url";
@@ -166,6 +170,7 @@ method run($spec-file!) {
             when 'history_request' {
                 use MONKEY-SEE-NO-EVAL;
                 my $history = EVAL $h_history.Str.IO.slurp;
+                $history = [] unless $history;
                 $shell.send: 'history_reply', { :$history };
             }
             when 'comm_open' {
