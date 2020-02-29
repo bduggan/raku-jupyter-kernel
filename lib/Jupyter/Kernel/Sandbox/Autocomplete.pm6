@@ -59,7 +59,7 @@ my sub find-dynamics($str) {
     #     xargs perl -ln -e "/REGISTER-DYNAMIC: '(.*)'.*\$/ and print \$1 =~ s/'.*$//r"
     my @dyns = <ARGFILES COLLATION CWD DEFAULT-READ-ELEMS DISTRO EXECUTABLE EXECUTABLE-NAME
     GROUP HOME INIT-INSTANT INITTIME KERNEL PERL PROGRAM PROGRAM-NAME
-    RAKUDO_MODULE_DEBUG REPO THREAD TMPDIR TOLERANCE TZ USER VM>;
+    RAKUDO_MODULE_DEBUG REPO THREAD TMPDIR TOLERANCE TZ USER VM JUPYTER>;
     return @dyns.grep: { .fc.starts-with($str.fc) }
 }
 
@@ -68,7 +68,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
 
     my regex identifier { [ \w | '-' | '_' ]+ }
     my regex sigil { <[&$@%]> }
-    my regex method-call { [ \w | '-' | '_' ]+ }
+    my regex method-call { <identifier> }
     my regex invocant {
        | '"' <-["]>+ '"'
        | [ \S+ ]
@@ -86,21 +86,26 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when /  'atomic'  $/       { return $p - 'atomic'.chars, $p, atomic-operators; }
         when / '**' $/             { return $p-2, $p, superscripts }
         when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
+
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
+            info "Completion: method call";
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
         }
+
         when / ':' <uniname> $/ {
+            info "Completion: named parameter";
             my $word = ~ $<uniname>;
             if self!unisearch( $word.fc ) -> @chars {
                 my $pos = $str.chars - $word.chars - 1;
                 return ( $pos, $pos + $word.chars + 1, @chars );
             }
         }
+
         when /<|w> <!after <[$@%&*]>> <identifier> $/ {
-            # subs/barewords
+            info "Completion: bare word";
             my $last = ~ $<identifier>;
             my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
             my @bare;
@@ -112,18 +117,24 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             @bare.append: @$found if $found;
             return $p - $last.chars, $p, @bare;
         }
+
         when / <sigil> <identifier> $/ {
+            info "Completion: lexical variable";
             my $identifier = "$/";
             my $possible = $*JUPYTER.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
             return $p - $identifier.chars, $p, $found;
         }
+
         when / '$*' <identifier>? $/ {
+            info "Completion: dynamic scalar";
             my $identifier = $<identifier> // '';
             my $found = map { '$*' ~ $_ }, find-dynamics($identifier);
             return $p - $identifier.chars - 2, $p, $found;
         }
+
         default {
+            info "Completion: default";
             my $found = ( |( CORE::.keys ) ).sort;
             return $p, $p, $found;
         }
