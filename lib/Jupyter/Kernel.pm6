@@ -1,4 +1,3 @@
-
 unit class Jupyter::Kernel;
 
 use JSON::Tiny;
@@ -61,6 +60,14 @@ method run($spec-file!) {
         my $msg = try $ctl.read-message;
         error "error reading data: $!" if $!;
         debug "ctl got a message: { $msg<header><msg_type> // $msg.perl }";
+        given $msg<header><msg_type> {
+            when 'shutdown_request' {
+                my $restart = $msg<content><restart>;
+                $restart = False;
+                $ctl.send: 'shutdown_reply', { :$restart }
+                exit;
+            }
+        }
     }
 
     # Shell
@@ -155,12 +162,6 @@ method run($spec-file!) {
                     $shell.send: 'complete_reply',
                           { :matches([]), :cursor_end($cursor_pos), :0cursor_start, metadata => {}, :status<ok> }
                 }
-            }
-            when 'shutdown_request' {
-                my $restart = $msg<content><restart>;
-                $restart = False;
-                $shell.send: 'shutdown_reply', { :$restart }
-                exit;
             }
             when 'history_request' {
                 use MONKEY-SEE-NO-EVAL;
