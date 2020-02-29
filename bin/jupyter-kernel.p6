@@ -8,14 +8,17 @@ from http://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs
 
 use Log::Async;
 use Jupyter::Kernel;
+use Jupyter::Kernel::Paths;
+
 
 multi MAIN($spec-file, :$logfile = './jupyter.log') {
     logger.send-to($logfile);
     Jupyter::Kernel.new.run($spec-file);
 }
 
+
 multi MAIN(Bool :$generate-config!,
-        Str :$location = Jupyter::Kernel::Paths.data-dir,
+        Str :$location = Jupyter::Kernel::Paths.data-dir.Str,
         Bool :$force) {
 
     my $dest-spec = $location.IO.child('kernel.json');
