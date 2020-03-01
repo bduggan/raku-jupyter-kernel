@@ -42,11 +42,10 @@ method run($spec-file!) {
     # Get session
     my $session_count = 1;
     my $history-file = Jupyter::Kernel::Paths.history-file;
-    if $history-file.e {
-        my $old-session = ($history-file.lines[*-1] ~~ / ^ \[ (\d+) \, /);
-        if $old-session {
-            $session_count = $old-session[0].Int + 1;
-        }
+    if $history-file.e
+            and (my $history-lines = $history-file.lines)
+            and (my $old-session = ($history-lines[*-1] ~~ / ^ \[ (\d+) \, /)) {
+        $session_count = $old-session[0].Int + 1;
     }
     my $h_history = Jupyter::Kernel::Paths.history-file.open(:a, :!out-buffer);
 
