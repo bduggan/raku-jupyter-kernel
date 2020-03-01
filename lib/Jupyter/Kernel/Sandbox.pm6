@@ -157,4 +157,3 @@ class Jupyter::Kernel::Sandbox is export {
         return self.completer.complete($str,$cursor-pos,self);
     }
 }
-

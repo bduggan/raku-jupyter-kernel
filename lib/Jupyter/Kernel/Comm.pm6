@@ -17,4 +17,3 @@ method run($data) {
     }
     &.cb()(|%args);
 }
-

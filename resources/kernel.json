@@ -1,6 +1,6 @@
 {
- "display_name": "Perl 6", 
- "language": "perl6", 
+ "display_name": "Perl 6",
+ "language": "perl6",
  "argv": [
   "jupyter-kernel.p6",
   "{connection_file}"

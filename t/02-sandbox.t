@@ -104,4 +104,3 @@ is $result.stdout, (1..10).join("\n") ~ "\n", "right stdout for multiple say's";
 $res = $r.eval('1/0');
 ok $res, 'survived exception';
 like $res.output, /:i 'attempt to divide' .* 'by zero' /, 'trapped 1/0 error';
-

@@ -52,7 +52,7 @@ is-deeply $completions, $( '$ghostbusters', ), 'completed a variable';
 is $pos, 4, 'position is correct';
 
 # Generate an error but still get something sane
-$r.eval('class Flannel { }; my $d = Flannel.new;', :11store); 
+$r.eval('class Flannel { }; my $d = Flannel.new;', :11store);
 my $from-here = q[$d.c].chars;
 my $str = q[$d.c  and say 'ok'];
 ($pos,$end,$completions) = $r.completions($str,$from-here);
