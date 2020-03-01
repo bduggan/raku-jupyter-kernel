@@ -44,7 +44,7 @@ method run($spec-file!) {
     my $history-file = Jupyter::Kernel::Paths.history-file;
     if $history-file.e
             and (my $history-lines = $history-file.lines)
-            and (my $old-session = ($history-lines[*-1] ~~ / ^ \[ (\d+) \, /)) {
+            and (my $old-session = ($history-lines[*-1] ~~ / ^ \[ \s* (\d+) \, /)) {
         $session_count = $old-session[0].Int + 1;
     }
     my $h_history = Jupyter::Kernel::Paths.history-file.open(:a, :!out-buffer);
