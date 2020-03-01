@@ -11,7 +11,12 @@ use Log::Async;
 
 use Test;
 
-plan 1;
+
+if %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
+    plan 1;
+} else {
+    plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
+}
 
 # Create dirctories for the test
 Jupyter::Kernel::Paths.runtime-dir.mkdir;
