@@ -99,7 +99,7 @@ method run($spec-file!) {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
                 # Save to history file
-                start $h_history.say([$session_count, $execution_count, $code].perl ~ ',');
+                start $h_history.print(to-json([$session_count, $execution_count, $code]) ~ ",\n");
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);
                 my $result;
@@ -175,8 +175,9 @@ method run($spec-file!) {
                 }
             }
             when 'history_request' {
-                use MONKEY-SEE-NO-EVAL;
-                my $history = EVAL Jupyter::Kernel::Paths.history-file.slurp;
+                my $json = "[\n" ~ Jupyter::Kernel::Paths.history-file
+                    .slurp.substr(0,*-2) ~ "\n]";
+                my $history = from-json($json);
                 $history = [] unless $history;
                 $shell.send: 'history_reply', { :$history };
             }
