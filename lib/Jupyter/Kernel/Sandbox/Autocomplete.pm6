@@ -121,20 +121,6 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
             }
         }
 
-        when /<|w> <!after <[$@%&*]>> <identifier> $/ {
-            info "Completion: bare word";
-            my $last = ~ $<identifier>;
-            my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
-            my @bare;
-            @bare.push($_) with %barewords{ $last };
-            my $possible = $.handler.lexicals;
-            my $found = ( |($possible.keys), |( CORE::.keys )
-                        ).grep( { /^ '&'? "$last" / }
-                        ).sort.map: { .subst('&','') }
-            @bare.append: @$found if $found;
-            return $p - $last.chars, $p, @bare;
-        }
-
         when / <sigil> <identifier> $/ {
             info "Completion: lexical variable";
             my $identifier = "$/";
@@ -148,6 +134,20 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
             my $identifier = $<identifier> // '';
             my $found = map { '$*' ~ $_ }, find-dynamics($identifier);
             return $p - $identifier.chars - 2, $p, $found;
+        }
+
+        when /<|w> <!after <[$@%&*]>> <identifier> $/ {
+            info "Completion: bare word";
+            my $last = ~ $<identifier>;
+            my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
+            my @bare;
+            @bare.push($_) with %barewords{ $last };
+            my $possible = $.handler.lexicals;
+            my $found = ( |($possible.keys), |( CORE::.keys )
+                        ).grep( { /^ '&'? "$last" / }
+                        ).sort.map: { .subst('&','') }
+            @bare.append: @$found if $found;
+            return $p - $last.chars, $p, @bare;
         }
 
         default {
