@@ -8,10 +8,6 @@ has SetHash $.lexicals is rw = SetHash.new;
 has $.comms handles <comm-ids comm-names>
    = Jupyter::Kernel::Comms.new;
 
-method BUILD {
-    info "Completion Handler <- created by:\n" ~ Backtrace.new();
-}
-
 method register-comm($name, &callback --> Nil) {
     $.comms.add-comm-callback($name,&callback);
 }
