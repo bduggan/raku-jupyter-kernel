@@ -4,12 +4,12 @@ unit class Jupyter::Kernel::Handler;
 use Jupyter::Kernel::Comms;
 use Log::Async;
 
-has SetHash $.lexicals is rw;
+has SetHash $.lexicals is rw = SetHash.new;
 has $.comms handles <comm-ids comm-names>
    = Jupyter::Kernel::Comms.new;
 
 method BUILD {
-    info "Completion Handler is created";
+    info "Completion Handler <- created by:\n" ~ Backtrace.new();
 }
 
 method register-comm($name, &callback --> Nil) {
@@ -19,4 +19,5 @@ method register-comm($name, &callback --> Nil) {
 method add-lexicals(@list) {
     info "Adding lexicals: " ~ @list;
     $!lexicals{ |@list }»++;
+    info "Hanlder lexicals: " ~ $.lexicals;
 }

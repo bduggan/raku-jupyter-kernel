@@ -36,11 +36,14 @@ class Jupyter::Kernel::Sandbox is export {
     has $.save_ctx;
     has $.compiler;
     has $.repl;
-    has $.completer = Jupyter::Kernel::Sandbox::Autocomplete.new;
+    has Jupyter::Kernel::Sandbox::Autocomplete $.completer;
+    has $.handler;
 
-    method TWEAK {
+    method TWEAK (:$!handler) {
+        $!handler = Jupyter::Kernel::Handler.new unless $.handler;
         $!compiler := nqp::getcomp("Raku") || nqp::getcomp('perl6');
         $!repl = REPL.new($!compiler, {});
+        $!completer = Jupyter::Kernel::Sandbox::Autocomplete.new(:$.handler);
         self.eval(q:to/INIT/);
             my $Out = [];
             sub Out { $Out };
@@ -57,7 +60,6 @@ class Jupyter::Kernel::Sandbox is export {
         my $stderr;
         my $*CTXSAVE = $!repl;
         my $*MAIN_CTX;
-        my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
         my $*ERR = class {
             method print(*@args) {
                 $stderr ~= @args.join;
@@ -84,6 +86,7 @@ class Jupyter::Kernel::Sandbox is export {
         temp $PROCESS::ERR = $*ERR;
         my $exception;
         my $eval-code = $code;
+        my $*JUPYTER = $.handler;
         if $store {
             $eval-code = qq:to/DONE/
                 my \\_$store = \$(

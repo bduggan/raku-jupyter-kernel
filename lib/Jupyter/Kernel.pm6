@@ -25,7 +25,8 @@ has $.kernel-info = {
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
 }
 has $.magics = Jupyter::Kernel::Magics.new;
-method comms { $*JUPYTER.comms }
+
+has $.handler = Jupyter::Kernel::Handler.new;
 
 method resources {
     return %?RESOURCES;
@@ -83,9 +84,9 @@ method run($spec-file!) {
 
     # Shell
     my $execution_count = 1;
-    my $sandbox = Jupyter::Kernel::Sandbox.new;
+    my $sandbox = Jupyter::Kernel::Sandbox.new(:$.handler);
+
     my $promise = start {
-    my $*JUPYTER = Jupyter::Kernel::Handler.new;
     loop {
     try {
         my $msg = $shell.read-message;
@@ -182,7 +183,7 @@ method run($spec-file!) {
             }
             when 'comm_open' {
                 my ($comm_id,$data,$name) = $msg<content><comm_id data target_name>;
-                with self.comms.add-comm(:id($comm_id), :$data, :$name) {
+                with $.handler.comms.add-comm(:id($comm_id), :$data, :$name) {
                     start react whenever .out -> $data {
                         debug "sending a message from $name";
                         $iopub.send: 'comm_msg', { :$comm_id, :$data }
@@ -194,7 +195,7 @@ method run($spec-file!) {
             when 'comm_msg' {
                 my ($comm_id, $data) = $msg<content><comm_id data>;
                 debug "comm_msg for $comm_id";
-                self.comms.send-to-comm(:id($comm_id),:$data);
+                $.handler.comms.send-to-comm(:id($comm_id),:$data);
             }
             default {
                 warning "unimplemented message type: $_";

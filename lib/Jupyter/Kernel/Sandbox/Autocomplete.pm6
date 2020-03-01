@@ -3,6 +3,12 @@ unit class Jupyter::Kernel::Sandbox::Autocomplete;
 use Log::Async;
 use Jupyter::Kernel::Handler;
 
+has $.handler;
+
+method BUILD (:$!handler){
+    $!handler = Jupyter::Kernel::Handler.new unless $.handler;
+};
+
 constant set-operators = <<
         & ^ | ∈ ∉ ∋ ∌ ∖ ∩ ∪ ⊂ ⊃ ⊄ ⊅ ⊆ ⊇ ⊈ ⊍ ⊎ ⊖ ≼ ≽
         (&) (+) (-) (.) (<) (>) (^) (|)
@@ -13,6 +19,8 @@ constant less-than-operators = << < ≤ <= >>;
 constant greater-than-operators = << > ≥ >= >>;
 constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ>;
 constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
+
+
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
        my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
@@ -64,8 +72,6 @@ my sub find-dynamics($str) {
 }
 
 method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
-    my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
-
     my regex identifier { [ \w | '-' | '_' ]+ }
     my regex sigil { <[&$@%]> }
     my regex method-call { <identifier> }
@@ -110,7 +116,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
             my @bare;
             @bare.push($_) with %barewords{ $last };
-            my $possible = $*JUPYTER.lexicals;
+            my $possible = $.handler.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys )
                         ).grep( { /^ '&'? "$last" / }
                         ).sort.map: { .subst('&','') }
@@ -121,7 +127,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when / <sigil> <identifier> $/ {
             info "Completion: lexical variable";
             my $identifier = "$/";
-            my $possible = $*JUPYTER.lexicals;
+            my $possible = $.handler.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
             return $p - $identifier.chars, $p, $found;
         }

@@ -16,7 +16,6 @@ unless %*ENV<MVM_SPESH_DISABLE> {
 }
 
 my $r = Jupyter::Kernel::Sandbox.new;
-my $*JUPYTER = Jupyter::Kernel::Handler.new;
 
 my ($pos, $end, $completions) = $r.completions('sa', 2);
 is-deeply $completions, [ <samecase samemark samewith say> ], 'completions for "sa"';

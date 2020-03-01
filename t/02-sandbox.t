@@ -1,9 +1,19 @@
 #!/usr/bin/env perl6
+
 use lib 'lib';
+
 use Test;
 use Jupyter::Kernel::Sandbox;
+use Log::Async;
 
 plan 50;
+
+my $VERBOSE = %*ENV<JUP_VERBOSE>;
+my @log;
+logger.add-tap: {
+    @log.push($_);
+    note "# $_<msg>" if $VERBOSE;
+};
 
 my $r = Jupyter::Kernel::Sandbox.new;
 
