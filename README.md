@@ -208,8 +208,11 @@ KNOWN ISSUES
 
 THANKS
 --------
-Suman Khanal
-
 Matt Oates
 
+Suman Khanal
+
 Timo Paulssen
+
+Tinmarino
+
