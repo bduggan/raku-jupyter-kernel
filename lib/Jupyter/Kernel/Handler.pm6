@@ -17,19 +17,15 @@ method register-comm($name, &callback --> Nil) {
 
 
 method add-lexicals(@list) {
-    info "Adding lexicals: " ~ @list;
     $!lexicals{ |@list }»++;
-    info "Hanlder lexicals: " ~ $.lexicals;
 }
 
 
 #| Returns: list of all usable modules
 method imports {
-    info "Imports lookup is called";
     if $!imports { return $!imports; }
 
     # Get usaable module list
-    info "Imports lookup is working (1 sec)";
     my @module = ($*REPO.repo-chain
         ==> grep(* ~~ CompUnit::Repository::Installable)
         ==> map(*.installed)
