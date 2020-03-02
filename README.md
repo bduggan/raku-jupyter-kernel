@@ -6,21 +6,23 @@ Jupyter::Kernel for Perl 6
 
 ![autocomplete](https://user-images.githubusercontent.com/58956/29986517-c6a2020e-8f31-11e7-83da-086ad18bc662.gif)
 
-This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter notebooks.
+This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter clients[1].
 
-Jupyter notebooks provide a web-based (or console-based) REPL for running
-code and serializing input and output.
+Jupyter notebooks provide a web-based (or console-based)
+Read Eval Print Loop (REPL) for running code and serializing input and output.
 
 REALLY QUICK START
 -------------------
 
-mybinder.org provides a way to instantly launch a Docker
-image and open a notebook.  Click 'launch binder' above
-to start this kernel with a sample notebook.  (See below
-for similar alternatives.)
+Click `launch binder` button above to start this kernel with a sample notebook [2].
+(See below for similar alternatives.)
 
 QUICK START
 -----------
+
+* [Installation](#Installation)
+* [Configuration](#Configuration)
+* [Running](#Running)
 
 ### Installation
 You'll need to install zmq.  Note that currently, version 4.1 is
@@ -48,7 +50,8 @@ At the end of the above installation, you'll see the location
 of the `bin/` directory which has `jupyter-kernel.p6`.  Make
 sure that is in your `PATH`.
 
-### Server Configuration
+### Configuration
+#### Server Configuration
 To generate a configuration directory, and to install a kernel
 config file and icons into the default location:
 ```
@@ -57,7 +60,14 @@ jupyter-kernel.p6 --generate-config
 * Use `--location=XXX` to specify another location.
 * Use `--force` to override an existing configuration.
 
-### Client configuration
+#### Logging
+By default a log file `jupyter.log` will be written in the
+current directory.  An option `--logfile=XXX` argument can be
+added to the argv argument of the server configuration file
+(located at `$(jupyter --data)/kernels/perl6/kernel.json`)
+to change this.
+
+#### Client configuration
 The jupyter documentation describes the client configuration.
 To start, you can generate files for the notebook or
 console clients like this:
@@ -74,11 +84,6 @@ Some suggested configuration changes for the console client:
 
    * set `highlighting_style` to `vim`.  This avoids having dark blue
      on a black background in the console client.
-
-### Logging
-By default a log file `jupyter.log` will be written in the
-current directory.  An option `--logfile=XXX` argument can be
-added to the server configuration file to change this.
 
 ### Running
 Start the web UI with:
@@ -98,9 +103,10 @@ Or make a handy shell alias:
 alias iperl6='jupyter-console --kernel=perl6'
 ```
 
-### Features
+FEATURES
+-----------
 
-* Autocompletion.  Typing `[tab]` in the client will send an autocomplete request.  Possible autocompletions are:
+* __Autocompletion:__  Typing `[tab]` in the client will send an autocomplete request.  Possible autocompletions are:
 
   * methods: after a `.` the invocant will be evaluated to find methods
 
@@ -119,7 +125,7 @@ alias iperl6='jupyter-console --kernel=perl6'
     treated as spaces.
     e.g. :straw will find 🍓 ("STRAWBERRY") or 🥤 ("CUP WITH STRAW")  and :smiling-face-with-smiling-eye will find 😊 ("SMILING FACE WITH SMILING EYES")
 
-* All cells are evaluated in item context.  Outputs are then saved to an array
+* __Keep output:__  All cells are evaluated in item context.  Outputs are then saved to an array
 named `$Out`.  You can read from this directly or:
 
   * via the subroutine `Out` (e.g. `Out[3]`)
@@ -128,7 +134,7 @@ named `$Out`.  You can read from this directly or:
 
   * for the most recent output: via a plain underscore (`_`).
 
-* Magics.  There is some support for jupyter "magics".  If the first line
+* __Magics:__  There is some support for jupyter "magics".  If the first line
 of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
 by the kernel.  See EXAMPLES.  The following magics are supported:
 
@@ -152,7 +158,7 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
   if any lexical variables, subroutines, etc. are declared in FILENAME,
   they will become available in the notebook execution context.
 
-* Comms.  Comms allow for asynchronous communication between a notebook
+* __Comms:__  Comms allow for asynchronous communication between a notebook
 and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
 
 ### Usage notes
@@ -174,7 +180,7 @@ In [3]: 42 + \
 Out[3]: 67
 ```
 
-Docker
+DOCKER
 -------
 
 [This blog post](https://sumdoc.wordpress.com/2017/09/06/how-to-run-perl-6-notebook/) provides
@@ -213,3 +219,12 @@ Suman Khanal
 Matt Oates
 
 Timo Paulssen
+
+FOOTNOTES
+--------
+
+[1] Jupyter clients are user interfaces to interact with an interpreter kernel like `Jupyter::Kernel`.
+Jupyter [Lab | Notebook | Console | QtConsole ] are the jupyter maintained clients.
+More info in the [jupyter documentations site](https://jupyter.org/documentation).
+
+[2] mybinder.org provides a way to instantly launch a Docker image and open a notebook.
