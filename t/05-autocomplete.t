@@ -8,7 +8,7 @@ logger.add-tap(  -> $msg { diag $msg<msg> } );
 
 my $c = Jupyter::Kernel::Sandbox::Autocomplete.new;
 
-ok $c.complete('prin')[2].contains('print'), 'print';
+ok $c.complete('prin')[2].grep(/print/), 'print';
 ok $c.complete('(')[2] ⊃ <∩ ∪ ⊂ ⊃>, 'found set ops';
 ok $c.complete('( <a b c d>',1)[2] ⊃ <∩ ∪ ⊂ ⊃>, 'found set ops in the middle';
 ok $c.complete('(1..10) (')[0,1] eqv (8,9), 'right position';
