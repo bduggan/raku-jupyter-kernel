@@ -10,6 +10,7 @@ use Jupyter::Kernel::Service;
 use Jupyter::Kernel::Sandbox;
 use Jupyter::Kernel::Magics;
 use Jupyter::Kernel::Comms;
+use Jupyter::Kernel::History;
 
 has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
@@ -37,6 +38,8 @@ method run($spec-file!) {
     my $spec = from-json($spec-file.IO.slurp);
     my $url = "$spec<transport>://$spec<ip>";
     my $key = $spec<key> or die "no key";
+    my Jupyter::Kernel::History $history;
+
     debug "read $spec-file";
     debug "listening on $url";
 
@@ -78,6 +81,7 @@ method run($spec-file!) {
             when 'execute_request' {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
+                .append($code,:$execution_count) with $history;
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);
                 my $result;
@@ -159,10 +163,8 @@ method run($spec-file!) {
                 exit;
             }
             when 'history_request' {
-                # > Most of the history messaging options are not used by
-                # > Jupyter frontends, and many kernels do not implement them.
-                # > The notebook interface does not use history messages at all.
-                # − http://jupyter-client.readthedocs.io/en/latest/messaging.html#history
+                $history = Jupyter::Kernel::History.new.init;
+                $shell.send: 'history_reply', { :history($history.read) };
             }
             when 'comm_open' {
                 my ($comm_id,$data,$name) = $msg<content><comm_id data target_name>;
