@@ -154,6 +154,6 @@ class Jupyter::Kernel::Sandbox is export {
     }
 
     method completions($str, $cursor-pos = $str.chars ) {
-        return self.completer.complete($str,$cursor-pos,self);
+        return self.completer.complete($str, $cursor-pos, self);
     }
 }

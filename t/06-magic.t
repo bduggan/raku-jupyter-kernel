@@ -117,7 +117,7 @@ class MockResult {
     ok my $magic = $m.find-magic($code), 'found magic for mime';
     is $magic.^name, 'Jupyter::Kernel::Magics::Magic::Filters', 'right magic';
     ok !$magic.preprocess($code), 'preprocess does not return true';
-    my $result = MockResult.new(:output('going out'),:stdout('going to stdout'));
+    my $result = MockResult.new(:output('going out'), :stdout('going to stdout'));
     ok $result = $magic.postprocess(:$result), 'postprocess returned a result';
     is $result.output-mime-type, 'text/html', 'set output mime type';
     is $result.stdout-mime-type, 'text/html', 'set stdout mime type';
@@ -125,7 +125,7 @@ class MockResult {
 {
     my $code = '#% html > latex';
     given $m.find-magic($code)
-       .postprocess(:result( MockResult.new(:output<out>,:stdout<std>) )) {
+       .postprocess(:result( MockResult.new(:output<out>, :stdout<std>) )) {
        is .output-mime-type, 'text/html', 'generated html output';
        is .stdout-mime-type, 'text/latex', 'but latex on stdout';
     }
@@ -133,7 +133,7 @@ class MockResult {
 {
     my $code = '#% latex > html';
     given $m.find-magic($code)
-       .postprocess(:result( MockResult.new(:output<out>,:stdout<std>) )) {
+       .postprocess(:result( MockResult.new(:output<out>, :stdout<std>) )) {
        is .output-mime-type, 'text/latex', 'generated latex output';
        is .stdout-mime-type, 'text/html', 'but html on stdout';
     }
@@ -141,7 +141,7 @@ class MockResult {
 {
     my $code = '#% latex(equation) > html';
     given $m.find-magic($code)
-       .postprocess(:result( MockResult.new(:output<out>,:stdout<std>) )) {
+       .postprocess(:result( MockResult.new(:output<out>, :stdout<std>) )) {
        is .output-mime-type, 'text/latex', 'generated latex output';
        is .stdout-mime-type, 'text/html', 'but html on stdout';
     }
@@ -200,7 +200,7 @@ class MockResult {
     my $magic = $m.find-magic($cell);
     ok $magic, 'found run magic';
     nok $magic.preprocess($cell), 'no return value from preprocess';
-    is $cell, ($code,$more).join("\n") ~ "\n", "Cell now has more code";
+    is $cell, ($code, $more).join("\n") ~ "\n", "Cell now has more code";
 }
 
 {

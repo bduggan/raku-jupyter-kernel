@@ -106,7 +106,7 @@ method run($spec-file!) {
                 $result = .preprocess($code) with $magic;
                 $result //= $sandbox.eval($code, :store($execution_count));
                 if $magic {
-                    with $magic.postprocess(:$code,:$result) -> $new-result {
+                    with $magic.postprocess(:$code, :$result) -> $new-result {
                         $result = $new-result;
                     }
                 }
@@ -160,7 +160,7 @@ method run($spec-file!) {
                 my $code = ~$msg<content><code>;
                 my Int:D $cursor_pos = $msg<content><cursor_pos>;
                 my (Int:D $cursor_start, Int:D $cursor_end, $completions)
-                    = $sandbox.completions($code,$cursor_pos);
+                    = $sandbox.completions($code, $cursor_pos);
                 if $completions {
                     $shell.send: 'complete_reply',
                           { matches => $completions,
@@ -176,13 +176,13 @@ method run($spec-file!) {
             }
             when 'history_request' {
                 my $json = "[\n" ~ Jupyter::Kernel::Paths.history-file
-                    .slurp.substr(0,*-2) ~ "\n]";
+                    .slurp.substr(0, *-2) ~ "\n]";
                 my $history = from-json($json);
                 $history = [] unless $history;
                 $shell.send: 'history_reply', { :$history };
             }
             when 'comm_open' {
-                my ($comm_id,$data,$name) = $msg<content><comm_id data target_name>;
+                my ($comm_id, $data, $name) = $msg<content><comm_id data target_name>;
                 with $.handler.comms.add-comm(:id($comm_id), :$data, :$name) {
                     start react whenever .out -> $data {
                         debug "sending a message from $name";
@@ -195,7 +195,7 @@ method run($spec-file!) {
             when 'comm_msg' {
                 my ($comm_id, $data) = $msg<content><comm_id data>;
                 debug "comm_msg for $comm_id";
-                $.handler.comms.send-to-comm(:id($comm_id),:$data);
+                $.handler.comms.send-to-comm(:id($comm_id), :$data);
             }
             default {
                 warning "unimplemented message type: $_";

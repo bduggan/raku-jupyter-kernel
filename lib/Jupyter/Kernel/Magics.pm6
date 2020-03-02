@@ -176,7 +176,7 @@ method find-magic($code is rw) {
     my $magic-line = $code.lines[0] or return Nil;
     $magic-line ~~ /^ [ '#%' | '%%' ]/ or return Nil;
     my $actions = Magic::Actions.new;
-    my $match = Magic::Grammar.new.parse($magic-line,:$actions) or return Nil;
+    my $match = Magic::Grammar.new.parse($magic-line, :$actions) or return Nil;
     $code .= subst( $magic-line, '');
     $code .= subst( /\n/, '');
     return $match.made;

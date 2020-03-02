@@ -51,7 +51,7 @@ $d.send('other', 'hello');
 is $msg.receive<content>, "xyzzy", 'router-dealer message sent and received';
 is $msg.receive<content>, "hello", 'router-dealer message sent and received';
 
-$d.send('other','π');
+$d.send('other', 'π');
 is $msg.receive<content>, "π", 'router-dealer message sent and received';
 
 # vim: ft=perl6

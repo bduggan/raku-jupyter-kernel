@@ -12,7 +12,7 @@ has Array $.keywords is rw;
 
 
 method register-comm($name, &callback --> Nil) {
-    $.comms.add-comm-callback($name,&callback);
+    $.comms.add-comm-callback($name, &callback);
 }
 
 

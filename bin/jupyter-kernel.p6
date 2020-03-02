@@ -23,7 +23,7 @@ multi MAIN(Bool :$generate-config!,
         Bool :$force) {
 
     # Retrieve color code
-    my ($red,$clear,$green,$yellow,$eject) = Rakudo::Internals.error-rcgye;
+    my ($red, $clear, $green, $yellow, $eject) = Rakudo::Internals.error-rcgye;
 
     # Check if need to work
     my $dest-spec = $location.IO.child('kernel.json');

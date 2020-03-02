@@ -46,13 +46,13 @@ method !unisearch($word) {
   await $loading;
   %cache{$word} //= do {
     my $alt;
-    $alt = $word.subst('-',' ', :global) if $word.contains('-');
+    $alt = $word.subst('-', ' ', :global) if $word.contains('-');
     my @chars = @CANDIDATES
         .hyper
         .grep({
             my $u = .uniname.fc;
             $u.contains($word)
-            or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
+            or ($alt and $u.contains(' ') and $u.subst('-', ' ', :g).contains($alt))
         }).head(30);
     @chars;
   }
@@ -86,7 +86,7 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
     my regex modul { [ \w | '-' | '_' | ':' ]+ }
 
     my $p = $cursor-pos;
-    given $str.substr(0,$p) {
+    given $str.substr(0, $p) {
         when / [\s|^] '(' $/       { return $p-1, $p, set-operators; }
         when / [\s|^] '='? '=' $/  { return $p-1, $p, equality-operators }
         when / [\s|^] '<' $/       { return $p-1, $p, less-than-operators }
@@ -150,7 +150,7 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
                           |( CORE::.keys ),
                           |($.handler.keywords),
                         ).grep( { /^ '&'? "$last" / }
-                        ).sort.map: { .subst('&','') }
+                        ).sort.map: { .subst('&', '') }
             @bare.append: @$found if $found;
             return $p - $last.chars, $p, @bare;
         }
