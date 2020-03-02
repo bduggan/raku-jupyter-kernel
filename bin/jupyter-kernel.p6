@@ -2,6 +2,7 @@
 
 use Log::Async;
 use Jupyter::Kernel;
+use Jupyter::Kernel::Paths;
 
 multi MAIN($spec-file, :$logfile = './jupyter.log') {
     logger.send-to($logfile);
@@ -9,17 +10,7 @@ multi MAIN($spec-file, :$logfile = './jupyter.log') {
 }
 
 sub default-location {
-    my $default = do given ($*DISTRO) {
-        when .is-win {
-            '%APPDATA%'.IO.child('jupyter')
-        }
-        when .name eq 'macosx' {
-            %*ENV<HOME>.IO.child('Library').child('Jupyter')
-        }
-        default {
-            %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
-        }
-    }
+    my $default = data-dir;
     return $default.IO.child('kernels').child('perl6').Str;
 }
 
