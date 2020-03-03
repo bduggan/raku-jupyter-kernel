@@ -1,3 +1,10 @@
+=begin pod
+
+Translated to Raku from his elder bro Python
+https://github.com/jupyter/jupyter_core/blob/master/jupyter_core/paths.py
+
+=end pod
+
 unit module Jupyter::Kernel::Paths;
 # see https://github.com/jupyter/jupyter_core/blob/master/jupyter_core/paths.py
 
@@ -7,7 +14,7 @@ sub data-dir is export {
         return %*ENV<JUPYTER_DATA_DIR>;
     }
 
-    do given ($*DISTRO) {
+    my $res = do given ($*DISTRO) {
         when .is-win {
             '%APPDATA%'.IO.child('jupyter')
         }
@@ -18,6 +25,7 @@ sub data-dir is export {
             %*ENV<HOME>.IO.child('.local').child('share').child('jupyter')
         }
     }
+    return $res;
 }
 
 

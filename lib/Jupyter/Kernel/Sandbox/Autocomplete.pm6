@@ -15,13 +15,13 @@ constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ �
 constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
-       my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
-       my $res = $sandbox.eval($eval-str, :no-persist );
-       unless $res and !$res.exception and !$res.incomplete {
-           debug 'autocomplete produced an error';
-           return;
-       }
-       $res.output-raw.split(' ').unique;
+     my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
+     my $res = $sandbox.eval($eval-str, :no-persist );
+     unless $res and !$res.exception and !$res.incomplete {
+         debug 'autocomplete produced an error';
+         return;
+     }
+     $res.output-raw.split(' ').unique;
 }
 
 my @CANDIDATES;
@@ -34,22 +34,22 @@ unless @CANDIDATES {
 }
 
 method !unisearch($word) {
-  state %cache;
-  await $loading;
-  %cache{$word} //= do {
-    my $alt;
-    $alt = $word.subst('-',' ', :global) if $word.contains('-');
-    my @chars = @CANDIDATES
-        .hyper
-        .grep({
-            my $u = .uniname.fc;
-            $u.contains($word)
-            or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
-        }).head(30);
-    @chars;
-  }
-  my $chars = %cache{$word};
-  %cache{$word}
+    state %cache;
+    await $loading;
+    %cache{$word} //= do {
+        my $alt;
+        $alt = $word.subst('-',' ', :global) if $word.contains('-');
+        my @chars = @CANDIDATES
+            .hyper
+            .grep({
+                my $u = .uniname.fc;
+                $u.contains($word)
+                or ($alt and $u.contains(' ') and $u.subst('-',' ', :g).contains($alt))
+            }).head(30);
+        @chars;
+    }
+    my $chars = %cache{$word};
+    %cache{$word}
 }
 
 my sub find-dynamics($str) {
@@ -63,12 +63,13 @@ my sub find-dynamics($str) {
     return @dyns.grep: { .fc.starts-with($str.fc) }
 }
 
-method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
+#| Returns: i_start_repl_pos, i_end_repl_pos, a_possible_repl_strings
+method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
     my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
 
     my regex identifier { [ \w | '-' | '_' ]+ }
     my regex sigil { <[&$@%]> | '$*' }
-    my regex method-call { [ \w | '-' | '_' ]+ }
+    my regex method-call { <identifier> }
     my regex invocant {
        | '"' <-["]>+ '"'
        | [ \S+ ]
@@ -87,12 +88,14 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when / '**' $/             { return $p-2, $p, superscripts }
         when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
+            info "Completion: method call";
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
         }
         when / ':' <uniname> $/ {
+            info "Completion: named parameter";
             my $word = ~ $<uniname>;
             if self!unisearch( $word.fc ) -> @chars {
                 my $pos = $str.chars - $word.chars - 1;
@@ -113,17 +116,20 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             return $p - $last.chars, $p, @bare;
         }
         when / <sigil> <identifier> $/ {
+            info "Completion: lexical variable";
             my $identifier = "$/";
             my $possible = $*JUPYTER.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
             return $p - $identifier.chars, $p, $found;
         }
         when / '$*' <identifier>? $/ {
+            info "Completion: dynamic scalar";
             my $identifier = $<identifier> // '';
             my $found = map { '$*' ~ $_ }, find-dynamics($identifier);
             return $p - $identifier.chars - 2, $p, $found;
         }
         default {
+            info "Completion: default";
             my $found = ( |( CORE::.keys ) ).sort;
             return $p, $p, $found;
         }
