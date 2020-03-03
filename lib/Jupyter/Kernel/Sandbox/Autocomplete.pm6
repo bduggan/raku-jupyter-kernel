@@ -16,13 +16,13 @@ constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−
 constant magic-start = ['#% javascript', '#% html', '#% latex', '%% bash', '%% run'];
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
-     my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
-     my $res = $sandbox.eval($eval-str, :no-persist );
-     unless $res and !$res.exception and !$res.incomplete {
-         debug 'autocomplete produced an error';
-         return;
-     }
-     $res.output-raw.split(' ').unique;
+       my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
+       my $res = $sandbox.eval($eval-str, :no-persist );
+       unless $res and !$res.exception and !$res.incomplete {
+           debug 'autocomplete produced an error';
+           return ();
+       }
+       return $res.output-raw.split(' ').unique.Array.push('WHAT');
 }
 
 my @CANDIDATES;
@@ -70,7 +70,7 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
 
     my regex identifier { [ \w | '-' | '_' ]+ }
     my regex sigil { <[&$@%]> | '$*' }
-    my regex method-call { <identifier> }
+    my regex method-call { '^' | '^'? <identifier> }
     my regex invocant {
        | '"' <-["]>+ '"'
        | [ \S+ ]
@@ -104,6 +104,7 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
             info "Completion: method call";
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
+            @methods.append(Metamodel::ClassHOW.^methods(:all).map({"^" ~ .name}));
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
