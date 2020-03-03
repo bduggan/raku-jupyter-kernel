@@ -18,6 +18,14 @@ method add-lexicals(@list) {
     $!lexicals{ |@list }»++;
 }
 
+#| Returns: list of loaded module strings
+# https://docs.perl6.org/language/5to6-perlvar#%INC
+method loaded(:$sandbox) {
+    return ($*REPO.repo-chain
+        ==> map( *.loaded.map(*.Str.split(' ')) )
+        ==> grep( * ne '' )
+        ==> flat).Array;
+}
 
 #| Returns: list of all usable modules
 method imports {

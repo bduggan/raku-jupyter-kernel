@@ -72,7 +72,7 @@ my sub find-dynamics($str) {
 
 #| Returns: i_start_repl_pos, i_end_repl_pos, a_possible_repl_strings
 method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
-    my regex identifier { [ \w | '-' | '_' ]+ }
+    my regex identifier { [ \w | '-' | '_' | '::' ]+ }
     my regex sigil { <[&$@%]> | '$*' }
     my regex method-call { '^' | '^'? <identifier> }
     my regex invocant {
@@ -159,6 +159,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my $found = ( |($possible.keys),
                           |( CORE::.keys ),
                           |($.handler.keywords),
+                          |($.handler.loaded),
                         ).grep( { /^ '&'? "$last" / }
                         ).sort.map: { .subst('&', '') }
             @bare.append: @$found if $found;
