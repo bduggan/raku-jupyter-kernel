@@ -46,6 +46,12 @@ is-deeply $completions, $( 'is-prime', ), 'is-prime for a number';
 ($pos,$end,$completions) = $r.completions('if "hello world".sa');
 is-deeply $completions, $("samecase", "samemark", "samespace", "say"), 'string methods';
 
+($pos,$end,$completions) = $r.completions('if "hello world".WHA');
+is-deeply $completions, $("WHAT", ), 'WHAT method';
+
+($pos,$end,$completions) = $r.completions('if "hello world".^add_metho');
+is-deeply $completions, $("^add_method", ), 'ClassHOW method';
+
 $res = $r.eval('my $ghostbusters = 99', :store);
 is $res.output, 99, 'made a var';
 ($pos,$end,$completions) = $r.completions('say $ghost');
