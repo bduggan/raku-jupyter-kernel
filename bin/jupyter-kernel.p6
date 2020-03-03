@@ -1,12 +1,5 @@
 #!/usr/bin/env perl6
 
-=begin pod
-
-from http://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs
-Colored output can be disabled with RAKUDO_ERROR_COLOR environment variable
-
-=end pod
-
 use Log::Async;
 use Jupyter::Kernel;
 use Jupyter::Kernel::Paths;
@@ -18,10 +11,11 @@ multi MAIN($spec-file, :$logfile = './jupyter.log') {
 
 
 multi MAIN(Bool :$generate-config!,
-        Str :$location = Jupyter::Kernel::Paths.raku-dir.Str,
+        Str :$location = ~raku-dir;
         Bool :$force) {
 
     # Retrieve color code
+    # nb: Colored output can be disabled with RAKUDO_ERROR_COLOR environment variable
     my ($red, $clear, $green, $yellow, $eject) = Rakudo::Internals.error-rcgye;
 
     # Check if need to work
