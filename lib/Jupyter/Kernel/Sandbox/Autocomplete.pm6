@@ -21,7 +21,7 @@ method !find-methods(:$sandbox, Bool :$all, :$var) {
            debug 'autocomplete produced an error';
            return ();
        }
-       $res.output-raw.split(' ').unique;
+       return $res.output-raw.split(' ').unique.Array.push('WHAT');
 }
 
 my @CANDIDATES;
