@@ -68,7 +68,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
 
     my regex identifier { [ \w | '-' | '_' ]+ }
     my regex sigil { <[&$@%]> | '$*' }
-    my regex method-call { [ \w | '-' | '_' ]+ }
+    my regex method-call { '^' | '^'? <identifier> }
     my regex invocant {
        | '"' <-["]>+ '"'
        | [ \S+ ]
@@ -88,6 +88,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
+            @methods.append(Metamodel::ClassHOW.^methods(:all).map({"^" ~ .name}));
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
