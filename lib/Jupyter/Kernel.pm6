@@ -1,4 +1,3 @@
-
 unit class Jupyter::Kernel;
 
 use JSON::Tiny;

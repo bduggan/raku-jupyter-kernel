@@ -1,3 +1,5 @@
+#= Lexical variable container for completion
+
 unit class Jupyter::Kernel::Handler;
 use Jupyter::Kernel::Comms;
 use Log::Async;

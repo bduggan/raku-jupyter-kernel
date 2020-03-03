@@ -163,4 +163,3 @@ class Jupyter::Kernel::Sandbox is export {
         }
     }
 }
-
