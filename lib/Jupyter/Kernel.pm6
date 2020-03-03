@@ -53,6 +53,12 @@ method run($spec-file!) {
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
 
+    method ciao (Bool $do-restart) {
+        my $restart = False;
+        $ctl.send: 'shutdown_reply', { :$restart }
+        exit;
+    }
+
     start {
         $hb.start-heartbeat;
     }
@@ -62,6 +68,11 @@ method run($spec-file!) {
         my $msg = try $ctl.read-message;
         error "error reading data: $!" if $!;
         debug "ctl got a message: { $msg<header><msg_type> // $msg.perl }";
+        given $msg<header><msg_type> {
+            when 'shutdown_request' {
+                self.ciao($msg<content><restart>);
+            }
+        }
     }
 
     # Shell
@@ -157,10 +168,7 @@ method run($spec-file!) {
                 }
             }
             when 'shutdown_request' {
-                my $restart = $msg<content><restart>;
-                $restart = False;
-                $shell.send: 'shutdown_reply', { :$restart }
-                exit;
+                self.ciao($msg<content><restart>);
             }
             when 'history_request' {
                 $history = Jupyter::Kernel::History.new.init;
