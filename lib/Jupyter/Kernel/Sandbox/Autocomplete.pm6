@@ -80,6 +80,8 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
        | [ \S+ ]
     }
     my regex uniname { [ \w | '-' ]+ }
+    my regex import { [ use | need | require ] }
+    my regex modul { [ \w | '-' | '_' | ':' ]+ }
 
     my $p = $cursor-pos;
     given $str.substr(0,$p) {
@@ -113,6 +115,14 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
         }
+
+        when / <import> \s* <modul>? $/ {
+            info "Completion: module import";
+            my $modul = $<modul> // '';
+            my $found = ( grep { / $modul / }, $.handler.imports.Seq).sort.Array;
+            return $p - $modul.chars, $p, $found;
+        }
+
         when / ':' <uniname> $/ {
             info "Completion: named parameter";
             my $word = ~ $<uniname>;
