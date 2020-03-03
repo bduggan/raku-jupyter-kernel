@@ -19,7 +19,7 @@ method !find-methods(:$sandbox, Bool :$all, :$var) {
        my $res = $sandbox.eval($eval-str, :no-persist );
        unless $res and !$res.exception and !$res.incomplete {
            debug 'autocomplete produced an error';
-           return;
+           return ();
        }
        $res.output-raw.split(' ').unique;
 }
