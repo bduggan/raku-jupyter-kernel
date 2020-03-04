@@ -13,6 +13,7 @@ constant less-than-operators = << < ≤ <= >>;
 constant greater-than-operators = << > ≥ >= >>;
 constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ>;
 constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
+constant magic-start = ['#% javascript', '#% html', '#% latex', '%% bash', '%% run'];
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
      my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
@@ -87,6 +88,19 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
         when /  'atomic'  $/       { return $p - 'atomic'.chars, $p, atomic-operators; }
         when / '**' $/             { return $p-2, $p, superscripts }
         when / <[⁰¹²³⁴⁵⁶⁷⁸⁹ⁱ⁺⁻⁼⁽⁾ⁿ]> $/ { return ($p-"$/".chars, $p, [ "$/" X~ superscripts ]); }
+        when /^ '%%' \s+ 'run' \s+ (.*) $/ {
+            info "Completion: dir";
+            my $path = (~$/[0] || './').IO;
+            my $ds = $path.SPEC.dir-sep;
+            my $dir = $path.ends-with($ds) ?? $path !! $path.dirname.IO;
+            my $found = ($dir.dir ==> map {~$^a ~ ($ds if $^a.d)} ==> grep(/^ $path/) ==> sort);
+            return $p - $path.chars, $p, $found;
+        }
+        when (my $line=$_) and magic-start.any.starts-with($line) {
+            info "Completion: magic trigger";
+            my $found = magic-start.grep(*.starts-with($line)).map(*~' ').sort;
+            return 0, $p, $found;
+        }
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
             info "Completion: method call";
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
