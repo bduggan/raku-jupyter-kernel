@@ -26,6 +26,10 @@ has $.kernel-info = {
     banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
 }
 has $.magics = Jupyter::Kernel::Magics.new;
+has Int $.execution_count = 1;
+has $.sandbox = Jupyter::Kernel::Sandbox.new;
+
+
 method comms { $*JUPYTER.comms }
 
 method resources {
@@ -53,10 +57,32 @@ method run($spec-file!) {
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
 
-    method ciao (Bool $do-restart) {
-        my $restart = False;
-        $ctl.send: 'shutdown_reply', { :$restart }
-        exit;
+    method ciao (Bool $restart=False) {
+        if $restart {
+            info "Restarting\n";
+            $iopub.send: 'stream', { :text( "The kernel is dead, long live the kernel!\n" ), :name<stdout> }
+            my $old = $.sandbox;
+            $!sandbox = Jupyter::Kernel::Sandbox.new;
+            $!execution_count = 1;
+            $ctl.send: 'shutdown_reply', { :$restart }
+            self.register-ciao;
+            $iopub.send: 'stream', { :text( "Raku kernel restarted\n" ), :name<stdout> }
+        } else {
+            info "Exiting\n";
+            $iopub.send: 'stream', { :text( "Exiting Raku kernel (you may close client)\n" ), :name<stdout> }
+            $ctl.send: 'shutdown_reply', { :$restart }
+            exit;
+        }
+    }
+
+    method register-ciao {
+        my $*CIAO = sub ($restart=0) { self.ciao(so $restart); }
+        my $eval-code = q:to/DONE/;
+            my &quit := my &QUIT := my &exit := my &EXIT := $*CIAO;
+            42;
+        DONE
+        my $result = $.sandbox.eval($eval-code);
+        $iopub.send: 'execute_input', { :$eval-code, :execution_count(0), :metadata(Hash.new()) }
     }
 
     start {
@@ -76,10 +102,9 @@ method run($spec-file!) {
     }
 
     # Shell
-    my $execution_count = 1;
-    my $sandbox = Jupyter::Kernel::Sandbox.new;
     my $promise = start {
     my $*JUPYTER = Jupyter::Kernel::Handler.new;
+    self.register-ciao;
     loop {
     try {
         my $msg = $shell.read-message;
@@ -92,12 +117,12 @@ method run($spec-file!) {
             when 'execute_request' {
                 $iopub.send: 'status', { :execution_state<busy> }
                 my $code = ~ $msg<content><code>;
-                .append($code,:$execution_count) with $history;
+                .append($code,:$!execution_count) with $history;
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);
                 my $result;
                 $result = .preprocess($code) with $magic;
-                $result //= $sandbox.eval($code, :store($execution_count));
+                $result //= $.sandbox.eval($code, :store($.execution_count));
                 if $magic {
                     with $magic.postprocess(:$code,:$result) -> $new-result {
                         $result = $new-result;
@@ -105,7 +130,7 @@ method run($spec-file!) {
                 }
                 my %extra;
                 $status = 'error' with $result.exception;
-                $iopub.send: 'execute_input', { :$code, :$execution_count, :metadata(Hash.new()) }
+                $iopub.send: 'execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) }
                 if defined( $result.stdout ) {
                     if $result.stdout-mime-type eq 'text/plain' {
                         $iopub.send: 'stream', { :text( $result.stdout ), :name<stdout> }
@@ -121,13 +146,13 @@ method run($spec-file!) {
                 }
                 unless $result.output-raw === Nil {
                     $iopub.send: 'execute_result',
-                                { :$execution_count,
+                                { :$!execution_count,
                                 :data( $result.output-mime-type => $result.output ),
                                 :metadata(Hash.new());
                                 }
                 }
                 $iopub.send: 'status', { :execution_state<idle>, }
-                my $content = { :$status, |%extra, :$execution_count,
+                my $content = { :$status, |%extra, :$!execution_count,
                        user_variables => {}, payload => [], user_expressions => {} }
                 $shell.send: 'execute_reply',
                     $content,
@@ -137,7 +162,7 @@ method run($spec-file!) {
                         :$status,
                         "started" => ~DateTime.new(now),
                     });
-                $execution_count++;
+                $!execution_count++;
             }
             when 'is_complete_request' {
                 my $code = ~ $msg<content><code>;
@@ -153,7 +178,7 @@ method run($spec-file!) {
                 my $code = ~$msg<content><code>;
                 my Int:D $cursor_pos = $msg<content><cursor_pos>;
                 my (Int:D $cursor_start, Int:D $cursor_end, $completions)
-                    = $sandbox.completions($code,$cursor_pos);
+                    = $.sandbox.completions($code,$cursor_pos);
                 if $completions {
                     $shell.send: 'complete_reply',
                           { matches => $completions,
