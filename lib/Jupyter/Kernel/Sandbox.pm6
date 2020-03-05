@@ -151,7 +151,13 @@ class Jupyter::Kernel::Sandbox is export {
     }
 
     method completions($str, $cursor-pos = $str.chars ) {
-        return self.completer.complete($str,$cursor-pos,self);
+        try {
+            return self.completer.complete($str,$cursor-pos,self);
+            CATCH {
+                error "Error completing <$str> at $cursor-pos: " ~ .message;
+                return $cursor-pos,$cursor-pos,();
+            }
+        }
     }
 }
 
