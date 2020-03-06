@@ -3,6 +3,12 @@ unit class Jupyter::Kernel::Sandbox::Autocomplete;
 use Log::Async;
 use Jupyter::Kernel::Handler;
 
+has $.handler;
+
+method BUILD (:$!handler){
+    $!handler = Jupyter::Kernel::Handler.new unless $.handler;
+};
+
 constant set-operators = <<
         & ^ | ∈ ∉ ∋ ∌ ∖ ∩ ∪ ⊂ ⊃ ⊄ ⊅ ⊆ ⊇ ⊈ ⊍ ⊎ ⊖ ≼ ≽
         (&) (+) (-) (.) (<) (>) (^) (|)
@@ -60,15 +66,13 @@ my sub find-dynamics($str) {
     #     xargs perl -ln -e "/REGISTER-DYNAMIC: '(.*)'.*\$/ and print \$1 =~ s/'.*$//r"
     my @dyns = <ARGFILES COLLATION CWD DEFAULT-READ-ELEMS DISTRO EXECUTABLE EXECUTABLE-NAME
     GROUP HOME INIT-INSTANT INITTIME KERNEL PERL PROGRAM PROGRAM-NAME
-    RAKUDO_MODULE_DEBUG REPO THREAD TMPDIR TOLERANCE TZ USER VM>;
+    RAKUDO_MODULE_DEBUG REPO THREAD TMPDIR TOLERANCE TZ USER VM JUPYTER>;
     return @dyns.grep: { .fc.starts-with($str.fc) }
 }
 
 #| Returns: i_start_repl_pos, i_end_repl_pos, a_possible_repl_strings
-method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
-    my $*JUPYTER = CALLERS::<$*JUPYTER> // Jupyter::Kernel::Handler.new;
-
-    my regex identifier { [ \w | '-' | '_' ]+ }
+method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
+    my regex identifier { [ \w | '-' | '_' | '::' ]+ }
     my regex sigil { <[&$@%]> | '$*' }
     my regex method-call { '^' | '^'? <identifier> }
     my regex invocant {
@@ -76,6 +80,8 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
        | [ \S+ ]
     }
     my regex uniname { [ \w | '-' ]+ }
+    my regex import { [ use | need | require ] }
+    my regex modul { [ \w | '-' | '_' | ':' ]+ }
 
     my $p = $cursor-pos;
     given $str.substr(0,$p) {
@@ -109,6 +115,14 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
         }
+
+        when / <import> \s* <modul>? $/ {
+            info "Completion: module import";
+            my $modul = $<modul> // '';
+            my $found = ( grep { / $modul / }, $.handler.imports.Seq).sort.Array;
+            return $p - $modul.chars, $p, $found;
+        }
+
         when / ':' <uniname> $/ {
             info "Completion: named parameter";
             my $word = ~ $<uniname>;
@@ -117,23 +131,11 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
                 return ( $pos, $pos + $word.chars + 1, @chars );
             }
         }
-        when /<|w> <!after <[$@%&]>> <identifier> $/ {
-            # subs/barewords
-            my $last = ~ $<identifier>;
-            my %barewords = pi => 'π', 'Inf' => '∞', tau => 'τ';
-            my @bare;
-            @bare.push($_) with %barewords{ $last };
-            my $possible = $*JUPYTER.lexicals;
-            my $found = ( |($possible.keys), |( CORE::.keys )
-                        ).grep( { /^ '&'? "$last" / }
-                        ).sort.map: { .subst('&','') }
-            @bare.append: @$found if $found;
-            return $p - $last.chars, $p, @bare;
-        }
+
         when / <sigil> <identifier> $/ {
             info "Completion: lexical variable";
             my $identifier = "$/";
-            my $possible = $*JUPYTER.lexicals;
+            my $possible = $.handler.lexicals;
             my $found = ( |($possible.keys), |( CORE::.keys ) ).grep( { /^ "$identifier" / } ).sort;
             return $p - $identifier.chars, $p, $found;
         }
@@ -143,6 +145,27 @@ method complete($str, $cursor-pos = $str.chars, $sandbox = Nil) {
             my $found = map { '$*' ~ $_ }, find-dynamics($identifier);
             return $p - $identifier.chars - 2, $p, $found;
         }
+
+        when /<|w> <!after <[$@%&*]>> <identifier> $/ {
+            info "Completion: bare word";
+            my $last = ~ $<identifier>;
+            my %barewords =
+                pi => 'π', 'Inf' => '∞', tau => 'τ',
+                e => '𝑒', set => '∅', o=> '∘',
+                self => 'self', now => 'now', time => 'time', rand => 'rand';
+            my @bare;
+            @bare.push($_) with %barewords{ $last };
+            my $possible = $.handler.lexicals;
+            my $found = ( |($possible.keys),
+                          |( CORE::.keys ),
+                          |($.handler.keywords),
+                          |($.handler.loaded),
+                        ).grep( { /^ '&'? "$last" / }
+                        ).sort.map: { .subst('&', '') }
+            @bare.append: @$found if $found;
+            return $p - $last.chars, $p, @bare;
+        }
+
         default {
             info "Completion: default";
             my $found = ( |( CORE::.keys ) ).sort;
