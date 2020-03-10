@@ -20,6 +20,7 @@ constant greater-than-operators = << > ≥ >= >>;
 constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ>;
 constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
 constant magic-start = ['#% javascript', '#% html', '#% latex', '%% bash', '%% run'];
+constant mop = <WHAT WHO HOW DEFINITE VAR>;
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
        my $eval-str = $var ~ '.^methods(' ~ (':all' x $all) ~ ').map({.name}).join(" ")';
@@ -28,7 +29,7 @@ method !find-methods(:$sandbox, Bool :$all, :$var) {
            debug 'autocomplete produced an error';
            return ();
        }
-       return $res.output-raw.split(' ').unique.Array.push('WHAT');
+       return $res.output-raw.split(' ').unique.Array.append(mop);
 }
 
 my @CANDIDATES;

@@ -58,7 +58,6 @@ method run($spec-file!) {
         if $restart {
             info "Restarting\n";
             $iopub.send: 'stream', { :text( "The kernel is dead, long live the kernel!\n" ), :name<stdout> }
-            my $old = $.sandbox;
             $!sandbox = Jupyter::Kernel::Sandbox.new;
             $!execution_count = 1;
             $ctl.send: 'shutdown_reply', { :$restart }
