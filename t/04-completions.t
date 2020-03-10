@@ -15,8 +15,8 @@ unless %*ENV<MVM_SPESH_DISABLE> {
     diag "You may need to set MVM_SPESH_DISABLE=1 for these to pass";
 }
 
-my $r = Jupyter::Kernel::Sandbox.new;
-my $*JUPYTER = Jupyter::Kernel::Handler.new;
+my $iopub_channel = Channel.new;
+my $r = Jupyter::Kernel::Sandbox.new(:$iopub_channel);
 
 my ($pos, $end, $completions) = $r.completions('sa', 2);
 is-deeply $completions, [ <samecase samemark samewith say> ], 'completions for "sa"';
