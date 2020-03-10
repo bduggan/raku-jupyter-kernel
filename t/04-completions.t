@@ -5,9 +5,11 @@ use Jupyter::Kernel::Sandbox;
 use Jupyter::Kernel::Handler;
 use Log::Async;
 
-logger.send-to($*ERR);
+logger.add-tap( -> $msg { diag $msg<msg> } );
 
-unless %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
+if %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
+    plan 21;
+} else {
     plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
 }
 
