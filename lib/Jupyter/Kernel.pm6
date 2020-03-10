@@ -26,7 +26,7 @@ has $.kernel-info = {
 }
 has $.magics = Jupyter::Kernel::Magics.new;
 has Int $.execution_count = 1;
-has $.sandbox = Jupyter::Kernel::Sandbox.new;
+has $.sandbox;
 has $.handler = Jupyter::Kernel::Handler.new;
 
 method resources {
@@ -53,19 +53,24 @@ method run($spec-file!) {
     my $shell = svc('shell',   ZMQ_ROUTER);
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
+    my $iopub_channel = Channel.new;
 
     method ciao (Bool $restart=False) {
         if $restart {
             info "Restarting\n";
-            $iopub.send: 'stream', { :text( "The kernel is dead, long live the kernel!\n" ), :name<stdout> }
-            $!sandbox = Jupyter::Kernel::Sandbox.new;
+            $iopub_channel.send: ('stream', { :text( "The kernel is dead, long live the kernel!\n" ), :name<stdout> });
+
+            # Reset context
+            $!handler = Jupyter::Kernel::Handler.new;
+            $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_channel);
             $!execution_count = 1;
+
             $ctl.send: 'shutdown_reply', { :$restart }
             self.register-ciao;
-            $iopub.send: 'stream', { :text( "Raku kernel restarted\n" ), :name<stdout> }
+            $iopub_channel.send: ('stream', { :text( "Raku kernel restarted\n" ), :name<stdout> });
         } else {
             info "Exiting\n";
-            $iopub.send: 'stream', { :text( "Exiting Raku kernel (you may close client)\n" ), :name<stdout> }
+            $iopub_channel.send: ('stream', { :text( "Exiting Raku kernel (you may close client)\n" ), :name<stdout> });
             $ctl.send: 'shutdown_reply', { :$restart }
             exit;
         }
@@ -78,7 +83,7 @@ method run($spec-file!) {
             42;
         DONE
         my $result = $.sandbox.eval($eval-code);
-        $iopub.send: 'execute_input', { :$eval-code, :execution_count(0), :metadata(Hash.new()) }
+        $iopub_channel.send: ('execute_input', { :$eval-code, :execution_count(0), :metadata(Hash.new()) });
     }
 
     start {
@@ -97,10 +102,16 @@ method run($spec-file!) {
         }
     }
 
+    # Iostream
+    start loop {
+        my ($tag, %dic) = $iopub_channel.receive;
+        $iopub.send: $tag, %dic;
+    }
+
     # Shell
     my $promise = start {
     my $execution_count = 1;
-    my $sandbox = Jupyter::Kernel::Sandbox.new(:$.handler);
+    $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_channel);
     self.register-ciao;
     loop {
     try {
@@ -112,7 +123,7 @@ method run($spec-file!) {
                 $shell.send: 'kernel_info_reply', $.kernel-info;
             }
             when 'execute_request' {
-                $iopub.send: 'status', { :execution_state<busy> }
+                $iopub_channel.send: ('status', { :execution_state<busy> });
                 my $code = ~ $msg<content><code>;
                 .append($code,:$!execution_count) with $history;
                 my $status = 'ok';
@@ -127,28 +138,15 @@ method run($spec-file!) {
                 }
                 my %extra;
                 $status = 'error' with $result.exception;
-                $iopub.send: 'execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) }
-                if defined( $result.stdout ) {
-                    if $result.stdout-mime-type eq 'text/plain' {
-                        $iopub.send: 'stream', { :text( $result.stdout ), :name<stdout> }
-                    } else {
-                        $iopub.send: 'display_data', {
-                            :data( $result.stdout-mime-type => $result.stdout ),
-                            :metadata(Hash.new());
-                        }
-                    }
-                }
-                if defined ($result.stderr ) {
-                    $iopub.send: 'stream', { :text( $result.stderr ), :name<stderr> }
-                }
+                $iopub_channel.send: ('execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) });
                 unless $result.output-raw === Nil {
-                    $iopub.send: 'execute_result',
+                    $iopub_channel.send: ('execute_result',
                                 { :$!execution_count,
                                 :data( $result.output-mime-type => $result.output ),
                                 :metadata(Hash.new());
-                                }
+                                });
                 }
-                $iopub.send: 'status', { :execution_state<idle>, }
+                $iopub_channel.send: ('status', { :execution_state<idle>, });
                 my $content = { :$status, |%extra, :$!execution_count,
                        user_variables => {}, payload => [], user_expressions => {} }
                 $shell.send: 'execute_reply',

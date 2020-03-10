@@ -9,28 +9,52 @@ use nqp;
 %*ENV<RAKUDO_LINE_EDITOR> = 'none';
 %*ENV<RAKUDO_DISABLE_MULTILINE> = 0;
 
+state $iopub_channel;
+
+sub mime-type($str) is export {
+    return do given $str {
+        when /:i ^ '<svg' / {
+            'image/svg+xml';
+        }
+        default { 'text/plain' }
+    }
+}
+
 my class Result does Jupyter::Kernel::Response {
     has Str $.output;
     has $.output-raw is default(Nil);
     has $.exception;
     has Bool $.incomplete;
-    has $.stdout;
-    has $.stderr;
-    method !mime-type($str) {
-        return do given $str {
-            when /:i ^ '<svg' / {
-                'image/svg+xml';
-            }
-            default { 'text/plain' }
-        }
-    }
-    method stdout-mime-type {
-        return self!mime-type($.stdout // '');
-    }
     method output-mime-type {
-        return self!mime-type($.output // '');
+        return mime-type($.output // '');
     }
 }
+
+class Std {
+    # Use the channel to be sent all on the same thread
+    # For data consistency
+    method print(*@args) {
+        my $text = @args.join.Str;
+        my $mime-type = mime-type($text);
+        if $mime-type eq 'text/plain' {
+            $iopub_channel.send: ('stream', {:$text, :name(self.stream_name)});
+        } else {
+            $iopub_channel.send: ('display_data', {
+                :data( $mime-type => $text ),
+                :metadata(Hash.new());
+            });
+        }
+        return True but role { method __hide { True } }
+    }
+    method say(*@args) {
+        self.print(@args.map: * ~ "\n");
+    }
+    method flush { }
+    method stream_name { ... }
+}
+
+class Out is Std { method stream_name { 'stdout' } }
+class Err is Std { method stream_name { 'stderr' } }
 
 class Jupyter::Kernel::Sandbox is export {
     has $.save_ctx;
@@ -39,8 +63,9 @@ class Jupyter::Kernel::Sandbox is export {
     has Jupyter::Kernel::Sandbox::Autocomplete $.completer;
     has $.handler;
 
-    method TWEAK (:$!handler) {
+    method TWEAK (:$!handler, :$iopub_channel) {
         $!handler = Jupyter::Kernel::Handler.new unless $.handler;
+        $OUTERS::iopub_channel = $iopub_channel;
         $!compiler := nqp::getcomp("Raku") || nqp::getcomp('perl6');
         $!repl = REPL.new($!compiler, {});
         $!completer = Jupyter::Kernel::Sandbox::Autocomplete.new(:$.handler);
@@ -56,34 +81,12 @@ class Jupyter::Kernel::Sandbox is export {
     }
 
     method eval(Str $code, Bool :$no-persist, Int :$store) {
-        my $stdout;
-        my $stderr;
         my $*CTXSAVE = $!repl;
         my $*MAIN_CTX;
-        my $*ERR = class {
-            method print(*@args) {
-                $stderr ~= @args.join;
-                return True but role { method __hide { True } }
-            }
-            method say(*@args) {
-                self.print(@args.map: * ~ "\n");
-            }
-            method flush { }
-        }
-        my $*OUT = class {
-            method print(*@args) {
-                $stdout ~= @args.join;
-                return True but role { method __hide { True } }
-            }
-            method say(*@args) {
-                self.print(@args.map: * ~ "\n");
-            }
-            method flush { }
-        }
         # without setting $PROCESS:: variants, output from Test.pm6
         # is not visible in the notebook.
-        temp $PROCESS::OUT = $*OUT;
-        temp $PROCESS::ERR = $*ERR;
+        $PROCESS::OUT = $*OUT = Out;
+        $PROCESS::ERR = $*ERR = Err;
         my $exception;
         my $eval-code = $code;
         my $*JUPYTER = $.handler;
@@ -145,8 +148,6 @@ class Jupyter::Kernel::Sandbox is export {
         my $result = Result.new:
             :output($gist),
             :output-raw($output),
-            :$stdout,
-            :$stderr,
             :$exception,
             :$incomplete;
 
