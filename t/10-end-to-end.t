@@ -41,7 +41,7 @@ my $s_connection = Q[{
   "key": "abcd",
   "transport": "tcp",
   "signature_scheme": "hmac-sha256",
-  "kernel_name": "perl6"
+  "kernel_name": "raku"
 }];
 my $spec-file = $*TMPDIR.child("kernel_test.json");
 $spec-file.spurt($s_connection);

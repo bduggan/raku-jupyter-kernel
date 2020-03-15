@@ -29,10 +29,10 @@ multi MAIN(Bool :$generate-config!,
     # Declare kernel.json content
     my $spec = q:to/DONE/;
         {
-            "display_name": "Perl 6",
-            "language": "perl6",
+            "display_name": "Raku",
+            "language": "raku",
             "argv": [
-                "jupyter-kernel.p6",
+                "jupyter-kernel.raku",
                 "{connection_file}"
             ]
         }
@@ -59,6 +59,6 @@ multi MAIN(Bool :$generate-config!,
     say "Congratulations, configuration files have been "
         ~ $green~"successfully"~$clear ~ " written!";
     say $green~"Happy Perling!"~$clear
-        ~ " <- " ~ $yellow~"jupyter console --kernel=perl6"~$clear;
+        ~ " <- " ~ $yellow~"jupyter console --kernel=raku"~$clear;
     say '';
 }

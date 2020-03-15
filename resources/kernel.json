@@ -1,8 +1,8 @@
 {
- "display_name": "Perl 6",
- "language": "perl6",
+ "display_name": "Raku",
+ "language": "raku",
  "argv": [
-  "jupyter-kernel.p6",
+  "jupyter-kernel.raku",
   "{connection_file}"
  ]
 }
