@@ -8,6 +8,7 @@
         "Jupyter::Kernel::Comm" : "lib/Jupyter/Kernel/Comm.pm6",
         "Jupyter::Kernel::Comms" : "lib/Jupyter/Kernel/Comms.pm6",
         "Jupyter::Kernel::Handler" : "lib/Jupyter/Kernel/Handler.pm6",
+        "Jupyter::Kernel::History" : "lib/Jupyter/Kernel/History.pm6",
         "Jupyter::Kernel::Magics" :  "lib/Jupyter/Kernel/Magics.pm6",
         "Jupyter::Kernel::Response" : "lib/Jupyter/Kernel/Response.pm6",
         "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.pm6",
