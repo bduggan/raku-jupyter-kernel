@@ -19,7 +19,7 @@ method add-lexicals(@list) {
 }
 
 #| Returns: list of loaded module strings
-# https://docs.perl6.org/language/5to6-perlvar#%INC
+# https://docs.raku.org/language/5to6-perlvar#%INC
 method loaded(:$sandbox) {
     return ($*REPO.repo-chain
         ==> map( *.loaded.map(*.Str.split(' ')) )
@@ -46,7 +46,7 @@ method imports {
 }
 
 
-# List bare perl6 keywords
+# List bare raku keywords
 # From: https://github.com/Raku/vim-raku/blob/master/syntax/raku.vim
 method keywords {
     if $!keywords { return $!keywords; }

@@ -22,7 +22,7 @@ sub data-dir is export {
 
 
 sub raku-dir is export {
-    data-dir.child('kernels').child('perl6');
+    data-dir.child('kernels').child('raku');
 }
 
 

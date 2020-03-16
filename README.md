@@ -1,12 +1,12 @@
-Jupyter::Kernel for Perl 6
+Jupyter::Kernel for Raku
 ----------------
 [![Build Status](https://travis-ci.org/bduggan/p6-jupyter-kernel.svg?branch=master)](https://travis-ci.org/bduggan/p6-jupyter-kernel)
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master?filepath=eg%2Fhello-world.ipynb)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master?filepath=eg%2Fhello-world.ipynb
 
 ![autocomplete](https://user-images.githubusercontent.com/58956/29986517-c6a2020e-8f31-11e7-83da-086ad18bc662.gif)
 
-This is a pure-Perl 6 implementation of a Perl 6 kernel for Jupyter clients[1].
+This is a pure Raku implementation of a Raku kernel for Jupyter clients¹.
 
 Jupyter notebooks provide a web-based (or console-based)
 Read Eval Print Loop (REPL) for running code and serializing input and output.
@@ -14,8 +14,10 @@ Read Eval Print Loop (REPL) for running code and serializing input and output.
 REALLY QUICK START
 -------------------
 
-Click `launch binder` button above to start this kernel with a sample notebook [2].
-(See below for similar alternatives.)
+[Binder](https://mybinder.org/) provides a way to instantly launch a Docker
+image and open a notebook².  Click `launch | binder` above
+to start this kernel with a sample notebook.  (See below
+for similar alternatives.)
 
 QUICK START
 -----------
@@ -47,7 +49,7 @@ zef install Jupyter::Kernel
 ```
 
 At the end of the above installation, you'll see the location
-of the `bin/` directory which has `jupyter-kernel.p6`.  Make
+of the `bin/` directory which has `jupyter-kernel.raku`.  Make
 sure that is in your `PATH`.
 
 ### Configuration
@@ -55,7 +57,7 @@ sure that is in your `PATH`.
 To generate a configuration directory, and to install a kernel
 config file and icons into the default location:
 ```
-jupyter-kernel.p6 --generate-config
+jupyter-kernel.raku --generate-config
 ```
 * Use `--location=XXX` to specify another location.
 * Use `--force` to override an existing configuration.
@@ -64,7 +66,7 @@ jupyter-kernel.p6 --generate-config
 By default a log file `jupyter.log` will be written in the
 current directory.  An option `--logfile=XXX` argument can be
 added to the argv argument of the server configuration file
-(located at `$(jupyter --data)/kernels/perl6/kernel.json`)
+(located at `$(jupyter --data)/kernels/raku/kernel.json`)
 to change this.
 
 #### Client configuration
@@ -79,7 +81,7 @@ Some suggested configuration changes for the console client:
 
    * set `kernel_is_complete_timeout` to a high number.  Otherwise,
      if the kernel takes more than 1 second to respond, then from
-     then on, the console client uses internal (non-Perl6) heuristics
+     then on, the console client uses internal (non-Raku) heuristics
      to guess when a block of code is complete.
 
    * set `highlighting_style` to `vim`.  This avoids having dark blue
@@ -89,18 +91,18 @@ Some suggested configuration changes for the console client:
 Start the web UI with:
 ```
 jupyter-notebook
-Then select new -> perl6.
+Then select New -> Raku.
 ```
 
 You can also use it in the console like this:
 ```
-jupyter-console --kernel=perl6
+jupyter-console --kernel=raku
 ```
 
 Or make a handy shell alias:
 
 ```
-alias iperl6='jupyter-console --kernel=perl6'
+alias iraku='jupyter-console --kernel=raku'
 ```
 
 FEATURES
@@ -118,7 +120,7 @@ FEATURES
 
   * autocompleting ` **` or a superscript will give you superscripts (for typing exponents).
 
-  * the word 'atomic' autocompletes to the [atomic operators](https://docs.perl6.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
+  * the word 'atomic' autocompletes to the [atomic operators](https://docs.raku.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
 
   * a colon followed by a sequence of word characters will autocomplete
     to characters whose unicode name contains that string.  Dashes are
@@ -150,7 +152,7 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
   the output cell as HTML, but stdout as LaTeX.
 
   * `%% bash`: Interpret the cell as bash.  stdout becomes the contents of
-  the next cell.  Behaves like Perl 6's built-in `shell`.
+  the next cell.  Behaves like Raku's built-in `shell`.
 
   * `%% run FILENAME`: Prepend the contents of FILENAME to the
   contents of the current cell (if any) before execution.
@@ -183,8 +185,8 @@ Out[3]: 67
 DOCKER
 -------
 
-[This blog post](https://sumdoc.wordpress.com/2017/09/06/how-to-run-perl-6-notebook/) provides
-a tutorial for running this kernel with Docker.  [This one](https://sumdoc.wordpress.com/2018/01/04/using-perl-6-notebooks-in-binder/) describes using mybinder.org.
+[This blog post](https://sumankhanal.netlify.com/post/raku_notebook/) provides
+a tutorial for running this kernel with Docker.  [This one](https://sumdoc.wordpress.com/2018/01/04/using-perl-6-notebooks-in-binder/) describes using [Binder](https://mybinder.org/).
 
 EXAMPLES
 --------
@@ -202,13 +204,13 @@ example notebooks:
 
 SEE ALSO
 --------
-* [Docker image for Perl 6](https://hub.docker.com/r/sumdoc/perl-6-notebook/)
+* [Docker image for Raku](https://hub.docker.com/r/sumankhanal/raku-notebook/)
 
 * [iperl6kernel](https://github.com/timo/iperl6kernel)
 
 KNOWN ISSUES
 ---------
-* Definitions of operators are not preserved (see [bug 131530](https://rt.perl.org/Public/Bug/Display.html?id=131530)).
+* Definitions of operators are not preserved (see https://github.com/Raku/old-issue-tracker/issues/6333)
 
 * Newly declared methods might not be available in autocompletion unless SPESH is disabled (see tests in [this PR](https://github.com/bduggan/p6-jupyter-kernel/pull/11)).
 
@@ -226,8 +228,8 @@ Tinmarino
 FOOTNOTES
 --------
 
-[1] Jupyter clients are user interfaces to interact with an interpreter kernel like `Jupyter::Kernel`.
+¹ Jupyter clients are user interfaces to interact with an interpreter kernel like `Jupyter::Kernel`.
 Jupyter [Lab | Notebook | Console | QtConsole ] are the jupyter maintained clients.
 More info in the [jupyter documentations site](https://jupyter.org/documentation).
 
-[2] mybinder.org provides a way to instantly launch a Docker image and open a notebook.
+² mybinder.org provides a way to instantly launch a Docker image and open a notebook.
