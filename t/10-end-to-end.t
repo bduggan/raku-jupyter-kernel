@@ -49,8 +49,8 @@ my $spec = from-json($s_connection);
 
 # Launch a new kernel <- run jupyter-kernel.raku
 sub spawn-kernel {
-    my $lib = $?FILE.IO.parent.parent.child('lib').Str;
-    my $script = $?FILE.IO.parent.parent.child('bin').child('jupyter-kernel.raku').Str;
+    my $lib = $?FILE.IO.parent.sibling('lib').Str;
+    my $script = $?FILE.IO.parent.sibling('bin').child('jupyter-kernel.raku').Str;
     return Proc::Async.new("perl6", "-I$lib", $script, $spec-file).start;
 }
 
