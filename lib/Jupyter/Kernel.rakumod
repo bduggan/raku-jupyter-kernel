@@ -17,12 +17,12 @@ has $.kernel-info = {
     implementation => 'p6-jupyter-kernel',
     implementation_version => '0.0.11',
     language_info => {
-        name => 'perl6',
-        version => ~$*PERL.version,
+        name => 'raku',
+        version => ~$*RAKU.version,
         mimetype => 'text/plain',
-        file_extension => '.p6',
+        file_extension => '.raku',
     },
-    banner => "Welcome to Perl 6 ({ $*PERL.compiler.name } { $*PERL.compiler.version }).",
+    banner => "Welcome to RAKU ({ $*RAKU.compiler.name } { $*RAKU.compiler.version }).",
 }
 has $.magics = Jupyter::Kernel::Magics.new;
 method comms { $*JUPYTER.comms }
@@ -58,7 +58,7 @@ method run($spec-file!) {
     start loop {
         my $msg = try $ctl.read-message;
         error "error reading data: $!" if $!;
-        debug "ctl got a message: { $msg<header><msg_type> // $msg.perl }";
+        debug "ctl got a message: { $msg<header><msg_type> // $msg.raku }";
     }
 
     # Shell
