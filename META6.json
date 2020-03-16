@@ -10,6 +10,7 @@
         "Jupyter::Kernel::Handler" : "lib/Jupyter/Kernel/Handler.rakumod",
         "Jupyter::Kernel::History" : "lib/Jupyter/Kernel/History.rakumod",
         "Jupyter::Kernel::Magics" :  "lib/Jupyter/Kernel/Magics.rakumod",
+        "Jupyter::Kernel::Paths" : "lib/Jupyter/Kernel/Paths.rakumod",
         "Jupyter::Kernel::Response" : "lib/Jupyter/Kernel/Response.rakumod",
         "Jupyter::Kernel::Sandbox" : "lib/Jupyter/Kernel/Sandbox.rakumod",
         "Jupyter::Kernel::Sandbox::Autocomplete" : "lib/Jupyter/Kernel/Sandbox/Autocomplete.rakumod",
