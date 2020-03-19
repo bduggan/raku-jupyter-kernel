@@ -75,7 +75,8 @@ my sub find-dynamics($str) {
 method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     my regex identifier { [ \w | '-' | '_' | '::' ]+ }
     my regex sigil { <[&$@%]> | '$*' }
-    my regex method-call { '^' | '^'? <identifier> }
+    my regex method-call { <identifier> }
+    my regex how-call { '^' <identifier>? }
     my regex invocant {
        | '"' <-["]>+ '"'
        | [ \S+ ]
@@ -111,19 +112,22 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
             info "Completion: method call";
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
-            @methods.append(Metamodel::ClassHOW.^methods(:all).map({"^" ~ .name}));
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
             return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
         }
-
+        when / <invocant> <!after '.'> '.' <!before '.'> <how-call> $/ {
+            info "Completion: method how call";
+            my @methods = Metamodel::ClassHOW.^methods(:all).map({"^" ~ .name});
+            my $meth = ~( $<method-call> // "" );
+            return $p-$<how-call>.chars, $p, @methods.grep({ / ^ "{$<how-call>}" / }).sort;
+        }
         when / <import> \s* <modul>? $/ {
             info "Completion: module import";
             my $modul = $<modul> // '';
             my $found = ( grep { / $modul / }, $.handler.imports.Seq).sort.Array;
             return $p - $modul.chars, $p, $found;
         }
-
         when / ':' <uniname> $/ {
             info "Completion: named parameter";
             my $word = ~ $<uniname>;
@@ -132,7 +136,6 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
                 return ( $pos, $pos + $word.chars + 1, @chars );
             }
         }
-
         when / <sigil> <identifier> $/ {
             info "Completion: lexical variable";
             my $identifier = "$/";
@@ -146,7 +149,6 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my $found = map { '$*' ~ $_ }, find-dynamics($identifier);
             return $p - $identifier.chars - 2, $p, $found;
         }
-
         when /<|w> <!after <[$@%&*]>> <identifier> $/ {
             info "Completion: bare word";
             my $last = ~ $<identifier>;
@@ -166,7 +168,6 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             @bare.append: @$found if $found;
             return $p - $last.chars, $p, @bare;
         }
-
         default {
             info "Completion: default";
             my $found = ( |( CORE::.keys ) ).sort;
