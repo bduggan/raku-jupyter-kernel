@@ -110,7 +110,6 @@ method run($spec-file!) {
 
     # Shell
     my $promise = start {
-    my $execution_count = 1;
     $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_channel);
     self.register-ciao;
     loop {
