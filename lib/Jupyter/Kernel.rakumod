@@ -103,10 +103,9 @@ method run($spec-file!) {
     }
 
     # Iostream
-    start loop {
-        my ($tag, %dic) = $iopub_channel.receive;
+    $iopub_channel.Supply.tap( -> ($tag, %dic) {
         $iopub.send: $tag, %dic;
-    }
+    });
 
     # Shell
     my $promise = start {
