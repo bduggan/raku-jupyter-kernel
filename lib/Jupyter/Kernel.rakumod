@@ -54,6 +54,7 @@ method run($spec-file!) {
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
     my $iopub_channel = Channel.new;
+    my $iopub_lock = Lock::Async.new;
 
     method ciao (Bool $restart=False) {
         if $restart {
@@ -105,6 +106,8 @@ method run($spec-file!) {
     # Iostream
     $iopub_channel.Supply.tap( -> ($tag, %dic) {
         $iopub.send: $tag, %dic;
+        $iopub_lock.unlock if $tag eq 'status'
+            and %dic{'execution_state'} and %dic{'execution_state'} eq 'idle';
     });
 
     # Shell
@@ -144,17 +147,22 @@ method run($spec-file!) {
                                 :metadata(Hash.new());
                                 });
                 }
+                # Lock / Send / Unlock
+                $iopub_lock.lock;
                 $iopub_channel.send: ('status', { :execution_state<idle>, });
+                # Wait for the iopub to be delivered before reply
                 my $content = { :$status, |%extra, :$!execution_count,
                        user_variables => {}, payload => [], user_expressions => {} }
-                $shell.send: 'execute_reply',
-                    $content,
-                    :metadata({
-                        "dependencies_met" => True,
-                        "engine" => $.engine-id,
-                        :$status,
-                        "started" => ~DateTime.new(now),
-                    });
+                $iopub_lock.protect: {
+                    $shell.send: 'execute_reply',
+                        $content,
+                        :metadata({
+                            "dependencies_met" => True,
+                            "engine" => $.engine-id,
+                            :$status,
+                            "started" => ~DateTime.new(now),
+                        });
+                }
                 $!execution_count++;
             }
             when 'is_complete_request' {
