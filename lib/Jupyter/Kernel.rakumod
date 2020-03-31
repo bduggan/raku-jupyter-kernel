@@ -128,7 +128,7 @@ method run($spec-file!) {
                 my $magic = $.magics.find-magic($code);
                 my $result;
                 $result = .preprocess($code) with $magic;
-                $result //= $.sandbox.eval($code, :store($.execution_count));
+                $result //= $.sandbox.eval($code, :store($!execution_count));
                 if $magic {
                     with $magic.postprocess(:$code,:$result) -> $new-result {
                         $result = $new-result;
