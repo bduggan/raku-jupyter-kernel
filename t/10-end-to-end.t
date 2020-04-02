@@ -4,6 +4,7 @@ use lib 'lib';
 use lib 't/lib';
 
 use JSON::Tiny;
+use Net::ZMQ4::Constants;
 use Jupyter::Client;
 use Jupyter::Kernel;
 use Jupyter::Kernel::Paths;
@@ -70,20 +71,50 @@ sub spawn-both {
     return ($client1, $proc1);
 }
 
-# Test types
 my ($cl, $ke) = spawn-both;
+
+# Test types
 is $cl.qa('my $a = "GREP-TEST"; 42'), '42', 'Int';
 is $cl.qa(42), '42', 'Int';
 is $cl.qa('my $a = "GREP-TEST"; 1/2'), '0.5', 'Rat';
 is $cl.qa('my $a = "GREP-TEST"; "toto"'), 'toto', 'Str';
 is $cl.qa('my $a = "GREP-TEST"; [1, 2, 3]'), '[1 2 3]', 'Array';
 is $cl.qa('my $a = "GREP-TEST"; {   1 => 2, 3 =>    4}'), '{1 => 2, 3 => 4}', 'Hash';
+
+# Test order
+## 1 Wait request
+$cl.wait-request('my $a = "GREP-TEST"; say "Raku Order" gt "Jedy Order"; 42');
+## 2 Read stdio, without waiting
+my @stdout = $cl.read-stdio(ZMQ_DONTWAIT);
+## 3 Check order:
+### 3.1 busy
+my $msg = @stdout.shift;
+is $msg{'header'}{'msg_type'}, 'status', 'Order: 1. type = status';
+is $msg{'content'}{'execution_state'}, 'busy', 'Order: 1. content = busy';
+### 3.2 stream <- True
+$msg = @stdout.shift;
+is $msg{'header'}{'msg_type'}, 'stream', 'Order: 2. type = stream';
+is $msg{'content'}{'text'}, "True\n", 'Order: 2. content = True\n';
+### 3.3 code <- repeat input
+$msg = @stdout.shift;
+is $msg{'header'}{'msg_type'}, 'execute_input', 'Order: 3. type = execute_input';
+is $msg{'content'}{'code'}, 'my $a = "GREP-TEST"; say "Raku Order" gt "Jedy Order"; 42', 'Order: 3. content = Some code';
+### 3.4 result <- 42
+$msg = @stdout.shift;
+is $msg{'header'}{'msg_type'}, 'execute_result', 'Order: 4. type = execute_result';
+is $msg{'content'}{'data'}{'text/plain'},  42, 'Order: 4. content = 42';
+### 3.5 idle
+$msg = @stdout.shift;
+is $msg{'header'}{'msg_type'}, 'status', 'Order: 5. type = status';
+is $msg{'content'}{'execution_state'}, 'idle', 'Order: 5. content = idle';
+### 3.*-1 No more
+is @stdout.elems, 0, 'Order: *. No more element in iopub';
+
+# Test history
 $cl.wait-history;
 is $cl.qa('my $a = "GREP-TEST";'), 'GREP-TEST', 'History Pre';
 $cl.wait-shutdown;
 await $ke;
-
-# Test history
 ($cl, $ke) = spawn-both;
 my $hist = $cl.wait-history;
 my $last-cmd = $hist<content><history>[*-1][2];

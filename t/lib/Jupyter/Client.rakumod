@@ -52,11 +52,11 @@ method wait-history (Str(Cool) $pattern="") {
     return $.shell.read-message;
 }
 
-method wait-stdio {
+method read-stdio ($flags = 0) {
     # Call me after a request
     my @res; my %msg;
     repeat {
-        %msg = $.iopub.read-message;
+        %msg = $.iopub.read-message($flags);
         my %topush = %msg;
         @res.push(%topush);
     } until %msg<header><msg_type> eq 'status' and %msg<content><execution_state> eq 'idle';
@@ -65,7 +65,7 @@ method wait-stdio {
 
 method wait-result {
     # Call me after a request
-    my @msg = self.wait-stdio;
+    my @msg = self.read-stdio;
     my %result-msg = @msg.grep(*<header><msg_type> eq 'execute_result')[0];
     return %result-msg<content><data><text/plain>
 }

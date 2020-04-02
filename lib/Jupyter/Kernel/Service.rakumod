@@ -39,12 +39,12 @@ method !hmac(@m) {
     hmac-hex $!key, @m[0] ~ @m[1] ~ @m[2] ~ @m[3], &sha256;
 }
 
-method read-message {
+method read-message($flags=0) {
     my @identities;
     my @message;
     my $separated = False;
     my $separator = buf8.new: "<IDS|MSG>".encode;
-    while $!socket.receive.data -> $data {
+    while $!socket.receive($flags).data -> $data {
         if !$separated {
             if $data eqv $separator  {
                 $separated = True;
