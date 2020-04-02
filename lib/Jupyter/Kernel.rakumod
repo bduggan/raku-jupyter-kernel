@@ -54,7 +54,7 @@ method run($spec-file!) {
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
     my $iopub_supplier = Supplier.new;
-    my $iopub_lock = Lock::Async.new;
+    my $iopub_promise = Promise.new;
 
     method ciao (Bool $restart=False) {
         if $restart {
@@ -106,7 +106,7 @@ method run($spec-file!) {
     # Iostream
     $iopub_supplier.Supply.tap( -> ($tag, %dic) {
         $iopub.send: $tag, %dic;
-        $iopub_lock.unlock if $tag eq 'status'
+        $iopub_promise.break if $tag eq 'status'
             and %dic{'execution_state'} and %dic{'execution_state'} eq 'idle';
     });
 
@@ -148,21 +148,21 @@ method run($spec-file!) {
                                 });
                 }
                 # Lock / Send / Unlock
-                $iopub_lock.lock;
+                $iopub_promise = Promise.new;
                 $iopub_supplier.emit: ('status', { :execution_state<idle>, });
                 # Wait for the iopub to be delivered before reply
                 my $content = { :$status, |%extra, :$!execution_count,
                        user_variables => {}, payload => [], user_expressions => {} }
-                $iopub_lock.protect: {
-                    $shell.send: 'execute_reply',
-                        $content,
-                        :metadata({
-                            "dependencies_met" => True,
-                            "engine" => $.engine-id,
-                            :$status,
-                            "started" => ~DateTime.new(now),
-                        });
-                }
+                # Wait iopub
+                await Promise.anyof($iopub_promise, Promise.in(0.2));
+                $shell.send: 'execute_reply',
+                    $content,
+                    :metadata({
+                        "dependencies_met" => True,
+                        "engine" => $.engine-id,
+                        :$status,
+                        "started" => ~DateTime.new(now),
+                    });
                 $!execution_count++;
             }
             when 'is_complete_request' {
