@@ -9,7 +9,7 @@ use nqp;
 %*ENV<RAKUDO_LINE_EDITOR> = 'none';
 %*ENV<RAKUDO_DISABLE_MULTILINE> = 0;
 
-state $iopub_channel;
+state $iopub_supplier;
 
 sub mime-type($str) is export {
     return do given $str {
@@ -37,9 +37,9 @@ class Std {
         my $text = @args.join.Str;
         my $mime-type = mime-type($text);
         if $mime-type eq 'text/plain' {
-            $iopub_channel.send: ('stream', {:$text, :name(self.stream_name)});
+            $iopub_supplier.emit: ('stream', {:$text, :name(self.stream_name)});
         } else {
-            $iopub_channel.send: ('display_data', {
+            $iopub_supplier.emit: ('display_data', {
                 :data( $mime-type => $text ),
                 :metadata(Hash.new());
             });
@@ -63,9 +63,9 @@ class Jupyter::Kernel::Sandbox is export {
     has Jupyter::Kernel::Sandbox::Autocomplete $.completer;
     has $.handler;
 
-    method TWEAK (:$!handler, :$iopub_channel) {
+    method TWEAK (:$!handler, :$iopub_supplier) {
         $!handler = Jupyter::Kernel::Handler.new unless $.handler;
-        $OUTERS::iopub_channel = $iopub_channel;
+        $OUTERS::iopub_supplier = $iopub_supplier;
         $!compiler := nqp::getcomp("Raku") || nqp::getcomp('perl6');
         $!repl = REPL.new($!compiler, {});
         $!completer = Jupyter::Kernel::Sandbox::Autocomplete.new(:$.handler);

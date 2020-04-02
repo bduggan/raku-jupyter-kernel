@@ -16,8 +16,9 @@ logger.add-tap: {
 };
 
 
-my $iopub_channel = Channel.new;
-my $r = Jupyter::Kernel::Sandbox.new(:$iopub_channel);
+my $iopub_supplier = Supplier.new;
+my $r = Jupyter::Kernel::Sandbox.new(:$iopub_supplier);
+my $iopub_channel = $iopub_supplier.Supply.Channel;
 ok defined($r), 'make a new sandbox';
 
 sub stream {

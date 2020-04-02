@@ -53,25 +53,25 @@ method run($spec-file!) {
     my $shell = svc('shell',   ZMQ_ROUTER);
     my $iopub = svc('iopub',   ZMQ_PUB);
     my $hb    = svc('hb',      ZMQ_REP);
-    my $iopub_channel = Channel.new;
+    my $iopub_supplier = Supplier.new;
     my $iopub_lock = Lock::Async.new;
 
     method ciao (Bool $restart=False) {
         if $restart {
             info "Restarting\n";
-            $iopub_channel.send: ('stream', { :text( "The kernel is dead, long live the kernel!\n" ), :name<stdout> });
+            $iopub_supplier.emit: ('stream', { :text( "The kernel is dead, long live the kernel!\n" ), :name<stdout> });
 
             # Reset context
             $!handler = Jupyter::Kernel::Handler.new;
-            $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_channel);
+            $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_supplier);
             $!execution_count = 1;
 
             $ctl.send: 'shutdown_reply', { :$restart }
             self.register-ciao;
-            $iopub_channel.send: ('stream', { :text( "Raku kernel restarted\n" ), :name<stdout> });
+            $iopub_supplier.emit: ('stream', { :text( "Raku kernel restarted\n" ), :name<stdout> });
         } else {
             info "Exiting\n";
-            $iopub_channel.send: ('stream', { :text( "Exiting Raku kernel (you may close client)\n" ), :name<stdout> });
+            $iopub_supplier.emit: ('stream', { :text( "Exiting Raku kernel (you may close client)\n" ), :name<stdout> });
             $ctl.send: 'shutdown_reply', { :$restart }
             exit;
         }
@@ -84,7 +84,7 @@ method run($spec-file!) {
             42;
         DONE
         my $result = $.sandbox.eval($eval-code);
-        $iopub_channel.send: ('execute_input', { :$eval-code, :execution_count(0), :metadata(Hash.new()) });
+        $iopub_supplier.emit: ('execute_input', { :$eval-code, :execution_count(0), :metadata(Hash.new()) });
     }
 
     start {
@@ -104,7 +104,7 @@ method run($spec-file!) {
     }
 
     # Iostream
-    $iopub_channel.Supply.tap( -> ($tag, %dic) {
+    $iopub_supplier.Supply.tap( -> ($tag, %dic) {
         $iopub.send: $tag, %dic;
         $iopub_lock.unlock if $tag eq 'status'
             and %dic{'execution_state'} and %dic{'execution_state'} eq 'idle';
@@ -112,7 +112,7 @@ method run($spec-file!) {
 
     # Shell
     my $promise = start {
-    $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_channel);
+    $!sandbox = Jupyter::Kernel::Sandbox.new(:$.handler, :$iopub_supplier);
     self.register-ciao;
     loop {
     try {
@@ -124,7 +124,7 @@ method run($spec-file!) {
                 $shell.send: 'kernel_info_reply', $.kernel-info;
             }
             when 'execute_request' {
-                $iopub_channel.send: ('status', { :execution_state<busy> });
+                $iopub_supplier.emit: ('status', { :execution_state<busy> });
                 my $code = ~ $msg<content><code>;
                 .append($code,:$!execution_count) with $history;
                 my $status = 'ok';
@@ -139,9 +139,9 @@ method run($spec-file!) {
                 }
                 my %extra;
                 $status = 'error' with $result.exception;
-                $iopub_channel.send: ('execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) });
+                $iopub_supplier.emit: ('execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) });
                 unless $result.output-raw === Nil {
-                    $iopub_channel.send: ('execute_result',
+                    $iopub_supplier.emit: ('execute_result',
                                 { :$!execution_count,
                                 :data( $result.output-mime-type => $result.output ),
                                 :metadata(Hash.new());
@@ -149,7 +149,7 @@ method run($spec-file!) {
                 }
                 # Lock / Send / Unlock
                 $iopub_lock.lock;
-                $iopub_channel.send: ('status', { :execution_state<idle>, });
+                $iopub_supplier.emit: ('status', { :execution_state<idle>, });
                 # Wait for the iopub to be delivered before reply
                 my $content = { :$status, |%extra, :$!execution_count,
                        user_variables => {}, payload => [], user_expressions => {} }
