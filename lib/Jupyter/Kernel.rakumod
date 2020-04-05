@@ -59,7 +59,7 @@ method run($spec-file!) {
 
     start react whenever signal(SIGINT) {
       info "Got sigint";
-      $iopub_supplier.emit: ('stream', { :text("Trapped interrupt.  Please restart the kernel to abort execution."), :name<stdout> });
+      $iopub_supplier.emit: ('stream', { :text("Trapped interrupt.  Please restart the kernel to abort execution.\n"), :name<stdout> });
       $sigint.keep;
     }
 
