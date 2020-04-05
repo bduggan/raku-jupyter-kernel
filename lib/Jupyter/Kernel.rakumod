@@ -55,6 +55,13 @@ method run($spec-file!) {
     my $hb    = svc('hb',      ZMQ_REP);
     my $iopub_supplier = Supplier.new;
     my $iopub_promise = Promise.new;
+    my $sigint = Promise.new;
+
+    start react whenever signal(SIGINT) {
+      info "Got sigint";
+      $iopub_supplier.emit: ('stream', { :text("Trapped interrupt.  Please restart the kernel to abort execution."), :name<stdout> });
+      $sigint.keep;
+    }
 
     method ciao (Bool $restart=False) {
         if $restart {
@@ -131,7 +138,16 @@ method run($spec-file!) {
                 my $magic = $.magics.find-magic($code);
                 my $result;
                 $result = .preprocess($code) with $magic;
-                $result //= $.sandbox.eval($code, :store($!execution_count));
+                without $result {
+                  my $p = start $.sandbox.eval($code, :store($!execution_count));
+                  my $r = await Promise.anyof($p, $sigint);
+                  if $sigint {
+                    $result = Jupyter::Kernel::Response::Abort.new;
+                    $sigint = Promise.new;
+                  } else {
+                    $result = $p.result;
+                  }
+                }
                 if $magic {
                     with $magic.postprocess(:$code,:$result) -> $new-result {
                         $result = $new-result;
