@@ -132,7 +132,7 @@ method run($spec-file!) {
             }
             when 'execute_request' {
                 $iopub_supplier.emit: ('status', { :execution_state<busy> });
-                my $code = ~ $msg<content><code>;
+                my $code = ~ $msg<content><code>.subst(:g, / \\ $$/, '');
                 .append($code,:$!execution_count) with $history;
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);

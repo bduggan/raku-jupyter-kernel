@@ -182,6 +182,10 @@ In [3]: 42 + \
 Out[3]: 67
 ```
 
+Note that this is not the same as the raku 'unspace' -- a backslash followed
+by a newline will be replaced with a newline before the code is executed.  To
+create an unspace at the end of the line, you can use two backslashes.
+
 DOCKER
 -------
 
