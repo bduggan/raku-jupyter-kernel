@@ -22,7 +22,7 @@ has $.kernel-info = {
         mimetype => 'text/plain',
         file_extension => '.p6',
     },
-    banner => "Welcome to Raku ({ $*RAKU.compiler.name } { $*RAKU.compiler.version }).",
+    banner => "Welcome to Raku 🦋 ({ $*RAKU.compiler.name } { $*RAKU.compiler.version }).",
 }
 has $.magics = Jupyter::Kernel::Magics.new;
 has Int $.execution_count = 1;
