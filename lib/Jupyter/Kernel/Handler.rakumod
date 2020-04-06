@@ -37,14 +37,19 @@ method imports {
         ==> map(*.installed)
         ==> map( *.map(*.meta<provides>.keys ) )
         ==> flat);
-    # Prevent empty return
-    @module.push('Jupyter::Kernel');
+    # Add pragmas
+    @module.push(|self.pragmas);
 
     # Uniq
     $!imports = (@module.unique).Array;
     return $!imports;
 }
 
+#| List of existing pragmas
+# From: https://github.com/rakudo/rakudo/blob/master/src/Perl6/World.nqp
+method pragmas {
+    return ('C++', 'MONKEY', 'MONKEY-BARS', 'MONKEY-BRAINS', 'MONKEY-BUSINESS', 'MONKEY-GUTS', 'MONKEY-SEE-NO-EVAL', 'MONKEY-SHINE', 'MONKEY-TRAP', 'MONKEY-TYPING', 'MONKEY-WRENCH', 'Perl5', 'attributes', 'dynamic-scope', 'fatal', 'internals', 'invocant', 'isms', 'lib', 'nqp', 'parameters', 'precompilation', 'soft', 'strict', 'trace', 'variables', 'worries');
+}
 
 # List bare raku keywords
 # From: https://github.com/Raku/vim-raku/blob/master/syntax/raku.vim
