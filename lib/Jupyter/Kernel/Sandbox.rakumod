@@ -11,6 +11,7 @@ use nqp;
 
 state $iopub_supplier;
 
+
 sub mime-type($str) is export {
     return do given $str {
         when /:i ^ '<svg' / {
@@ -95,6 +96,7 @@ class Jupyter::Kernel::Sandbox is export {
                 my \\_$store = \$(
                     $code
                 );
+                \$*JUPYTER.set-lang( \$?LANG );
                 \$*JUPYTER.add-lexicals( MY::.keys );
                 \$Out[$store] := _$store;
                 _ = _$store;
@@ -124,6 +126,7 @@ class Jupyter::Kernel::Sandbox is export {
                 :interactive(1)
             );
             $gist = $output.gist;
+            $!handler.update-compiler($!compiler);
             CATCH {
                 default {
                     $exception = $_;

@@ -214,8 +214,6 @@ SEE ALSO
 
 KNOWN ISSUES
 ---------
-* Definitions of operators are not preserved (see https://github.com/Raku/old-issue-tracker/issues/6333)
-
 * Newly declared methods might not be available in autocompletion unless SPESH is disabled (see tests in [this PR](https://github.com/bduggan/p6-jupyter-kernel/pull/11)).
 
 THANKS

@@ -9,6 +9,14 @@ has $.comms handles <comm-ids comm-names>
    = Jupyter::Kernel::Comms.new;
 has Array $.imports is rw;
 has Array $.keywords is rw;
+my Mu $lang = $?LANG;
+
+method set-lang(Mu $arg-lang) { $lang := $arg-lang; }
+
+method update-compiler(Mu $compiler) {
+    $compiler.parsegrammar($lang.slang_grammar('MAIN'));
+    $compiler.parseactions($lang.slang_actions('MAIN'));
+}
 
 method register-comm($name, &callback --> Nil) {
     $.comms.add-comm-callback($name,&callback);
