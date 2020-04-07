@@ -83,6 +83,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     }
     my regex uniname { [ \w | '-' ]+ }
     my regex import { [ use | need | require ] }
+    my regex pragma-no { 'no' }
     my regex modul { [ \w | '-' | '_' | ':' ]+ }
 
     my $p = $cursor-pos;
@@ -126,6 +127,12 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             info "Completion: module import";
             my $modul = $<modul> // '';
             my $found = ( grep { / $modul / }, $.handler.imports.Seq).sort.Array;
+            return $p - $modul.chars, $p, $found;
+        }
+        when / <pragma-no> \s* <modul>? $/ {
+            info "Completion: pragma no";
+            my $modul = $<modul> // '';
+            my $found = ( grep { / $modul / }, $.handler.pragmas.Seq).sort.Array;
             return $p - $modul.chars, $p, $found;
         }
         when / ':' <uniname> $/ {
