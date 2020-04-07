@@ -1,12 +1,13 @@
 #!/usr/bin/env perl6
 
 use lib 'lib';
+use lib 't/lib';
 
 use Test;
 use Jupyter::Kernel::Sandbox;
 use Log::Async;
 
-plan 50;
+plan 54;
 
 my $VERBOSE = %*ENV<JUP_VERBOSE>;
 my @log;
@@ -17,9 +18,9 @@ logger.add-tap: {
 
 
 my $iopub_supplier = Supplier.new;
-my $r = Jupyter::Kernel::Sandbox.new(:$iopub_supplier);
+my $sandbox = Jupyter::Kernel::Sandbox.new(:$iopub_supplier);
 my $iopub_channel = $iopub_supplier.Supply.Channel;
-ok defined($r), 'make a new sandbox';
+ok defined($sandbox), 'make a new sandbox';
 
 sub stream {
     my (@out, @err);
@@ -38,7 +39,7 @@ sub stream {
 }
 
 sub qa (Str $code, Bool :$no-persist, Int :$store){
-    return {res => $r.eval($code, :$no-persist, :$store), std=>stream};
+    return {res => $sandbox.eval($code, :$no-persist, :$store), std=>stream};
 }
 
 my ($a, $res);
@@ -128,3 +129,11 @@ is $a<std><out>.join, (1..10).join("\n") ~ "\n", "right stdout for multiple say'
 $res = qa('1/0')<res>;
 ok $res, 'survived exception';
 like $res.output, /:i 'attempt to divide' .* 'by zero' /, 'trapped 1/0 error';
+
+# Operator overload persistence
+is qa('sub infix:<test-op>($a, $b){return ">" ~ $a ~ ":" ~ $b ~ "<"}; "to" test-op "ti";', :store(1))<res>.output, '>to:ti<', 'Operator: test-op';
+is qa('12 test-op 13 test-op 14')<res>.output, '>>12:13<:14<', 'Operator: test-op';
+
+# Slang persistence
+is qa('use Slang::TestWhatIs; what-is-test', :store(1))<res>.output, 'test is nice', 'Slang: use';
+is qa('what-is-test', :store(1))<res>.output, 'test is nice', 'Slang: persistance';
