@@ -8,7 +8,7 @@ use Log::Async;
 logger.add-tap( -> $msg { diag $msg<msg> } );
 
 if %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
-    plan 21;
+    plan 24;
 } else {
     plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
 }
@@ -85,6 +85,17 @@ is-deeply $completions, [ <flubber>, ], 'found a subroutine declaration';
     my ($pos,$end,$completions) = $r.completions('2');
     ok $completions.defined, 'did not get undef';
 }
+
+# Module
+($pos,$end,$completions) = $r.completions('use Log:');
+ok 'Log::Async' ∈ $completions, 'module Log::Async';
+
+# Pragma
+($pos,$end,$completions) = $r.completions('no st');
+ok 'strict' ∈ $completions, 'pragma no strict';
+
+($pos,$end,$completions) = $r.completions('use li');
+ok 'lib' ∈ $completions, 'pragma use lib';
 
 done-testing;
 
