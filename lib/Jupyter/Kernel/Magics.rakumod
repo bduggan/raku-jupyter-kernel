@@ -15,6 +15,15 @@ my class Result does Jupyter::Kernel::Response {
     }
 }
 
+#| Container of always magics registered
+my class Always {
+    has @.prepend is rw;
+    has @.append is rw;
+}
+
+#| Globals
+my $always = Always.new;
+
 class Magic::Filter {
     method transform($str) {
         # no transformation by default
@@ -102,11 +111,61 @@ class Magic::Filters is Magic {
     }
 }
 
+class Magic::Always is Magic {
+    has Str:D $.subcommand = '';
+    has Str:D $.rest = '';
+
+    method preprocess($code! is rw) {
+        my $output = '';
+        given $.subcommand {
+            when 'prepend' { $always.prepend.push($.rest.trim); }
+            when 'append' { $always.append.push($.rest.trim); }
+            when 'clear' {
+                $always = Always.new;
+                $output = 'Always actions cleared';
+            }
+            when 'show' {
+                for $always.^attributes -> $attr {
+                    $output ~= $attr.name.substr(2)~" = "~$attr.get_value($always).join('; ')~"\n";
+                }
+            }
+        }
+        return Result.new:
+            output => $output,
+            output-mime-type => 'text/plain';
+    }
+}
+
+class Magic::AlwaysWorker is Magic {
+    #= Applyer for always magics on each line
+    method unmagicify($code! is rw) {
+        my $magic-action = Jupyter::Kernel::Magics.new.parse-magic($code);
+        return $magic-action.preprocess($code) if $magic-action;
+        return Nil;
+    }
+
+    method preprocess($code! is rw) {
+        my $pre = ''; my $post = '';
+        for $always.prepend -> $magic-code {
+            my $container = $magic-code;
+            self.unmagicify($container);
+            $pre ~= $container ~ ";\n";
+        }
+        for $always.append -> $magic-code {
+            my $container = $magic-code;
+            self.unmagicify($container);
+            $post ~= ";\n" ~ $container;
+        }
+        $code = $pre ~ $code ~ $post;
+        return Nil;
+    }
+}
 
 grammar Magic::Grammar {
-    rule TOP {
+    rule TOP { <magic> }
+    rule magic {
         [ '%%' | '#%' ]
-        [ <simple> || <args> || <filter> ]
+        [ <simple> || <args> || <filter> || <always> ]
     }
     token simple {
        $<key>=[ 'javascript' | 'bash' ]
@@ -119,6 +178,9 @@ grammar Magic::Grammar {
            | $<out>=<mime> ['>' $<stdout>=<mime>]?
            | '>' $<stdout>=<mime>
        ]
+    }
+    token always {
+       $<key>='always' <.ws> $<subcommand>=[ '' | 'prepend' | 'append' | 'show' | 'clear' ] $<rest>=.*
     }
     token mime {
        | <html>
@@ -133,8 +195,9 @@ grammar Magic::Grammar {
 }
 
 class Magic::Actions {
-    method TOP($/) {
-        $/.make: $<simple>.made // $<filter>.made // $<args>.made
+    method TOP($/) { $/.make: $<magic>.made }
+    method magic($/) {
+        $/.make: $<simple>.made // $<filter>.made // $<args>.made // $<always>.made;
     }
     method simple($/) {
         given "$<key>" {
@@ -152,6 +215,13 @@ class Magic::Actions {
                 $/.make: Magic::Run.new(file => trim ~$<rest>);
             }
         }
+    }
+    method always($/) {
+        my $subcommand = ~$<subcommand> || 'prepend';
+        my $rest = $<rest> ?? ~$<rest> !! '';
+        $/.make: Magic::Always.new(
+            subcommand => $subcommand,
+            rest => $rest);
     }
     method filter($/) {
         my %args =
@@ -172,12 +242,22 @@ class Magic::Actions {
     }
 }
 
-method find-magic($code is rw) {
+method parse-magic($code is rw) {
     my $magic-line = $code.lines[0] or return Nil;
-    $magic-line ~~ /^ [ '#%' | '%%' ]/ or return Nil;
+    $magic-line ~~ /^ [ '#%' | '%%' ] / or return Nil;
     my $actions = Magic::Actions.new;
     my $match = Magic::Grammar.new.parse($magic-line,:$actions) or return Nil;
     $code .= subst( $magic-line, '');
     $code .= subst( /\n/, '');
     return $match.made;
+}
+
+method find-magic($code is rw) {
+    # Parse
+    my $magic-action = self.parse-magic($code);
+    # If normal line and there is always magics -> activate them
+    if !$magic-action && ($always.prepend || $always.append) {
+        return Magic::AlwaysWorker.new;
+    }
+    return $magic-action;
 }
