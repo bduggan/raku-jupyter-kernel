@@ -19,7 +19,8 @@ constant less-than-operators = << < ≤ <= >>;
 constant greater-than-operators = << > ≥ >= >>;
 constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ>;
 constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
-constant magic-start = ['#% javascript', '#% html', '#% latex', '%% bash', '%% run'];
+constant magic-start = ['#% javascript', '#% html', '#% latex', '%% bash', '%% run',
+    '%% always', '%% always prepend', '%% always append', '%% always show', '%% always clear'];
 constant mop = <WHAT WHO HOW DEFINITE VAR>;
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
