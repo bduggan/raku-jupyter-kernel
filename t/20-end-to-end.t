@@ -139,7 +139,12 @@ $cl.qa('$way = "";');
     $cl.qa('%% always clear my way  # GREP-TEST');
     $cl.qa('$way = "";');
 }
-## Celebrate: ... And did it my way
+$cl.qa('%% always clear my way  # GREP-TEST');
+$cl.qa('$way = "";');
+## Multiline: ... And did it my way
+is $cl.qa("%% always prepend  # GREP-TEST\n\$way ~= 'multi1-';  # GREP-TEST\n \n\$way ~= 'multi2-'; \n\n"), '', 'Always: register multiline';
+is $cl.qa('$way ~= "mid-";  # GREP-TEST'), 'multi1-multi2-mid-', 'Always: multiline 1';
+is $cl.qa('$way ~= "last";  # GREP-TEST'), 'multi1-multi2-mid-multi1-multi2-last', 'Always: multiline 2';
 $cl.qa('%% always clear my way  # GREP-TEST');
 
 # Test history

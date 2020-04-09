@@ -247,8 +247,15 @@ method parse-magic($code is rw) {
     $magic-line ~~ /^ [ '#%' | '%%' ] / or return Nil;
     my $actions = Magic::Actions.new;
     my $match = Magic::Grammar.new.parse($magic-line,:$actions) or return Nil;
-    $code .= subst( $magic-line, '');
-    $code .= subst( /\n/, '');
+    # Parse full cell if always
+    if $match<magic><always> {
+        $match = Magic::Grammar.new.parse($code,:$actions);
+        $code = '';
+    # Parse only first line otherwise
+    } else {
+        $code .= subst( $magic-line, '');
+        $code .= subst( /\n/, '');
+    }
     return $match.made;
 }
 
