@@ -8,7 +8,7 @@ use Log::Async;
 logger.add-tap( -> $msg { diag $msg<msg> } );
 
 if %*ENV<P6_JUPYTER_TEST_AUTOCOMPLETE> {
-    plan 24;
+    plan 27;
 } else {
     plan :skip-all<Set P6_JUPYTER_TEST_AUTOCOMPLETE to run these>;
 }
@@ -96,6 +96,17 @@ ok 'strict' ∈ $completions, 'pragma no strict';
 
 ($pos,$end,$completions) = $r.completions('use li');
 ok 'lib' ∈ $completions, 'pragma use lib';
+
+# Magic
+($pos,$end,$completions) = $r.completions('%% al');
+ok '%% always prepend' ∈ $completions, 'magic always prepend';
+
+($pos,$end,$completions) = $r.completions('#%    r');
+ok '#%    run' ∈ $completions, 'magic run spaces';
+
+($pos,$end,$completions) = $r.completions('%%javas');
+ok '%%javascript' ∈ $completions, 'magic javascript no spaces';
+
 
 done-testing;
 

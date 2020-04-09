@@ -19,8 +19,8 @@ constant less-than-operators = << < ≤ <= >>;
 constant greater-than-operators = << > ≥ >= >>;
 constant superscripts = <⁰ ¹ ² ³ ⁴ ⁵ ⁶ ⁷ ⁸ ⁹ ⁱ ⁺ ⁻ ⁼ ⁽ ⁾ ⁿ>;
 constant atomic-operators = <⚛= ⚛ ++⚛ ⚛++ --⚛ ⚛-- ⚛+= ⚛-= ⚛−=>;
-constant magic-start = ['#% javascript', '#% html', '#% latex', '%% bash', '%% run',
-    '%% always', '%% always prepend', '%% always append', '%% always show', '%% always clear'];
+constant magic-words = ['javascript', 'html', 'latex', 'bash', 'run',
+    'always', 'always prepend', 'always append', 'always show', 'always clear'];
 constant mop = <WHAT WHO HOW DEFINITE VAR>;
 
 method !find-methods(:$sandbox, Bool :$all, :$var) {
@@ -86,6 +86,7 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
     my regex import { [ use | need | require ] }
     my regex pragma-no { 'no' }
     my regex modul { [ \w | '-' | '_' | ':' ]+ }
+    my regex magic-pre { ['#%' | '%%'] <.ws>}
 
     my $p = $cursor-pos;
     given $str.substr(0,$p) {
@@ -106,9 +107,13 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my $found = ($dir.dir ==> map {~$^a ~ ($ds if $^a.d)} ==> grep(/^ $path/) ==> sort);
             return $p - $path.chars, $p, $found;
         }
-        when (my $line=$_) and magic-start.any.starts-with($line) {
-            info "Completion: magic trigger";
-            my $found = magic-start.grep(*.starts-with($line)).map(*~' ').sort;
+        when /^ <magic-pre> /
+                and (my $rest = $_.subst(/^ <magic-pre> /, ''); True)
+                and (my $match = $/)
+                and (so magic-words.grep(*.starts-with($rest))) {
+            info "Completion: magic";
+            my @words = magic-words.grep(*.starts-with($rest));
+            my $found = @words.map($match ~ *).sort.Array;
             return 0, $p, $found;
         }
         when / <invocant> <!after '.'> '.' <!before '.'> <method-call>? $/ {
