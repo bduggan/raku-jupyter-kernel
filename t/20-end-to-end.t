@@ -52,7 +52,7 @@ my $spec = from-json($s_connection);
 sub spawn-kernel {
     my $lib = $?FILE.IO.parent.sibling('lib').Str;
     my $script = $?FILE.IO.parent.sibling('bin').child('jupyter-kernel.raku').Str;
-    return Proc::Async.new("perl6", "-I$lib", $script, $spec-file).start;
+    return Proc::Async.new("raku", "-I$lib", $script, $spec-file).start;
 }
 
 # Remove all 'GREP-TEST' in history <- run perl6
@@ -109,6 +109,43 @@ is $msg{'header'}{'msg_type'}, 'status', 'Order: 5. type = status';
 is $msg{'content'}{'execution_state'}, 'idle', 'Order: 5. content = idle';
 ### 3.*-1 No more
 is @stdout.elems, 0, 'Order: *. No more element in iopub';
+
+# Test always: I did it my way
+## Pre: ... Yes, there were times, I'm sure you knew
+$cl.qa('my $way = "";  # GREP-TEST');
+is $cl.qa('%% always $way ~= "pre1-";  # GREP-TEST'), '', 'Always: register pre1';
+is $cl.qa('%% always prepend $way ~= "pre2-";  # GREP-TEST'), '', 'Always: register pre2';
+## Show: ... When I bit off more than I could chew
+ok $cl.qa('%% always show me the way  # GREP-TEST') ~~ / 'pre1' / , 'Always: show';
+is $cl.qa('$way;  # GREP-TEST'), 'pre1-pre2-', 'Always: test1';
+## Clear: ... But through it all, when there was doubt
+$cl.qa('$way = "";  # GREP-TEST');
+$cl.qa('%% always clear my way  # GREP-TEST');
+is $cl.qa('$way;  # GREP-TEST'), '', 'New var';
+## Post: ... I ate it up and spit it out
+is $cl.qa('%% always append $way ~= "-post1";  # GREP-TEST'), '', 'Always: register post1';
+is $cl.qa('%% always append $way ~= "-post2";  # GREP-TEST'), '', 'Always: register post2';
+is $cl.qa('my $no-warn = $way;  # GREP-TEST'), '-post1-post2', 'Always: test post1';
+is $cl.qa('$no-warn = $way;  # GREP-TEST'), '-post1-post2-post1-post2', 'Always: test post2';
+$cl.qa('%% always clear my way # GREP-TEST');
+$cl.qa('$way = "";');
+## Combine: ... I faced it all and I stood tall
+{
+    my $file will leave {.unlink} = $*TMPDIR.child("test.$*PID");
+    $file.spurt: 'my $imported = "I traveled each and every highway";';
+    # Cannot make a GREP-TEST Here or it is considered as path
+    is $cl.qa("%% always prepend %% run $file"), '', 'Always: Combining with run';
+    is $cl.qa('$imported;  # GREP-TEST'), 'I traveled each and every highway', 'Always: Combined with run';
+    $cl.qa('%% always clear my way  # GREP-TEST');
+    $cl.qa('$way = "";');
+}
+$cl.qa('%% always clear my way  # GREP-TEST');
+$cl.qa('$way = "";');
+## Multiline: ... And did it my way
+is $cl.qa("%% always prepend  # GREP-TEST\n\$way ~= 'multi1-';  # GREP-TEST\n \n\$way ~= 'multi2-'; \n\n"), '', 'Always: register multiline';
+is $cl.qa('$way ~= "mid-";  # GREP-TEST'), 'multi1-multi2-mid-', 'Always: multiline 1';
+is $cl.qa('$way ~= "last";  # GREP-TEST'), 'multi1-multi2-mid-multi1-multi2-last', 'Always: multiline 2';
+$cl.qa('%% always clear my way  # GREP-TEST');
 
 # Test history
 $cl.wait-history;

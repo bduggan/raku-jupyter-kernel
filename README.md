@@ -160,6 +160,14 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
   if any lexical variables, subroutines, etc. are declared in FILENAME,
   they will become available in the notebook execution context.
 
+  * `%% always [SUBCOMMAND] CODE`: SUBCOMMAND defaults to `prepend` but can be:
+    * `prepend`: Prepend each cell by `CODE;\n`
+    * `append`: Append `;\nCODE` after each command
+    * `clear`: Clear all `always` registered actions
+    * `show`: Show `always` registered actions
+  You can combine it with another magic. For example:
+  `%% always prepend %% run file.raku`
+
 * __Comms:__  Comms allow for asynchronous communication between a notebook
 and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
 
