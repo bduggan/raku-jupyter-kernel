@@ -133,6 +133,7 @@ method run($spec-file!) {
             when 'execute_request' {
                 $iopub_supplier.emit: ('status', { :execution_state<busy> });
                 my $code = ~ $msg<content><code>.subst(:g, / \\ $$/, '');
+                my $silent = $msg<content><silent>;
                 .append($code,:$!execution_count) with $history;
                 my $status = 'ok';
                 my $magic = $.magics.find-magic($code);
@@ -155,8 +156,8 @@ method run($spec-file!) {
                 }
                 my %extra;
                 $status = 'error' with $result.exception;
-                $iopub_supplier.emit: ('execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) });
-                unless $result.output-raw === Nil {
+                $iopub_supplier.emit: ('execute_input', { :$code, :$!execution_count, :metadata(Hash.new()) }) unless $silent;
+                unless $silent || $result.output-raw === Nil {
                     $iopub_supplier.emit: ('execute_result',
                                 { :$!execution_count,
                                 :data( $result.output-mime-type => $result.output ),
@@ -178,7 +179,7 @@ method run($spec-file!) {
                         "engine" => $.engine-id,
                         :$status,
                         "started" => ~DateTime.new(now),
-                    });
+                    }) unless $silent;
                 $!execution_count++;
             }
             when 'is_complete_request' {
