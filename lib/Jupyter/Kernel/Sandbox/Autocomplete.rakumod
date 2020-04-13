@@ -110,9 +110,8 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
         when /^ <magic-pre> /
                 and (my $rest = $_.subst(/^ <magic-pre> /, ''); True)
                 and (my $match = $/)
-                and (so magic-words.grep(*.starts-with($rest))) {
+                and (so (my @words = magic-words.grep(*.starts-with($rest)))) {
             info "Completion: magic";
-            my @words = magic-words.grep(*.starts-with($rest));
             my $found = @words.map($match ~ *).sort.Array;
             return 0, $p, $found;
         }
