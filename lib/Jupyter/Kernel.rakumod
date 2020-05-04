@@ -170,7 +170,7 @@ method run($spec-file!) {
                 $iopub_supplier.emit: ('status', { :execution_state<idle>, });
                 # Wait for the iopub to be delivered before reply
                 my $content = { :$status, |%extra, :$!execution_count,
-                       user_variables => {}, payload => [], user_expressions => {} }
+                       payload => [], user_expressions => {} }
                 # Wait iopub
                 await Promise.anyof($iopub_promise, Promise.in(0.2));
                 $shell.send: 'execute_reply',
