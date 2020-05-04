@@ -59,8 +59,8 @@ class Magic {
 my class Magic::JS is Magic {
     method preprocess($code!) {
         return Result.new:
-            stdout => $code,
-            stdout-mime-type => 'application/javascript';
+            output => $code,
+            output-mime-type => 'application/javascript';
     }
 }
 
