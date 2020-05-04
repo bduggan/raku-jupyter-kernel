@@ -125,6 +125,7 @@ method run($spec-file!) {
     try {
         my $msg = $shell.read-message;
         $iopub.parent = $msg;
+        $shell.parent = $msg;
         debug "shell got a message: { $msg<header><msg_type> }";
         given $msg<header><msg_type> {
             when 'kernel_info_request' {
