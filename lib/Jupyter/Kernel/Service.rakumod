@@ -76,7 +76,7 @@ method send($type, $message, :$metadata = {} ) {
         msg_type => $type,
         session => $!session,
         username => 'kernel',
-        version => '5.0',
+        version => '5.3',
     };
 
     my @parts = (
