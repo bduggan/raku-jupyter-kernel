@@ -35,7 +35,7 @@ class MockResult {
     ok my $magic = $m.find-magic($code), 'preprocess recognized %% javascript';
     is $code, "hello world\n", 'find-magic removed magic line';
     my $r = $magic.preprocess($code);
-    is $r.stdout-mime-type, 'application/javascript', 'js magic set the mime type';
+    is $r.output-mime-type, 'application/javascript', 'js magic set the mime type';
 }
 {
     my $code = q:to/DONE/;
