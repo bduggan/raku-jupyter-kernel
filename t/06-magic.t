@@ -156,7 +156,7 @@ class MockResult {
        }
 }
 {
-    my $cmd = 'LANG= ls /no/such/file/i/hope';
+    my $cmd = 'LANG=C LC_ALL=C ls /no/such/file/i/hope';
     my $cell = ( '%% bash', $cmd).join("\n");
     my $magic = $m.find-magic($cell);
     ok $magic, 'found bash magic';
