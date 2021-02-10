@@ -13,6 +13,7 @@ use Jupyter::Kernel::History;
 
 has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
+    status => 'ok',
     protocol_version => '5.0',
     implementation => 'p6-jupyter-kernel',
     implementation_version => '0.0.17',
@@ -20,9 +21,9 @@ has $.kernel-info = {
         name => 'raku',
         version => ~$*RAKU.version,
         mimetype => 'text/plain',
-        file_extension => '.p6',
+        file_extension => '.raku',
     },
-    banner => "Welcome to Raku 🦋 ({ $*RAKU.compiler.name } { $*RAKU.compiler.version }).",
+    banner => "Welcome to Raku 🦋 ({ $*RAKU.compiler.name } { $*RAKU.compiler.version })."
 }
 has $.magics = Jupyter::Kernel::Magics.new;
 has Int $.execution_count = 1;
@@ -113,7 +114,7 @@ method run($spec-file!) {
     # Iostream
     $iopub_supplier.Supply.tap( -> ($tag, %dic) {
         $iopub.send: $tag, %dic;
-        $iopub_promise.break if $tag eq 'status'
+        try $iopub_promise.break if $tag eq 'status'
             and %dic{'execution_state'} and %dic{'execution_state'} eq 'idle';
     });
 
@@ -130,6 +131,7 @@ method run($spec-file!) {
         given $msg<header><msg_type> {
             when 'kernel_info_request' {
                 $shell.send: 'kernel_info_reply', $.kernel-info;
+                $iopub_supplier.emit: ('status', { :execution_state<idle> });
             }
             when 'execute_request' {
                 $iopub_supplier.emit: ('status', { :execution_state<busy> });
@@ -233,6 +235,11 @@ method run($spec-file!) {
                 my ($comm_id, $data) = $msg<content><comm_id data>;
                 debug "comm_msg for $comm_id";
                 $.handler.comms.send-to-comm(:id($comm_id), :$data);
+            }
+            when 'comm_info_request' {
+                debug "comm_info_request " ~ $msg<content>.raku;
+                my $name = $msg<content><target_name>;
+                $shell.send: 'comm_info_reply', $.handler.comms.comm-ids;
             }
             default {
                 warning "unimplemented message type: $_";
