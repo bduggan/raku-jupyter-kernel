@@ -234,6 +234,11 @@ method run($spec-file!) {
                 debug "comm_msg for $comm_id";
                 $.handler.comms.send-to-comm(:id($comm_id), :$data);
             }
+            when 'comm_info_request' {
+                debug "comm_info_request " ~ $msg<content>.raku;
+                my $name = $msg<content><target_name>;
+                $shell.send: 'comm_info_reply', $.handler.comms.comm-ids;
+            }
             default {
                 warning "unimplemented message type: $_";
             }
