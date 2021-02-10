@@ -13,16 +13,20 @@ use Jupyter::Kernel::History;
 
 has $.engine-id = ~UUID.new: :version(4);
 has $.kernel-info = {
-    protocol_version => '5.0',
+    status => 'ok',
+    protocol_version => '5.0.0',
     implementation => 'p6-jupyter-kernel',
     implementation_version => '0.0.17',
     language_info => {
         name => 'raku',
         version => ~$*RAKU.version,
         mimetype => 'text/plain',
-        file_extension => '.p6',
+        file_extension => '.raku',
     },
     banner => "Welcome to Raku 🦋 ({ $*RAKU.compiler.name } { $*RAKU.compiler.version }).",
+    help_links => [
+      'Raku Documentation' => 'https://docs.raku.org',
+    ]
 }
 has $.magics = Jupyter::Kernel::Magics.new;
 has Int $.execution_count = 1;
