@@ -29,5 +29,9 @@ method comm-ids {
 
 method send-to-comm(:$id,:$data) {
     debug "sending $data to $id";
+    without %.comms{ $id } {
+      warning "could not find comm for $id, dropping message";
+      return;
+    }
     %.comms{ $id }.in.send: $data;
 }
