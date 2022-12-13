@@ -142,8 +142,9 @@ method run($spec-file!) {
                 my $magic = $.magics.find-magic($code);
                 my $result;
                 $result = .preprocess($code) with $magic;
+                my $out-mime-type = .?stdout.?mime-type with $magic;
                 without $result {
-                  my $p = start $.sandbox.eval($code, :store($!execution_count));
+                  my $p = start $.sandbox.eval($code, :store($!execution_count), :$out-mime-type);
                   my $r = await Promise.anyof($p, $sigint);
                   if $sigint {
                     $result = Jupyter::Kernel::Response::Abort.new;
