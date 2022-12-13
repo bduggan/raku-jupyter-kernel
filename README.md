@@ -138,7 +138,11 @@ named `$Out`.  You can read from this directly or:
 of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
 by the kernel.  See EXAMPLES.  The following magics are supported:
 
-  * `#% javascript`: return the code as javascript to the browser
+  * `#% javascript`: interpret the cell as javascript; i.e. run it in the browser
+
+  * `#% js`: return the output as javascript
+
+  * `#% > js`: return stdout as javascript
 
   * `#% html`: return the output as html
 
@@ -146,8 +150,10 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
    the output in `\begin{equation}` and `\end{equation}`.  (Or replace
    "`equation`" with another string to use something else.)
 
-  * `#% html > latex`: The above two can be combined to render, for instance,
-  the output cell as HTML, but stdout as LaTeX.
+  * `#% html > latex`: The above can be combined to render, for instance,
+  the output cell as HTML, but stdout as LaTeX.   The word before the `>`
+  indicates the type of the output cell.  The word after the `>` indictes
+  the type of stdout.
 
   * `%% bash`: Interpret the cell as bash.  stdout becomes the contents of
   the next cell.  Behaves like Raku's built-in `shell`.

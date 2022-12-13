@@ -23,10 +23,11 @@ my $iopub_channel = $iopub_supplier.Supply.Channel;
 ok defined($sandbox), 'make a new sandbox';
 
 sub stream {
-    my (@out, @err);
+    my (@out, @err, @out-mime);
     while my $msg = $iopub_channel.poll {
         if $msg[0] eq 'display_data' {
             @out.push($msg[1]<data>.values[0]);
+            @out-mime.push($msg[1]<data>.keys[0]);
         }
         next unless $msg[0] eq 'stream';
         if $msg[1]<name> eq 'stdout' {
@@ -35,7 +36,7 @@ sub stream {
             @err.push($msg[1]<text>);
         }
     }
-    return {:@out, :@err}
+    return {:@out, :@err, :@out-mime}
 }
 
 sub qa (Str $code, Bool :$no-persist, Int :$store){
@@ -54,7 +55,7 @@ ok !$a<res>.output-raw, 'no output, sent to stdout';
 is $a<std><out>[0], "hello\n", 'right value on stdout';
 
 ok !$a<res>.incomplete, 'not incomplete';
-is mime-type($a<std><out>[0]), 'text/plain', 'right mime-type on stdout';
+is $a<res>.output-mime-type, 'text/plain', 'right mime-type on stdout';
 
 $a = qa('note "goodbye"');
 ok !$a<res>.output-raw, 'no output, sent to stderr';
@@ -82,7 +83,7 @@ is $res.output-mime-type, 'text/plain', 'mime type';
 
 $a = qa('say "<svg></svg>"');
 is $a<std><out>[0], "<svg></svg>\n", 'generated svg on stdout';
-is mime-type($a<std><out>[0]), 'image/svg+xml', 'svg mime type on stdout';
+is $a<std><out-mime>[0], "image/svg+xml", 'svg mime type on stdout';
 
 $res = qa('"<svg></svg>";')<res>;
 is $res.output, '<svg></svg>', 'generated svg output';
