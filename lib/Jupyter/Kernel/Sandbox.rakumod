@@ -17,6 +17,9 @@ sub mime-type($str) is export {
         when /:i ^ '<svg' / {
             'image/svg+xml';
         }
+        when /:i ^ '<img' / {
+            'text/html';
+        }
         default { 'text/plain' }
     }
 }
