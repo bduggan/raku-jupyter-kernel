@@ -37,6 +37,9 @@ class Magic::Filter {
 class Magic::Filter::HTML is Magic::Filter {
     has $.mime-type = 'text/html';
 }
+class Magic::Filter::Javascript is Magic::Filter {
+    has $.mime-type = 'application/javascript';
+}
 class Magic::Filter::Latex is Magic::Filter {
     has $.mime-type = 'text/latex';
     has Str $.enclosure;
@@ -185,9 +188,13 @@ grammar Magic::Grammar {
     token mime {
        | <html>
        | <latex>
+       | <javascript>
     }
     token html {
         'html'
+    }
+    token javascript {
+         'javascript' || 'js'
     }
     token latex {
         'latex' [ '(' $<enclosure>=[ \w | '*' ]+ ')' ]?
@@ -230,10 +237,13 @@ class Magic::Actions {
         $/.make: Magic::Filters.new: |%args;
     }
     method mime($/) {
-        $/.make: $<html>.made // $<latex>.made;
+        $/.make: $<html>.made // $<latex>.made // $<javascript>.made;
     }
     method html($/) {
         $/.make: Magic::Filter::HTML.new;
+    }
+    method javascript($/) {
+        $/.make: Magic::Filter::Javascript.new;
     }
     method latex($/) {
         my %args = :enclosure('');
