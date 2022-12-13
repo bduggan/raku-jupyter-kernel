@@ -1,7 +1,7 @@
 {
     "name" : "Jupyter::Kernel",
-    "source-url" : "git://github.com/bduggan/p6-jupyter-kernel.git",
-    "perl" : "6.*",
+    "source-url" : "git://github.com/bduggan/raku-jupyter-kernel.git",
+    "raku" : "6.*",
     "build-depends" : [ ],
     "provides" : {
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.rakumod",
