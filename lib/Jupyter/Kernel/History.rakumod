@@ -13,7 +13,8 @@ method init {
   if self.read -> $lines {
     $!session-count = $lines[*-1][0] + 1;
   }
-  $!h_history = $.history-file.open(:a, :!out-buffer);
+  $!h_history = try $.history-file.open(:a, :!out-buffer);
+  warning "$!" if $!;
   self;
 }
 
@@ -23,6 +24,7 @@ method read {
 }
 
 method append($code, Int :$execution_count!) {
+  return without $!h_history;
   if $execution_count != $!execution-count + 1 {
     warning "history count is wrong ($execution_count vs $!execution-count)"
   }
