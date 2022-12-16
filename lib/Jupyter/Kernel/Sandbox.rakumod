@@ -140,7 +140,7 @@ class Jupyter::Kernel::Sandbox is export {
         }
         given $output {
             $_ = Nil if .?__hide;
-            $_ = Nil if $_ ~~ List and .elems and .[*-1].?__hide;
+            $_ = Nil if try { $_ ~~ List and .elems and .[*-1].?__hide }
             $_ = Nil if $_ === Any;
         }
 
