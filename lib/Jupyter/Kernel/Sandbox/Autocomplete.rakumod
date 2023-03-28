@@ -174,7 +174,8 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my $found = ( |($possible.keys),
                           |( CORE::.keys ),
                           |($.handler.keywords),
-                          |($.handler.loaded),
+                          # disabled: not working on raku >= 2022.12
+                          # |($.handler.loaded),
                         ).grep( { /^ '&'? "$last" / }
                         ).sort.map: { .subst('&', '') }
             @bare.append: @$found if $found;
