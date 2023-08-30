@@ -37,6 +37,9 @@ class Magic::Filter {
 class Magic::Filter::HTML is Magic::Filter {
     has $.mime-type = 'text/html';
 }
+class Magic::Filter::Markdown is Magic::Filter {
+    has $.mime-type = 'text/markdown';
+}
 class Magic::Filter::Javascript is Magic::Filter {
     has $.mime-type = 'application/javascript';
 }
@@ -187,11 +190,15 @@ grammar Magic::Grammar {
     }
     token mime {
        | <html>
+       | <markdown>
        | <latex>
        | <javascript>
     }
     token html {
         'html'
+    }
+    token markdown {
+        'markdown' || 'md'
     }
     token javascript {
          'javascript' || 'js'
@@ -237,10 +244,13 @@ class Magic::Actions {
         $/.make: Magic::Filters.new: |%args;
     }
     method mime($/) {
-        $/.make: $<html>.made // $<latex>.made // $<javascript>.made;
+        $/.make: $<html>.made // $<markdown>.made // $<latex>.made // $<javascript>.made;
     }
     method html($/) {
         $/.make: Magic::Filter::HTML.new;
+    }
+    method markdown($/) {
+        $/.make: Magic::Filter::Markdown.new;
     }
     method javascript($/) {
         $/.make: Magic::Filter::Javascript.new;
