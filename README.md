@@ -1,249 +1,224 @@
-Jupyter::Kernel for Raku
-----------------
-[![Binder](https://binder.pangeo.io/badge_logo.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master?filepath=hello-world.ipynb)
+# Jupyter::Chatbook
 
-![autocomplete](https://user-images.githubusercontent.com/58956/29986517-c6a2020e-8f31-11e7-83da-086ad18bc662.gif)
+## In brief
 
-This is a pure Raku implementation of a Raku kernel for Jupyter clients¹.
+This Raku package is fork of Brian Duggan's 
+["Jupyter::Kernel"](https://github.com/bduggan/raku-jupyter-kernel).
+
+("Jupyter::Kernel" is a pure Raku implementation of a Raku kernel for Jupyter clients¹.
 
 Jupyter notebooks provide a web-based (or console-based)
 Read Eval Print Loop (REPL) for running code and serializing input and output.
 
-REALLY QUICK START
--------------------
+It is desirable to include the interaction Large Language Models (LLMs) to the "usual" REPL.
 
-[Binder](https://mybinder.org/) provides a way to instantly launch a Docker
-image and open a notebook².  Click `launch | binder` above
-to start this kernel with a sample notebook.  (See below
-for similar alternatives.)
+Having LLM-aware and LLM-chat-endowed notebooks can really speed up the:
+- Utilization of Raku 
+  - Derivation of useful (actionable) code
+- Adoption of Raku by newcomers
+- Writing and preparation of documents on variety of subjects
 
-QUICK START
------------
+This repository is mostly for experimental work, but it aims to be *always* very
+useful for interacting with Large Language Models (LLMs) via Raku.
 
-* [Installation](#Installation)
-* [Configuration](#Configuration)
-* [Running](#Running)
+**Remark:** The reason to have a separate package -- a fork of
+["Jupyter::Kernel"](https://github.com/bduggan/raku-jupyter-kernel) --
+is because:
+- I plan to introduce 4-6 new package dependencies
+- I expect to do a fair amount of UX experimental implementations and refactoring
 
-### Installation
-You'll need to install zmq.  Note that currently, version 4.1 is
-recommended by Net::ZMQ (though 4.2 is installed by, e.g. homebrew).
-If you run into stability issues, you may need to downgrade.
+**Remark:** I am convinced that using "Jupyter::Kernel" as a base, some fairly sophisticated, 
+yet natural programming workflows can be produced.
 
-```
-brew install zmq           # on OS/X
-apt-get install libzmq-dev # on Ubuntu
-```
 
-You'll also want jupyter, for the front end:
-
-```
-pip install jupyter
-```
-
-Finally, install `Jupyter::Kernel`:
-
-```
-zef install Jupyter::Kernel
-```
-
-At the end of the above installation, you'll see the location
-of the `bin/` directory which has `jupyter-kernel.raku`.  Make
-sure that is in your `PATH`.
-
-### Configuration
-#### Server Configuration
-To generate a configuration directory, and to install a kernel
-config file and icons into the default location:
-```
-jupyter-kernel.raku --generate-config
-```
-* Use `--location=XXX` to specify another location.
-* Use `--force` to override an existing configuration.
-
-#### Logging
-By default a log file `jupyter.log` will be written in the
-current directory.  An option `--logfile=XXX` argument can be
-added to the argv argument of the server configuration file
-(located at `$(jupyter --data)/kernels/raku/kernel.json`)
-to change this.
-
-#### Client configuration
-The jupyter documentation describes the client configuration.
-To start, you can generate files for the notebook or
-console clients like this:
-```
-jupyter notebook --generate-config
-jupyter console --generate-config
-```
-Some suggested configuration changes for the console client:
-
-   * set `kernel_is_complete_timeout` to a high number.  Otherwise,
-     if the kernel takes more than 1 second to respond, then from
-     then on, the console client uses internal (non-Raku) heuristics
-     to guess when a block of code is complete.
-
-   * set `highlighting_style` to `vim`.  This avoids having dark blue
-     on a black background in the console client.
-
-### Running
-Start the web UI with:
-```
-jupyter-notebook
-Then select New -> Raku.
-```
-
-You can also use it in the console like this:
-```
-jupyter-console --kernel=raku
-```
-
-Or make a handy shell alias:
-
-```
-alias iraku='jupyter-console --kernel=raku'
-```
-
-FEATURES
------------
-
-* __Autocompletion:__  Typing `[tab]` in the client will send an autocomplete request.  Possible autocompletions are:
-
-  * methods: after a `.` the invocant will be evaluated to find methods
-
-  * set operators: after a ` (`, set operators (unicode and texas) will be shown (note the whitespace before the `(`)).
-
-  * equality/inequality operators: after `=`, ` <`, or ` >`, related operators will be shown.
-
-  * autocompleting ` *` or ` /` will give `×` or `÷` respectively.
-
-  * autocompleting ` **` or a superscript will give you superscripts (for typing exponents).
-
-  * the word 'atomic' autocompletes to the [atomic operators](https://docs.raku.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
-
-  * a colon followed by a sequence of word characters will autocomplete
-    to characters whose unicode name contains that string.  Dashes are
-    treated as spaces.
-    e.g. :straw will find 🍓 ("STRAWBERRY") or 🥤 ("CUP WITH STRAW")  and :smiling-face-with-smiling-eye will find 😊 ("SMILING FACE WITH SMILING EYES")
-
-* __Keep output:__  All cells are evaluated in item context.  Outputs are then saved to an array
-named `$Out`.  You can read from this directly or:
-
-  * via the subroutine `Out` (e.g. `Out[3]`)
-
-  * via an underscore and the output number (e.g. `_3`)
-
-  * for the most recent output: via a plain underscore (`_`).
-
-* __Magics:__  There is some support for jupyter "magics".  If the first line
-of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
-by the kernel.  See EXAMPLES.  The following magics are supported:
-
-  * `#% javascript`: interpret the cell as javascript; i.e. run it in the browser
-
-  * `#% js`: return the output as javascript
-
-  * `#% > js`: return stdout as javascript
-
-  * `#% html`: return the output as html
-
-  * `#% latex`: return the output as LaTeX.  Use `latex(equation)` to wrap
-   the output in `\begin{equation}` and `\end{equation}`.  (Or replace
-   "`equation`" with another string to use something else.)
-
-  * `#% html > latex`: The above can be combined to render, for instance,
-  the output cell as HTML, but stdout as LaTeX.   The word before the `>`
-  indicates the type of the output cell.  The word after the `>` indictes
-  the type of stdout.
-
-  * `%% bash`: Interpret the cell as bash.  stdout becomes the contents of
-  the next cell.  Behaves like Raku's built-in `shell`.
-
-  * `%% run FILENAME`: Prepend the contents of FILENAME to the
-  contents of the current cell (if any) before execution.
-  Note this is different from the built-in `EVALFILE` in that
-  if any lexical variables, subroutines, etc. are declared in FILENAME,
-  they will become available in the notebook execution context.
-
-  * `%% always [SUBCOMMAND] CODE`: SUBCOMMAND defaults to `prepend` but can be:
-    * `prepend`: Prepend each cell by `CODE;\n`
-    * `append`: Append `;\nCODE` after each command
-    * `clear`: Clear all `always` registered actions
-    * `show`: Show `always` registered actions
-  You can combine it with another magic. For example:
-  `%% always prepend %% run file.raku`
-
-* __Comms:__  Comms allow for asynchronous communication between a notebook
-and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
-
-### Usage notes
-
-* In the console, pressing return will execute the code in a cell.  If you want
-a cell to span several lines, put a `\` at the end of the line, like so:
-
-```
-In [1]: 42
-Out[1]: 42
-
-In [2]: 42 +
-Out[2]: Missing required term after infix
-
-In [3]: 42 + \
-      : 10 + \
-      : 3 + \
-      : 12
-Out[3]: 67
-```
-
-Note that this is not the same as the raku 'unspace' -- a backslash followed
-by a newline will be replaced with a newline before the code is executed.  To
-create an unspace at the end of the line, you can use two backslashes.
-
-DOCKER
 -------
 
-[This blog post](https://sumankhanal.netlify.com/post/raku_notebook/) provides
-a tutorial for running this kernel with Docker.  [This one](https://sumdoc.wordpress.com/2018/01/04/using-perl-6-notebooks-in-binder/) describes using [Binder](https://mybinder.org/).
+## Installation and setup
 
-EXAMPLES
---------
+Follow the instructions of
+["Jupyter::Kernel"](https://github.com/bduggan/raku-jupyter-kernel).
 
-The [eg/](eg/) directory of this repository has some
-example notebooks:
+-------
 
-*  [Hello, world](eg/hello-world.ipynb).
+## Alternative Raku Literate programming solutions
 
-*  [Generating an SVG](eg/svg.ipynb).
+### Computational Markdown documents
 
-*  [Some unicodey math examples](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/math.ipynb)
+The Raku package
+["Text::CodeProcessing"](https://raku.land/zef%3Aantononcube/Text%3A%3ACodeProcessing)
+can be used to do 
+[Literate programming](https://en.wikipedia.org/wiki/Literate_programming)
+with Raku; see [AA1, AAv1].
 
-*  [magics](http://nbviewer.jupyter.org/github/bduggan/p6-jupyter-kernel/blob/master/eg/magics.ipynb)
+"Text::CodeProcessing" works with Markdown, Org-mode, and Pod6 files.
 
-SEE ALSO
---------
-* [Docker image for Raku](https://hub.docker.com/r/sumankhanal/raku-notebook/)
+Here is typical workflow:
 
-* [iperl6kernel](https://github.com/timo/iperl6kernel)
+1. One can use a Markdown editor (
+[Visual Studio Code](https://en.wikipedia.org/wiki/Visual_Studio_Code) / 
+[Emacs](https://www.gnu.org/software/emacs/) / 
+[CommaIDE](https://commaide.com) / 
+[IntelliJ IDEA](https://www.jetbrains.com/idea/) / 
+[One Markdown](https://apps.apple.com/us/app/one-markdown/id1507139439)) 
+to write a "work" Markdown document. 
 
-KNOWN ISSUES
----------
-* Newly declared methods might not be available in autocompletion unless SPESH is disabled (see tests in [this PR](https://github.com/bduggan/p6-jupyter-kernel/pull/11)).
+2. That Markdown file can be "executed" using "Text::CodeProcessing". 
 
-THANKS
---------
-Matt Oates
+3. The obtained, "woven" Markdown file has the results of 
+the Raku (and Shell, and OpenAI, and PaLM) code cells in the original document.
 
-Suman Khanal
+4. The content of the "work" document can be refined based in the results displayed in
+the "woven" document.
 
-Timo Paulssen
+5. If "more intensive interaction" is needed one can convert one of the Markdown files into a notebook. 
+   - ["Markdown::Grammar"](https://raku.land/zef:antononcube/Markdown::Grammar), [AAp3], can convert to Mathematica notebooks.
+   - ["jupytext"](https://jupytext.readthedocs.io/) can convert to Jupyter notebooks.
 
-Tinmarino
+See the demo recording
+["Raku Literate Programming via command line pipelines"](https://www.youtube.com/watch?v=2UjAdQaKof8), [AAv1], (4.5 min.)
+
+**LLM usage:** Markdown cells with message to be send to OpenAI or PaLM can be specified.
+See [AA2, AA3].
+
+### Mathematica notebooks
+
+The creation of Jupyter notebooks were inspired from
+[Mathematica's](https://www.wolfram.com/mathematica/?source=nav)
+notebooks. (Jupyter, instead of S-expressions uses JSON format.)
+
+So, instead of using Jupyter's framework for having a *Raku notebook solution*, 
+the much more mature framework of Mathematica can be used. See: 
+
+- The Raku package ["Text::CodeProcessing"](https://raku.land/zef%3Aantononcube/Text%3A%3ACodeProcessing), [AAp1]
+- The WL paclet ["RakuMode"](https://resources.wolframcloud.com/PacletRepository/resources/AntonAntonov/RakuMode/), [AAp2]
+
+See the demo recordings:
+- ["Racoons playing with pearls and onions"](https://www.youtube.com/watch?v=zlkoNZK8MpU), [AAv2]
+- ["Streamlining ChatGPT code generation and narration workflows (Raku)"](https://www.youtube.com/watch?v=mI-oWLz5dYY), [AAv2]
 
 
-FOOTNOTES
---------
+------
+
+## Examples
+
+⎡*See the notebook "Chatbook cells usage examples".*⎦
+
+-------
+
+## Motivation (... or just a rant)
+
+One of my "missions" with Raku is to have a reasonable set of Machine Learning (ML) algorithms implemented (only) with Raku.
+Another "mission" is to endow Raku with a Large Language Models (LLMs) system that integrates very well with Raku and Raku's ecosystem.
+Having "simple" ML algorithms, integrated LLMs interaction,
+and Raku's text processing abilities should produce a very attractive system for doing science and mathematics.
+(At least to a point.)
+
+When Raku is "not enough" I am trying to use natural Domain Specific Languages (DSLs) to generate executable code to other programming languages and their ecosystems.
+I mostly target Mathematica, R, and Python. (In that order of priority.)
+(The DSLs parsers-interpreters are, of course, written in Raku.)
+
+I think the main and most challenging Raku deficiencies for doing science and mathematics are not having:
+1. Robust, interactive "notebook solution"
+2. Easy to invoke and use graphics system
+
+There are half a dozen efforts for point 1: "Jupyter::Kernel", "Text::CodeProcessing" and "RakuMode", VSCode LSP, Emacs-mode, and maybe others.
+
+I do not consider "Jupyter::Kernel" and "RakuMode" reliable.
+For point 2 -- there are a few graphics solutions for Raku. In my opinion none of them:
+- Is easy to install and invoke
+- And is easy to use
+- And produces pretty, tunable, useful graphics
+
+The last point strongly depends upon having a robust interactive notebook solution.
+
+
+------
+
+## References
+
+
+### Articles
+
+[AA1] Anton Antonov,
+["Literate programming via CLI"](https://rakuforprediction.wordpress.com/2023/03/06/literate-programming-via-cli/),
+(2023),
+[RakuForPrediction at WordPress](https://rakuforprediction.wordpress.com).
+
+[AA2] Anton Antonov,
+["Generating documents via templates and LLMs"](https://rakuforprediction.wordpress.com/2023/07/11/generating-documents-via-templates-and-llms/),
+(2023),
+[RakuForPrediction at WordPress](https://rakuforprediction.wordpress.com).
+
+[AA3] Anton Antonov,
+["Workflows with LLM functions"](https://rakuforprediction.wordpress.com/2023/08/01/workflows-with-llm-functions/),
+(2023),
+[RakuForPrediction at WordPress](https://rakuforprediction.wordpress.com).
+
+[AA4] Anton Antonov,
+["Number guessing games: PaLM vs ChatGPT"](https://rakuforprediction.wordpress.com/2023/08/06/number-guessing-games-palm-vs-chatgpt/),
+(2023),
+[RakuForPrediction at WordPress](https://rakuforprediction.wordpress.com).
+
+
+### Packages
+
+[AAp1] Anton Antonov,
+[Text::CodeProcessing Raku package](https://github.com/antononcube/Raku-Text-CodeProcessing),
+(2021),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp2] Anton Antonov,
+[WWW::OpenAI Raku package](https://github.com/antononcube/Raku-WWW-OpenAI),
+(2023),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp3] Anton Antonov,
+[WWW::PaLM Raku package](https://github.com/antononcube/Raku-WWW-PaLM),
+(2023),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp4] Anton Antonov,
+[LLM::Functions Raku package](https://github.com/antononcube/Raku-LLM-Functions),
+(2023),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp4] Anton Antonov,
+[Text::SubParsers Raku package](https://github.com/antononcube/Raku-Text-SubParsers),
+(2023),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp5] Anton Antonov,
+[Data::Translators Raku package](https://github.com/antononcube/Raku-Data-Translators),
+(2023),
+[GitHub/antononcube](https://github.com/antononcube).
+
+[AAp4] Anton Antonov,
+[Clipboard Raku package](https://github.com/antononcube/Raku-Clipboard),
+(2023),
+[GitHub/antononcube](https://github.com/antononcube).
+
+
+### Videos
+
+[AAv1] Anton Antonov,
+["Raku Literate Programming via command line pipelines"](https://www.youtube.com/watch?v=2UjAdQaKof8),
+(2023),
+[YouTube/@AAA4Prediction](https://www.youtube.com/@AAA4prediction).
+
+[AAv2] Anton Antonov,
+["Racoons playing with pearls and onions"](https://www.youtube.com/watch?v=zlkoNZK8MpU)
+(2023),
+[YouTube/@AAA4Prediction](https://www.youtube.com/@AAA4prediction).
+
+[AAv3] Anton Antonov,
+["Streamlining ChatGPT code generation and narration workflows (Raku)"](https://www.youtube.com/watch?v=mI-oWLz5dYY)
+(2023),
+[YouTube/@AAA4Prediction](https://www.youtube.com/@AAA4prediction).
+
+------
+
+## *Footnotes*
 
 ¹ Jupyter clients are user interfaces to interact with an interpreter kernel like `Jupyter::Kernel`.
 Jupyter [Lab | Notebook | Console | QtConsole ] are the jupyter maintained clients.
 More info in the [jupyter documentations site](https://jupyter.org/documentation).
-
-² mybinder.org provides a way to instantly launch a Docker image and open a notebook.
