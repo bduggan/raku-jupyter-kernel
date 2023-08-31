@@ -150,7 +150,7 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
    the output in `\begin{equation}` and `\end{equation}`.  (Or replace
    "`equation`" with another string to use something else.)
 
-  * `#% markdown`: (or `md`) -- the output will be interpreted as markdown.
+  * `#% markdown` (or `md`): the output will be interpreted as markdown.
   Note that this is for generating markdown as the output of a cell, not for
   writing markdown, which can be done without magics.  Also, this simply
   sends the data with the markdown mime-type, and the notebook does the rendering.
