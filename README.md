@@ -150,6 +150,13 @@ by the kernel.  See EXAMPLES.  The following magics are supported:
    the output in `\begin{equation}` and `\end{equation}`.  (Or replace
    "`equation`" with another string to use something else.)
 
+  * `#% markdown`: (or `md`) -- the output will be interpreted as markdown.
+  Note that this is for generating markdown as the output of a cell, not for
+  writing markdown, which can be done without magics.  Also, this simply
+  sends the data with the markdown mime-type, and the notebook does the rendering.
+
+  * `#% > markdown` (or `md`): interpret stdout as markdown
+
   * `#% html > latex`: The above can be combined to render, for instance,
   the output cell as HTML, but stdout as LaTeX.   The word before the `>`
   indicates the type of the output cell.  The word after the `>` indictes
