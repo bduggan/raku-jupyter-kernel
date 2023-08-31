@@ -37,6 +37,9 @@ class Magic::Filter {
 class Magic::Filter::HTML is Magic::Filter {
     has $.mime-type = 'text/html';
 }
+class Magic::Filter::Markdown is Magic::Filter {
+    has $.mime-type = 'text/markdown';
+}
 class Magic::Filter::Javascript is Magic::Filter {
     has $.mime-type = 'application/javascript';
 }
@@ -46,9 +49,9 @@ class Magic::Filter::Latex is Magic::Filter {
     method transform($str) {
         if $.enclosure {
             return
-                '\begin{' ~ $.enclosure ~ "}\n"
-                ~ $str ~ "\n" ~
-                '\end{' ~ $.enclosure  ~ "}\n";
+                    '\begin{' ~ $.enclosure ~ "}\n"
+                            ~ $str ~ "\n" ~
+                            '\end{' ~ $.enclosure  ~ "}\n";
         }
         return $str;
     }
@@ -62,8 +65,8 @@ class Magic {
 my class Magic::JS is Magic {
     method preprocess($code!) {
         return Result.new:
-            output => $code,
-            output-mime-type => 'application/javascript';
+                output => $code,
+                output-mime-type => 'application/javascript';
     }
 }
 
@@ -72,11 +75,11 @@ my class Magic::Bash is Magic {
         my $cmd = (shell $code, :out, :err);
 
         return Result.new:
-            output => $cmd.out.slurp(:close),
-            output-mime-type => 'text/plain',
-            stdout => $cmd.err.slurp(:close),
-            stdout-mime-type => 'text/plain',
-            ;
+                output => $cmd.out.slurp(:close),
+                output-mime-type => 'text/plain',
+                stdout => $cmd.err.slurp(:close),
+                stdout-mime-type => 'text/plain',
+                ;
     }
 }
 
@@ -87,13 +90,13 @@ my class Magic::Run is Magic {
                 stdout => "Missing filename to run.",
                 stdout-mime-type => 'text/plain';
         $.file.IO.e or
-            return Result.new:
-                stdout => "Could not find file: {$.file}",
-                stdout-mime-type => 'text/plain';
+                return Result.new:
+                        stdout => "Could not find file: {$.file}",
+                        stdout-mime-type => 'text/plain';
         given $code {
             $_ = $.file.IO.slurp
-                ~ ( "\n" x so $_ )
-                ~ ( $_ // '')
+                    ~ ( "\n" x so $_ )
+                    ~ ( $_ // '')
         }
         return;
     }
@@ -134,8 +137,8 @@ class Magic::Always is Magic {
             }
         }
         return Result.new:
-            output => $output,
-            output-mime-type => 'text/plain';
+                output => $output,
+                output-mime-type => 'text/plain';
     }
 }
 
@@ -171,30 +174,34 @@ grammar Magic::Grammar {
         [ <simple> || <args> || <filter> || <always> ]
     }
     token simple {
-       $<key>=[ 'javascript' | 'bash' ]
+        $<key>=[ 'javascript' | 'bash' ]
     }
     token args {
-       $<key>='run' $<rest>=.*
+        $<key>='run' $<rest>=.*
     }
     rule filter {
-       [
-           | $<out>=<mime> ['>' $<stdout>=<mime>]?
+        [
+        | $<out>=<mime> ['>' $<stdout>=<mime>]?
            | '>' $<stdout>=<mime>
        ]
     }
     token always {
-       $<key>='always' <.ws> $<subcommand>=[ '' | 'prepend' | 'append' | 'show' | 'clear' ] $<rest>=.*
+        $<key>='always' <.ws> $<subcommand>=[ '' | 'prepend' | 'append' | 'show' | 'clear' ] $<rest>=.*
     }
     token mime {
-       | <html>
-       | <latex>
-       | <javascript>
+        | <html>
+        | <markdown>
+        | <latex>
+        | <javascript>
     }
     token html {
         'html'
     }
+    token markdown {
+        'markdown' || 'md'
+    }
     token javascript {
-         'javascript' || 'js'
+        'javascript' || 'js'
     }
     token latex {
         'latex' [ '(' $<enclosure>=[ \w | '*' ]+ ')' ]?
@@ -227,20 +234,23 @@ class Magic::Actions {
         my $subcommand = ~$<subcommand> || 'prepend';
         my $rest = $<rest> ?? ~$<rest> !! '';
         $/.make: Magic::Always.new(
-            subcommand => $subcommand,
-            rest => $rest);
+                subcommand => $subcommand,
+                rest => $rest);
     }
     method filter($/) {
         my %args =
-            |($<out>    ?? |(out => $<out>.made) !! Empty),
-            |($<stdout> ?? |(stdout => $<stdout>.made) !! Empty);
+                |($<out>    ?? |(out => $<out>.made) !! Empty),
+                |($<stdout> ?? |(stdout => $<stdout>.made) !! Empty);
         $/.make: Magic::Filters.new: |%args;
     }
     method mime($/) {
-        $/.make: $<html>.made // $<latex>.made // $<javascript>.made;
+        $/.make: $<html>.made // $<markdown>.made // $<latex>.made // $<javascript>.made;
     }
     method html($/) {
         $/.make: Magic::Filter::HTML.new;
+    }
+    method markdown($/) {
+        $/.make: Magic::Filter::Markdown.new;
     }
     method javascript($/) {
         $/.make: Magic::Filter::Javascript.new;
@@ -261,7 +271,7 @@ method parse-magic($code is rw) {
     if $match<magic><always> {
         $match = Magic::Grammar.new.parse($code,:$actions);
         $code = '';
-    # Parse only first line otherwise
+        # Parse only first line otherwise
     } else {
         $code .= subst( $magic-line, '');
         $code .= subst( /\n/, '');
