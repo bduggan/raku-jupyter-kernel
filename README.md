@@ -77,13 +77,13 @@ jupyter console --generate-config
 ```
 Some suggested configuration changes for the console client:
 
-* set `kernel_is_complete_timeout` to a high number.  Otherwise,
-  if the kernel takes more than 1 second to respond, then from
-  then on, the console client uses internal (non-Raku) heuristics
-  to guess when a block of code is complete.
+   * set `kernel_is_complete_timeout` to a high number.  Otherwise,
+     if the kernel takes more than 1 second to respond, then from
+     then on, the console client uses internal (non-Raku) heuristics
+     to guess when a block of code is complete.
 
-* set `highlighting_style` to `vim`.  This avoids having dark blue
-  on a black background in the console client.
+   * set `highlighting_style` to `vim`.  This avoids having dark blue
+     on a black background in the console client.
 
 ### Running
 Start the web UI with:
@@ -108,77 +108,77 @@ FEATURES
 
 * __Autocompletion:__  Typing `[tab]` in the client will send an autocomplete request.  Possible autocompletions are:
 
-    * methods: after a `.` the invocant will be evaluated to find methods
+  * methods: after a `.` the invocant will be evaluated to find methods
 
-    * set operators: after a ` (`, set operators (unicode and texas) will be shown (note the whitespace before the `(`)).
+  * set operators: after a ` (`, set operators (unicode and texas) will be shown (note the whitespace before the `(`)).
 
-    * equality/inequality operators: after `=`, ` <`, or ` >`, related operators will be shown.
+  * equality/inequality operators: after `=`, ` <`, or ` >`, related operators will be shown.
 
-    * autocompleting ` *` or ` /` will give `×` or `÷` respectively.
+  * autocompleting ` *` or ` /` will give `×` or `÷` respectively.
 
-    * autocompleting ` **` or a superscript will give you superscripts (for typing exponents).
+  * autocompleting ` **` or a superscript will give you superscripts (for typing exponents).
 
-    * the word 'atomic' autocompletes to the [atomic operators](https://docs.raku.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
+  * the word 'atomic' autocompletes to the [atomic operators](https://docs.raku.org/type/atomicint#Operators).  (Use `atomic-` or `atom` to get the subroutines with their ASCII names).
 
-    * a colon followed by a sequence of word characters will autocomplete
-      to characters whose unicode name contains that string.  Dashes are
-      treated as spaces.
-      e.g. :straw will find 🍓 ("STRAWBERRY") or 🥤 ("CUP WITH STRAW")  and :smiling-face-with-smiling-eye will find 😊 ("SMILING FACE WITH SMILING EYES")
+  * a colon followed by a sequence of word characters will autocomplete
+    to characters whose unicode name contains that string.  Dashes are
+    treated as spaces.
+    e.g. :straw will find 🍓 ("STRAWBERRY") or 🥤 ("CUP WITH STRAW")  and :smiling-face-with-smiling-eye will find 😊 ("SMILING FACE WITH SMILING EYES")
 
 * __Keep output:__  All cells are evaluated in item context.  Outputs are then saved to an array
-  named `$Out`.  You can read from this directly or:
+named `$Out`.  You can read from this directly or:
 
-    * via the subroutine `Out` (e.g. `Out[3]`)
+  * via the subroutine `Out` (e.g. `Out[3]`)
 
-    * via an underscore and the output number (e.g. `_3`)
+  * via an underscore and the output number (e.g. `_3`)
 
-    * for the most recent output: via a plain underscore (`_`).
+  * for the most recent output: via a plain underscore (`_`).
 
 * __Magics:__  There is some support for jupyter "magics".  If the first line
-  of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
-  by the kernel.  See EXAMPLES.  The following magics are supported:
+of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
+by the kernel.  See EXAMPLES.  The following magics are supported:
 
-    * `#% javascript`: interpret the cell as javascript; i.e. run it in the browser
+  * `#% javascript`: interpret the cell as javascript; i.e. run it in the browser
 
-    * `#% js`: return the output as javascript
+  * `#% js`: return the output as javascript
 
-    * `#% > js`: return stdout as javascript
+  * `#% > js`: return stdout as javascript
 
-    * `#% html`: return the output as html
+  * `#% html`: return the output as html
 
-    * `#% latex`: return the output as LaTeX.  Use `latex(equation)` to wrap
-      the output in `\begin{equation}` and `\end{equation}`.  (Or replace
-      "`equation`" with another string to use something else.)
+  * `#% latex`: return the output as LaTeX.  Use `latex(equation)` to wrap
+   the output in `\begin{equation}` and `\end{equation}`.  (Or replace
+   "`equation`" with another string to use something else.)
 
-    * `#% html > latex`: The above can be combined to render, for instance,
-      the output cell as HTML, but stdout as LaTeX.   The word before the `>`
-      indicates the type of the output cell.  The word after the `>` indictes
-      the type of stdout.
+  * `#% html > latex`: The above can be combined to render, for instance,
+  the output cell as HTML, but stdout as LaTeX.   The word before the `>`
+  indicates the type of the output cell.  The word after the `>` indictes
+  the type of stdout.
 
-    * `%% bash`: Interpret the cell as bash.  stdout becomes the contents of
-      the next cell.  Behaves like Raku's built-in `shell`.
+  * `%% bash`: Interpret the cell as bash.  stdout becomes the contents of
+  the next cell.  Behaves like Raku's built-in `shell`.
 
-    * `%% run FILENAME`: Prepend the contents of FILENAME to the
-      contents of the current cell (if any) before execution.
-      Note this is different from the built-in `EVALFILE` in that
-      if any lexical variables, subroutines, etc. are declared in FILENAME,
-      they will become available in the notebook execution context.
+  * `%% run FILENAME`: Prepend the contents of FILENAME to the
+  contents of the current cell (if any) before execution.
+  Note this is different from the built-in `EVALFILE` in that
+  if any lexical variables, subroutines, etc. are declared in FILENAME,
+  they will become available in the notebook execution context.
 
-    * `%% always [SUBCOMMAND] CODE`: SUBCOMMAND defaults to `prepend` but can be:
-        * `prepend`: Prepend each cell by `CODE;\n`
-        * `append`: Append `;\nCODE` after each command
-        * `clear`: Clear all `always` registered actions
-        * `show`: Show `always` registered actions
-          You can combine it with another magic. For example:
-          `%% always prepend %% run file.raku`
+  * `%% always [SUBCOMMAND] CODE`: SUBCOMMAND defaults to `prepend` but can be:
+    * `prepend`: Prepend each cell by `CODE;\n`
+    * `append`: Append `;\nCODE` after each command
+    * `clear`: Clear all `always` registered actions
+    * `show`: Show `always` registered actions
+  You can combine it with another magic. For example:
+  `%% always prepend %% run file.raku`
 
 * __Comms:__  Comms allow for asynchronous communication between a notebook
-  and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
+and the kernel.  For an example of using comms, see [this notebook](eg/comms.ipynb)
 
 ### Usage notes
 
 * In the console, pressing return will execute the code in a cell.  If you want
-  a cell to span several lines, put a `\` at the end of the line, like so:
+a cell to span several lines, put a `\` at the end of the line, like so:
 
 ```
 In [1]: 42
