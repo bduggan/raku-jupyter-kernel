@@ -20,7 +20,7 @@ RUN apt-get update \
     wget libzmq3-dev ca-certificates \
     python3-pip python3-setuptools \
     && rm -rf /var/lib/apt/lists/* && pip3 install jupyter notebook asciinema jupyterlab pyscaffold --no-cache-dir \
-    && zef -v install git://github.com/bduggan/p6-jupyter-kernel.git@0.0.21 --force-test \
+    && zef -v install git://github.com/bduggan/p6-jupyter-kernel.git@0.0.22 --force-test \
     && zef install SVG::Plot --force-test \
     && jupyter-kernel.raku --generate-config \
     && ln -s /usr/share/perl6/site/bin/* /usr/local/bin
