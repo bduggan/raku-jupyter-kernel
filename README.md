@@ -134,6 +134,8 @@ named `$Out`.  You can read from this directly or:
 
   * for the most recent output: via a plain underscore (`_`).
 
+* __Keep input:__ Similiarly, the input text can be accessed via `In[N]` (e.g. `In[3].EVAL` or `In[3].AST` would eval or produce the ast for a cell)
+
 * __Magics:__  There is some support for jupyter "magics".  If the first line
 of a code cell starts with `#%` or `%%`, it may be interpreted as a directive
 by the kernel.  See EXAMPLES.  The following magics are supported:

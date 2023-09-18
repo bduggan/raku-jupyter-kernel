@@ -77,7 +77,9 @@ class Jupyter::Kernel::Sandbox is export {
         $!completer = Jupyter::Kernel::Sandbox::Autocomplete.new(:$.handler);
         self.eval(q:to/INIT/);
             my $Out = [];
+            my $In  = [];
             sub Out { $Out };
+            sub In { $In };
             my \_ = do {
                 state $last;
                 Proxy.new( FETCH => method () { $last },
@@ -104,6 +106,7 @@ class Jupyter::Kernel::Sandbox is export {
                 \$*JUPYTER.set-lang( \$?LANG );
                 \$*JUPYTER.add-lexicals( MY::.keys );
                 \$Out[$store] := _$store;
+                \$In[$store] := q⁅⁅⁅⁅⁅⁅$code⁆⁆⁆⁆⁆⁆;
                 _ = _$store;
                 DONE
         }
