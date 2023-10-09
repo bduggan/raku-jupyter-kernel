@@ -2,6 +2,7 @@
     "name" : "Jupyter::Kernel",
     "source-url" : "git://github.com/bduggan/raku-jupyter-kernel.git",
     "raku" : "6.*",
+    "auth" : "zef:bduggan",
     "build-depends" : [ ],
     "provides" : {
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.rakumod",
