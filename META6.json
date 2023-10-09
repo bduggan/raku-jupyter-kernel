@@ -25,7 +25,7 @@
     ],
     "description" : "Raku Kernel for Jupyter Notebooks",
     "test-depends" : [ ],
-    "version" : "1.0.0",
+    "version" : "1.0.1",
     "license" : "Artistic-2.0",
     "authors" : [
         "Brian Duggan"
