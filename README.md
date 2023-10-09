@@ -43,7 +43,7 @@ pip install jupyter
 Finally, install `Jupyter::Kernel`:
 
 ```
-zef install Jupyter::Kernel
+zef install 'Jupyter::Kernel:auth<zef:bduggan>'
 ```
 
 At the end of the above installation, you'll see the location
