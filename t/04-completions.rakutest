@@ -65,7 +65,7 @@ $r.eval('class Flannel { }; my $d = Flannel.new;', :11store);
 my $from-here = q[$d.c].chars;
 my $str = q[$d.c  and say 'ok'];
 ($pos,$end,$completions) = $r.completions($str,$from-here);
-is $completions, <cache can categorize classify clone collate combinations>, 'Mu class';
+is $completions, <cache can categorize chrs classify clone collate combinations>, 'Mu class';
 
 $res = $r.eval(q|sub flubber { 99 };|, :12store );
 ($pos,$end,$completions) = $r.completions('flubb');
