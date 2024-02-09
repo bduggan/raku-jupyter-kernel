@@ -30,8 +30,7 @@ class Magic::Filter {
         $str;
     }
     method mime-type {
-        # text/plain by default
-        'text/plain';
+        'text/plain'
     }
 }
 class Magic::Filter::HTML is Magic::Filter {
