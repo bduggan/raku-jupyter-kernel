@@ -120,13 +120,13 @@ method complete($str,$cursor-pos=$str.chars,$sandbox = Nil) {
             my @methods = self!find-methods(:$sandbox, var => "$<invocant>", all => so $<method-call>);
             my $meth = ~( $<method-call> // "" );
             my $len = $p - $meth.chars;
-            return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort;
+            return $len, $p, @methods.grep( { / ^ "$meth" / } ).sort.unique;
         }
         when / <invocant> <!after '.'> '.' <!before '.'> <how-call> $/ {
             info "Completion: method how call";
             my @methods = Metamodel::ClassHOW.^methods(:all).map({"^" ~ .name});
             my $meth = ~( $<method-call> // "" );
-            return $p-$<how-call>.chars, $p, @methods.grep({ / ^ "{$<how-call>}" / }).sort;
+            return $p-$<how-call>.chars, $p, @methods.grep({ / ^ "{$<how-call>}" / }).sort.unique;
         }
         when / <import> \s* <modul>? $/ {
             info "Completion: module import";
