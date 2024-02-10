@@ -20,7 +20,7 @@ has $.kernel-info = {
     language_info => {
         name => 'raku',
         version => ~$*RAKU.version,
-        mimetype => 'text/plain',
+        mimetype => 'text/x-raku',
         file_extension => '.raku',
     },
     banner => "Welcome to Raku 🦋 ({ $*RAKU.compiler.name } { $*RAKU.compiler.version })."
