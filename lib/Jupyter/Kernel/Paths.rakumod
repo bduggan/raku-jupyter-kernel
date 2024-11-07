@@ -11,7 +11,7 @@ sub data-dir is export {
         when .is-win {
             '%APPDATA%'.IO.child('jupyter')
         }
-        when .name eq 'macosx' {
+        when .name ~~ /macos/ {
             %*ENV<HOME>.IO.child('Library').child('Jupyter')
         }
         default {
