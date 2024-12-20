@@ -22,9 +22,7 @@ jobs:
       - name: Install native deps
         run: |
           brew install czmq zmq
-          echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          echo "LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH" >> $GITHUB_ENV
+          echo "DYLD_LIBRARY_PATH=/opt/homebrew/lib:/opt/homebrew/Cellar/zeromq/4.3.5_1/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
           brew list zmq
       - uses: Raku/setup-raku@v1
         with:
