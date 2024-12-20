@@ -1,5 +1,8 @@
 Jupyter::Kernel for Raku
 ----------------
+[![Actions Status](https://github.com/bduggan/raku-jupyter-kernel/actions/workflows/linux.yml/badge.svg)](https://github.com/bduggan/raku-jupyter-kernel/actions/workflows/linux.yml)
+[![Actions Status](https://github.com/bduggan/raku-jupyter-kernel/actions/workflows/macos.yml/badge.svg)](https://github.com/bduggan/raku-jupyter-kernel/actions/workflows/macos.yml)
+
 [![Binder](https://binder.pangeo.io/badge_logo.svg)](https://mybinder.org/v2/gh/bduggan/p6-jupyter-kernel/master?filepath=hello-world.ipynb)
 
 ![autocomplete](https://user-images.githubusercontent.com/58956/29986517-c6a2020e-8f31-11e7-83da-086ad18bc662.gif)
