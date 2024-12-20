@@ -25,6 +25,7 @@ jobs:
           echo "PKG_CONFIG_PATH=/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           echo "LIBRARY_PATH=/usr/local/lib:$LIBRARY_PATH" >> $GITHUB_ENV
+          brew list zmq
       - uses: Raku/setup-raku@v1
         with:
           raku-version: ${{ matrix.raku-version }}
