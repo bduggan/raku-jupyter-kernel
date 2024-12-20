@@ -1,0 +1,33 @@
+name: MacOS
+
+on:
+  push:
+    branches:
+      - '*'
+    tags-ignore:
+      - '*'
+  pull_request:
+
+jobs:
+  raku:
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+        raku-version:
+          - 'latest'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install native deps
+        run: |
+          brew install czmq zmq
+          echo "DYLD_LIBRARY_PATH=/opt/homebrew/lib:/opt/homebrew/Cellar/zeromq/4.3.5_1/lib:$DYLD_LIBRARY_PATH" >> $GITHUB_ENV
+          brew list zmq
+      - uses: Raku/setup-raku@v1
+        with:
+          raku-version: ${{ matrix.raku-version }}
+      - name: Install Dependencies
+        run: zef install --deps-only .
+      - name: Run Tests
+        run: zef test -v .
