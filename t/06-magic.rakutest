@@ -1,4 +1,4 @@
-#!/usr/bin/env perl6
+#!/usr/bin/env raku
 use lib 'lib';
 use Test;
 use Log::Async;
@@ -211,4 +211,4 @@ class MockResult {
     like $result.stdout, / 'not find' /, 'error message';
 }
 
-# vim: syn=perl6
+# vim: syn=raku

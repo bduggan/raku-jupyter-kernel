@@ -1,4 +1,4 @@
-#!/usr/bin/env perl6
+#!/usr/bin/env raku
 use lib 'lib';
 use Test;
 use Log::Async;
@@ -60,4 +60,4 @@ is $c.complete('<'), (0, 1, << < ≤ <= >>), 'less than';
 }
 
 done-testing;
-# vim: syn=perl6
+# vim: syn=raku

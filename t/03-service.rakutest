@@ -1,4 +1,4 @@
-#!/usr/bin/env perl6
+#!/usr/bin/env raku
 
 use lib 'lib';
 
@@ -54,4 +54,4 @@ is $msg.receive<content>, "hello", 'router-dealer message sent and received';
 $d.send('other','π');
 is $msg.receive<content>, "π", 'router-dealer message sent and received';
 
-# vim: ft=perl6
+# vim: ft=raku

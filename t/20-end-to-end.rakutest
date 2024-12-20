@@ -1,4 +1,4 @@
-#!/usr/bin/env perl6
+#!/usr/bin/env raku
 
 use lib 'lib';
 use lib 't/lib';
@@ -55,7 +55,7 @@ sub spawn-kernel {
     return Proc::Async.new("raku", "-I$lib", $script, $spec-file).start;
 }
 
-# Remove all 'GREP-TEST' in history <- run perl6
+# Remove all 'GREP-TEST' in history <- run raku
 sub clean-history {
     my $res = '';
     my rule todel { GREP\-TEST };
