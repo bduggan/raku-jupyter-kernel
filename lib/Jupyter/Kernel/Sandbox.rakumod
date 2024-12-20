@@ -1,4 +1,4 @@
-#!perl6
+#!raku
 
 use Log::Async;
 use Jupyter::Kernel::Sandbox::Autocomplete;
