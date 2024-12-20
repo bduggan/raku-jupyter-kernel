@@ -23,6 +23,8 @@ jobs:
       - uses: Raku/setup-raku@v1
         with:
           raku-version: ${{ matrix.raku-version }}
+      - name: Install native deps
+         run: sudo apt-get install -y libzmq-dev
       - name: Install Dependencies
         run: zef install --deps-only .
       - name: Run Tests
