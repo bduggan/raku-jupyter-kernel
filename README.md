@@ -50,7 +50,7 @@ zef install 'Jupyter::Kernel:auth<zef:bduggan>'
 ```
 
 At the end of the above installation, you'll see the location
-of the `bin/` directory which has `jupyter-kernel.raku`.  Make
+of the `bin/` directory which has `raku-jupyter-kernel`.  Make
 sure that is in your `PATH`.
 
 ### Configuration
@@ -58,7 +58,7 @@ sure that is in your `PATH`.
 To generate a configuration directory, and to install a kernel
 config file and icons into the default location:
 ```
-jupyter-kernel.raku --generate-config
+raku-jupyter-kernel --generate-config
 ```
 * Use `--location=XXX` to specify another location.
 * Use `--force` to override an existing configuration.

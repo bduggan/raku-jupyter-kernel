@@ -22,7 +22,7 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* && pip3 install jupyter notebook asciinema jupyterlab pyscaffold --no-cache-dir \
     && zef -v install git://github.com/bduggan/raku-jupyter-kernel.git@1.0.2 --force-test \
     && zef install SVG::Plot --force-test \
-    && jupyter-kernel.raku --generate-config \
+    && raku-jupyter-kernel --generate-config \
     && ln -s /usr/share/perl6/site/bin/* /usr/local/bin
 
 ENV TINI_VERSION v0.18.0

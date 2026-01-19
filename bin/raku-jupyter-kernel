@@ -32,7 +32,7 @@ multi MAIN(Bool :$generate-config!,
             "display_name": "Raku",
             "language": "raku",
             "argv": [
-                "jupyter-kernel.raku",
+                "raku-jupyter-kernel",
                 "{connection_file}"
             ]
         }
