@@ -1,0 +1,5 @@
+2026-01-19 1.0.4
+   - started CHANGES file
+   - rename executable from jupyter-kernel.raku to raku-jupyter-kernel
+
+
