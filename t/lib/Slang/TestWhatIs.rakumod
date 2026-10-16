@@ -5,6 +5,9 @@ say what-is-test;  # OUTPUT: "test is nice"
 
 =end pod
 
+use experimental :rakuast;
+use QAST:from<NQP>;
+
 role TestGrammar {
     token term:sym<what-is-test> { <sym> };
 }
@@ -15,4 +18,14 @@ role TestActions {
     }
 }
 
-use Slangify TestGrammar, TestActions;
+role LegacyTestGrammar {
+    token term:sym<what-is-test> { <sym> };
+}
+
+role LegacyTestActions {
+    method term:sym<what-is-test> (Mu $/) {
+        return make QAST::SVal.new: :value('test is nice');
+    }
+}
+
+use Slangify TestGrammar, TestActions, LegacyTestGrammar, LegacyTestActions;
