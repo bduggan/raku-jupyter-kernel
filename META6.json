@@ -3,7 +3,7 @@
     "source-url" : "git://github.com/bduggan/raku-jupyter-kernel.git",
     "raku" : "6.*",
     "auth" : "zef:bduggan",
-    "build-depends" : [ ],
+    "build-depends" : [ "Slangify" ],
     "provides" : {
         "Jupyter::Kernel" : "lib/Jupyter/Kernel.rakumod",
         "Jupyter::Kernel::Comm" : "lib/Jupyter/Kernel/Comm.rakumod",
