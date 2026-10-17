@@ -1,3 +1,8 @@
-2026-01-19 1.0.4
-   * started CHANGES file
-   * rename executable from jupyter-kernel.raku to raku-jupyter-kernel
+1.0.5 2026-10-17
+   - update failing tests for RakuAST
+   - add more recent version in CI
+   - updates to examples (rcmlz)
+
+1.0.4 2026-01-19
+   - started CHANGES file
+   - rename executable from jupyter-kernel.raku to raku-jupyter-kernel
